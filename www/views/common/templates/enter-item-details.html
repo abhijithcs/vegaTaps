@@ -1,0 +1,54 @@
+<ion-modal-view class="modal-view legal-view">
+  <ion-content>
+    <div class="row copy-row">
+      <div class="col">
+        <h2 class="legal-title" style="margin: 15px 0 5px 0; font-size: 21px; font-weight: bold;">{{myItem.name}}</h2>
+        <div class="legal-content" style="padding: 10px">
+
+          <span style="text-align: center; display: block; color: #444; letter-spacing: 2px;">QUANTITY</span>
+          <div>
+            <div class="row">
+              <div class="col">
+                <button class="guestCountButton" ng-click="myItem.qty = 1; myItem.qtyManual = '';" ng-class="{'active' : myItem.qty == 1}">1</button>
+                <button class="guestCountButton" ng-click="myItem.qty = 2; myItem.qtyManual = '';" ng-class="{'active' : myItem.qty == 2}">2</button>
+                <button class="guestCountButton" ng-click="myItem.qty = 3; myItem.qtyManual = '';" ng-class="{'active' : myItem.qty == 3}">3</button>
+                <button class="guestCountButton" ng-click="myItem.qty = 4; myItem.qtyManual = '';" ng-class="{'active' : myItem.qty == 4}">4</button>
+                <button class="guestCountButton" ng-click="myItem.qty = 5; myItem.qtyManual = '';" ng-class="{'active' : myItem.qty == 5}">5</button>
+                <button class="guestCountButton" ng-click="myItem.qty = 6; myItem.qtyManual = '';" ng-class="{'active' : myItem.qty == 6}">6</button>
+                <input type="number" ng-model="myItem.qtyManual" ng-class="{'active' : myItem.qtyManual && myItem.qtyManual > 6}" ng-change="myItem.qty = myItem.qtyManual" class="guestCountInput">
+              </div>
+            </div>
+          </div>
+         
+        <div ng-if="myItem.isCustom">
+          <span style="text-align: center; display: block; color: #444; letter-spacing: 2px;">OPTIONS</span>
+
+            <div class="paymentRadio" style="padding: 0px 0px" ng-if="1">
+              <ion-list>
+                <ion-radio ng-repeat="custom in myItem.customOptions" ng-model="myItem.variant" ng-value="custom.customName" ng-click="setType(custom)">{{custom.customName}}<tag style="margin-left: 5px">{{custom.customPrice}}</tag></ion-radio>
+              </ion-list>
+            </div>
+        </div>
+
+
+          <span style="text-align: center; display: block; color: #444; letter-spacing: 2px;">COMMENTS</span>
+
+          <textarea placeholder="Any Comments?" ng-model="myItem.comment" style="border-radius: 0px; resize: none; border: 1px solid #ebebeb; color: #3a3939; padding: 10px; width: 100%; font-size: 16px; line-height: 21px;" rows="3"></textarea>
+
+          <div style="margin-top: 10px;">
+            <button ng-repeat="comm in commentsList track by $index" class="itemWiseComment" ng-class="{'itemWiseCommentActive' : isCommentAdded(comm)}" ng-click="addCommentToItem(comm)">{{comm}}</button>
+
+          </div>
+
+
+      </div>
+    </div>
+
+  </ion-content>
+
+  <div style="border-radius: 0; position: absolute; bottom: 0; z-index: 1000; margin: 0; left: 0; width: 100%; border-top: 2px solid #616161;">
+    <button class="button button-default close-button" style="width: 35%; float: left; margin: 0; border-radius: 0;" ng-click="help_modal.hide()">Close</button>
+    <button ng-click="addItemProcess()" style="width: 65%; float: right; display: inline-block; position: absolute; right: 0; border-radius: 0; top: 0; margin: 0; font-weight: bold; text-transform: uppercase;" class="button button-balanced button-block">Add Item</button>
+  </div>
+
+</ion-modal-view>

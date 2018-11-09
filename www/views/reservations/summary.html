@@ -1,0 +1,139 @@
+<ion-view class="feed-view" cache-view="false">
+    <div class="bar bar-header" style="background: #2c3e50" style="margin-bottom: 20px">
+      <button class="button icon ion-android-home" ng-click="goHome()"></button>
+      <h1 class="h1 title" style="color: #FFF; font-size: 18px">Summary</h1>
+      <button class="button icon ion-calendar" ng-click="getSummary()"></button>
+    </div>
+
+  <ion-content class="categories-feeds-content" style="padding-top: 60px" overflow-scroll="true">
+
+    <h2 style="font-size: 24px; font-weight: 300; color: #2980b9; text-align: center">Weekly Analysis</h2>
+    <div style="padding: 10px; margin-bottom: 10px; padding-left: 0">
+      <canvas class="chart chart-line" chart-data="data" chart-labels="labels"
+    chart-series="series" chart-click="onClick"></canvas>
+    </div>
+
+
+
+    <div style="padding: 10px; margin-bottom: 40px">
+
+
+      <!-- Date Range  -->
+      <div class="row" style="margin-bottom: 15px">
+        <div class="col col-50">
+          <h2 style="font-size: 12px; font-weight: 300; color: #7f8c8d; margin: 0; text-transform: uppercase;">FROM</h2>
+          <h2 style="font-size: 21px; font-weight: 400; color: #2980b9; margin: 0">{{displayFromDate}}</h2>
+        </div>
+        <div class="col col-50">
+          <h2 style="font-size: 12px; font-weight: 300; color: #7f8c8d; margin: 0; text-transform: uppercase; text-align: right">TO</h2>
+          <h2 style="font-size: 21px; font-weight: 400; color: #2980b9; margin: 0; text-align: right">{{displayToDate}}</h2>
+        </div>
+      </div>
+
+
+
+      <!-- Figures -->
+      <div class="row">
+        <div class="col col-50" style="background: #27ae60; padding-top: 15px; margin-right: 5px;">
+          <h1 style="text-align: center; color: #FFF">{{analytics.grand}}</h1>
+          <p style="text-align: center; color: #FFF">TOTAL</p>
+        </div>
+        <div class="col col-50" style="background: #2980b9; padding-top: 15px;">
+          <h1 style="text-align: center; color: #FFF">{{analytics.walkin}}</h1>
+          <p style="text-align: center; color: #FFF">Walk In</p>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top: 0px">
+        <div class="col col-50" style="background: #2980b9; padding-top: 15px; margin-right: 5px;">
+          <h1 style="text-align: center; color: #FFF">{{analytics.website}}</h1>
+          <p style="text-align: center; color: #FFF">kopperkadai.com</p>
+        </div>
+        <div class="col col-50" style="background: #2980b9; padding-top: 15px;">
+          <h1 style="text-align: center; color: #FFF">{{analytics.direct}}</h1>
+          <p style="text-align: center; color: #FFF">Direct Call</p>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top: 0px; margin-bottom: 20px">
+        <div class="col col-50" style="background: #e74c3c; padding-top: 15px; margin-right: 5px;">
+          <h1 style="text-align: center; color: #FFF">{{analytics.zomatoCall}}</h1>
+          <p style="text-align: center; color: #FFF">Zomato Call</p>
+        </div>
+        <div class="col col-50" style="background: #e74c3c; padding-top: 15px;">
+          <h1 style="text-align: center; color: #FFF">{{analytics.zomatoSMS}}</h1>
+          <p style="text-align: center; color: #FFF">Zomato SMS</p>
+        </div>
+      </div>
+
+
+
+      <!-- Date by Date -->
+
+      <div ng-repeat="date in summary" style="padding: 10px 5px; border-bottom: 2px solid #2980b9; margin-bottom: 10px">
+            <div class="row" style="padding: 0">
+              <div class="col col-66" style="padding: 0">
+                <h2 style="font-size: 16px; font-weight: 400; color: #2980b9; margin: 0">{{date.day}}</h2>
+                <h2 style="font-size: 12px; font-weight: 300; color: #7f8c8d; margin: 0; text-transform: uppercase;">{{date.date}}</h2>
+              </div>
+              <div class="col" style="padding: 0">
+                <h1 style="margin: 0; text-align: right; color: #2980b9">{{date.total}}</h1>
+              </div>
+            </div>
+
+            <!-- Splits -->
+            <div class="row" style="padding: 0; border-top: 1px solid #ecf0f1">
+              <div class="col col-66" style="padding-left: 0">
+                <p style="font-size: 14px; color: #7f8c8d; margin: 0">Walk In</p>
+              </div>
+              <div class="col">
+                <p style="text-align: right; color: #34495e; margin: 0">{{date.figures.walkin}}</p>
+              </div>
+            </div>
+            <div class="row" style="padding: 0">
+              <div class="col col-66" style="padding-left: 0">
+                <p style="font-size: 14px; color: #7f8c8d; margin: 0">Direct Call</p>
+              </div>
+              <div class="col">
+                <p style="text-align: right; color: #34495e; margin: 0">{{date.figures.direct}}</p>
+              </div>
+            </div>
+            <div class="row" style="padding: 0">
+              <div class="col col-66" style="padding-left: 0">
+                <p style="font-size: 14px; color: #7f8c8d; margin: 0">www.kopperkadai.com</p>
+              </div>
+              <div class="col">
+                <p style="text-align: right; color: #34495e; margin: 0">{{date.figures.website}}</p>
+              </div>
+            </div>
+            <div class="row" style="padding: 0">
+              <div class="col col-66" style="padding-left: 0">
+                <p style="font-size: 14px; color: #7f8c8d; margin: 0">Zomato Call</p>
+              </div>
+              <div class="col">
+                <p style="text-align: right; color: #34495e; margin: 0">{{date.figures.zomatoCall}}</p>
+              </div>
+            </div>
+            <div class="row" style="padding: 0">
+              <div class="col col-66" style="padding-left: 0">
+                <p style="font-size: 14px; color: #7f8c8d; margin: 0">Zomato SMS</p>
+              </div>
+              <div class="col">
+                <p style="text-align: right; color: #34495e; margin: 0">{{date.figures.zomatoSMS}}</p>
+              </div>
+            </div>
+            <div class="row" style="padding: 0">
+              <div class="col col-66" style="padding-left: 0">
+                <p style="font-size: 14px; color: #7f8c8d; margin: 0">Others</p>
+              </div>
+              <div class="col">
+                <p style="text-align: right; color: #34495e; margin: 0">{{date.figures.others}}</p>
+              </div>
+            </div>
+        </div>
+
+
+    </div>
+
+  </ion-content>
+</ion-view>

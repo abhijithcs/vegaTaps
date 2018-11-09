@@ -1,0 +1,102 @@
+.tabbed-navigation
+{
+	// Override android default styles
+	&.tabs-striped
+	{
+	  .tabs
+		{
+	    border: none;
+			padding: 0px;
+	  }
+	  .tab-item
+		{
+	    &.tab-item-active,
+	    &.active,
+	    &.activated {
+	      margin: 0px;
+	      border: none;
+	    }
+	  }
+	}
+
+	.tabs
+	{
+		padding: 0px;
+		@include tab-style($navigation-tabs-bg, $navigation-tabs-border, $navigation-tabs-text);
+
+		.tab-item-active
+		{
+			background-color: $navigation-tabs-active-bg;
+		}
+
+		.tab-title
+		{
+			text-transform: uppercase;
+			font-weight: 500;
+			color: #721e1f;
+		}
+
+		.tab-item
+		{
+			.icon
+			{
+				width: 24px;
+				height: 22px;
+				background-size: 100% 100%;
+				margin: 8px auto 3px;
+
+				&.pending-icon
+				{
+					background-image: url('../img/feed/nav/orders/tabs-pending.png');
+				}
+
+				&.confirmed-icon
+				{
+					background-image: url('../img/feed/nav/orders/tabs-confirmed.png');
+				}
+
+				&.completed-icon
+				{
+					background-image: url('../img/feed/nav/orders/tabs-completed.png');
+				}
+
+				
+
+				&.pending-reservation-icon
+				{
+					background-image: url('../img/feed/nav/reservations/reserve_listing_upcoming.png');
+				}
+
+				&.confirmed-reservation-icon
+				{
+					background-image: url('../img/feed/nav/reservations/reserve_listing_seated.png');
+				}
+
+				&.completed-reservation-icon
+				{
+					background-image: url('../img/feed/nav/reservations/reserve_listing_completed.png');
+				}
+
+				&.menu-icon
+				{
+					background-image: url('../img/common/tabs-menu.png');
+				}
+
+				&.search-icon
+				{
+					background-image: url('../img/common/tabs-explore.png');
+				}
+
+				&.account-icon
+				{
+					background-image: url('../img/common/tabs-account.png');
+				}
+
+
+			}
+		}
+
+
+
+	}
+}

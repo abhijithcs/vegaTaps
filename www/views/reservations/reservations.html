@@ -1,0 +1,98 @@
+
+
+<ion-view class="feed-view" cache-view="false">
+    <div class="bar bar-header" style="background: #2c3e50" style="margin-bottom: 20px">
+      <button class="button icon ion-android-home" ng-click="goHome()"></button>
+      <button class="button icon ion-search" style="margin-left: 5px" ng-click="resetSearch()"></button>
+      <h1 class="h1 title" style="color: #FFF; font-size: 18px; font-weight: 200">{{myDate}}</h1>
+      <button class="button icon ion-android-time" style="margin-left: 5px;" ng-click="openSeatPlanView()"></button>
+      <div class="button" style="background: none" ng-click="quickSummary()">
+			<!-- All -->
+			<span style="border-radius: 15px; background: #FFF; font-size: 21px; padding: 3px 8px" ng-if="timeFilterFlag == 0">
+				<i class="icon ion-ios-people" style="color: #2ecc71">{{doneLunchPAX + doneDinnerPAX}}</i> 
+				<i class="icon ion-ios-people" style="color: #95a5a6">{{activeLunchPAX + activeDinnerPAX}}</i>
+			</span>
+			<!-- Only Lunch -->
+			<span style="border-radius: 15px; background: #FFF; font-size: 21px; padding: 3px 8px" ng-if="timeFilterFlag == 1">
+				<i class="icon ion-ios-people" style="color: #2ecc71">{{doneLunchPAX}}</i> 
+				<i class="icon ion-ios-people" style="color: #95a5a6">{{activeLunchPAX}}</i>
+			</span>	
+			<!-- Only Dinner -->
+			<span style="border-radius: 15px; background: #FFF; font-size: 21px; padding: 3px 8px" ng-if="timeFilterFlag == 2">
+				<i class="icon ion-ios-people" style="color: #2ecc71">{{doneDinnerPAX}}</i> 
+				<i class="icon ion-ios-people" style="color: #95a5a6">{{activeDinnerPAX}}</i>
+			</span>				
+	   </div>
+    </div>
+	
+	
+    <div class="row" style="background: #f5f5f5; padding-top: 10px; padding-left: 0; position: absolute; top: 44px; z-index: 100;">
+      <div class="col col-50">		
+                                      <button class="button button-dark" style="width: 100%; background: #2c3e50; font-size: 16px; font-weight: 300" ng-click="changeTimeFilter()">
+                                      	<tag ng-if="timeFilterFlag == 0" style="text-transform: none">Lunch & Dinner</tag>
+                                      	<tag ng-if="timeFilterFlag == 1" style="text-transform: none">Lunch Only</tag>
+                                      	<tag ng-if="timeFilterFlag == 2" style="text-transform: none">Dinner Only</tag>
+                                      </button>		
+      </div>
+	  <div class="col"></div>
+      <div class="col col-33">
+        <ion-toggle ng-model="history.checked" ng-class="{historyON: history.checked, historyOFF: !history.checked}" ng-checked="history.checked" ng-change="displayFlagChange()">
+          History
+        </ion-toggle>
+      </div>	  
+    </div>
+
+  <ion-content class="categories-feeds-content" style="padding-top: 120px" overflow-scroll="true">
+  
+    <ion-header-bar class="search-header" ng-if="showSearch" style="margin-top: 5px; background: rgba(44, 62, 80, 0.41);">
+      <div class="row item-input-inset search-row">
+        <div class="col col-90">
+          <label class="item-input-wrapper search-label">
+            <i class="icon ion-ios-search placeholder-icon"></i>
+            <input type="search" placeholder="Search" name="search_query" ng-model="search.query">
+          </label>
+        </div>
+        <div class="col">
+          <button style="color: #FFF; float: right;" class="button button-clear cancel-button ion-close" ng-click="resetSearch()">
+          </button>
+        </div>
+      </div>
+    </ion-header-bar>
+	
+	
+	
+<ion-scroll>	
+      <ion-refresher on-refresh="initReservations()"></ion-refresher>
+	  
+	  <!-- All in History -->
+	  <p style="font-size:21px; text-align: center; color: #7f8c8d; margin-top: 40px" ng-if="displayWarningCheck() == 1">All Done <i class="icon ion-happy-outline"></i><br><tag style="font-size: 14px; color: #95a5a6;">All the reservations are moved to History</tag></p>	  
+	  
+	  <!-- Not Found Anything -->
+	  <p style="font-size:21px; text-align: center; color: #7f8c8d; margin-top: 40px" ng-if="displayWarningCheck() == 0">Meh <i class="icon ion-sad-outline"></i><br><tag style="font-size: 14px; color: #95a5a6;">There are no reservations this day</tag></p>
+	  
+	 <!-- No Lunch Reservations -->
+	  <p style="font-size:21px; text-align: center; color: #7f8c8d; margin-top: 40px" ng-if="displayWarningCheck() == 10">Meh <i class="icon ion-sad-outline"></i><br><tag style="font-size: 14px; color: #95a5a6;">There are no reservations for Lunch this day</tag></p>
+	  
+	 <!-- No Dinner Reservations -->
+	  <p style="font-size:21px; text-align: center; color: #7f8c8d; margin-top: 40px" ng-if="displayWarningCheck() == 20">Meh <i class="icon ion-sad-outline"></i><br><tag style="font-size: 14px; color: #95a5a6;">There are no reservations for Dinner this day</tag></p>
+	  
+<div class="list">
+
+
+<a class="item item-avatar" href="#" ng-repeat="reservation in allList = (reservationsList | filter:search.query) track by $index" ng-if="getReservationsFiltered(reservation, showHistory)">
+   <tag class="countNormal" ng-class="getClass('COUNT', reservation.statusCode)" >{{reservation.count}}</tag>
+   <h2>{{reservation.user}} <time style="font-size: 12px; font-weight: 300; color: #7f8c8d" ng-if="reservation.statusCode != 0">at {{reservation.time}}</time></h2>
+   <tag class="clockResBase" ng-class="getClass('STATUS', reservation.statusCode)">{{getShortBrief(reservation)}}</tag>
+   <p>
+      {{reservation.mobile}} 
+      <tag ng-if="reservation.comments != '-' && reservation.statusCode == 0" ng-click="quickView(reservation)" style="color: #3498db; font-size: 12px" class="">  <i class="icon ion-android-hangout" style="font-size: 14px"></i> Comments</tag>
+   </p>
+</a>
+
+</div>
+
+</ion-scroll>
+
+  </ion-content> 
+  
+</ion-view>

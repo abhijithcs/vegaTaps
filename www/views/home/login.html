@@ -1,0 +1,30 @@
+<ion-view class="login-view auth-view" style="background: none !important" cache-view="false">
+  <ion-content has-bouncing="false" style="background-image: url(../img/common/pattern.png) !important; background-repeat: repeat !important;">
+    <div class="row form-row" style="padding-top: 20px">
+      <div class="col">
+        <form name="login_form" class="form-container" novalidate>
+          <center><img src="./img/common/white_logo.png" width="70%"></center>
+          <p style="color: #fff; text-align: center; font-size: 16px; padding: 8px 3px; background: rgba(170, 48, 43, 0.8); border-radius: 3px; font-weight: bold; letter-spacing: 2px; margin: 20px 0 0 0">
+            MANAGER LOGIN
+          </p>
+
+          <div class="input-list list list-inset">
+            <label  class="item item-input" style="margin-top: 15px">
+              <input type="text" style="font-size: 16px" placeholder="Username" name="" ng-model="mydata.mobile" required maxlength="10">
+            </label>
+            <label  class="item item-input" style="margin-top: 10px">
+              <input type="password" style="font-size: 16px" placeholder="Password" name="" ng-model="mydata.password">
+            </label>
+
+          </div>
+          <p ng-if="loginError" class="message error">{{loginError}}</p><br>
+          <button type="submit" class="button button-block auth-action-button" ng-click="doLogin(mydata)">
+            LOGIN
+          </button>
+
+        </form>
+
+      </div>
+    </div>
+  </ion-content>
+</ion-view>

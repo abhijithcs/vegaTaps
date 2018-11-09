@@ -1,0 +1,176 @@
+<ion-side-menus class="feed-view" cache-view="false">
+
+  <ion-pane ion-side-menu-content>
+      <ion-header-bar class="feed-header">
+         <div class="buttons" style="position: absolute; top: 5px; left: 5px; bottom: 5px;">
+            <button class="button button-clear cart-button" style="margin: 0; color: #FFF; width: 35px;" ng-click="showOptionsMenu()">
+            <i class="icon ion-navicon"></i> 
+            </button>
+
+            <button class="button button-clear" style="text-align: left; margin-left: 10px; font-weight: 400; color: #FFF; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; font-size: 18px;">
+             Completed Reservations
+            </button>  
+
+
+            <!-- filter by date -->
+            <button class="button button-clear clearSearchFilterButton" ng-click="triggerFilter()" style="position: absolute; top: 0px; right: 0px;">
+              <i class="icon ion-ios-calendar-outline"></i> 
+            </button>  
+
+         </div>
+
+
+         <banner class="bannerHolder" ng-if="isFilterEnabled">
+          <table style="width: 100%">
+            <col width = "85%">
+            <col width = "15%">
+            <tr>
+              <td class="bannerBranch">
+                <span style="font-weight: 400">Reservations on</span> {{filterFancyDate}}
+              </td>
+              <td class="bannerDate" style="font-size: 21px; color: #41a284; text-align: right; padding: 0 18px;" ng-click="clearDateFilter()">
+                <i class="fa fa-times"></i>
+              </td>
+            <tr>
+          </table>
+        </banner>
+
+
+      </ion-header-bar>
+
+    <ion-nav-view animation="slide-left-right">
+         <ion-content class="categories-feeds-content" overflow-scroll="true" has-bouncing="false" delegate-handle="feeds-content" style="background: #f5f5f5;" ng-class='{hasBanner : isFilterEnabled}'>
+
+         <!-- Refresher -->
+        <ion-refresher
+          on-refresh="doRefresh()">
+        </ion-refresher>
+
+
+          <bannerbutton class="bannerButtonHolder" ng-if="filterPendingApply">
+            <span class="bannerButtonCross" ng-click="applyFilterCancel()"><i class="icon ion-close"></i></span>
+            <span class="bannerButtonCheck" ng-click="applyFilterConfirm()"><i class="icon ion-checkmark"></i></span>
+          </bannerbutton>
+
+
+<!-- Loader Dummy Tiles -->
+<div ng-if="!isRenderLoaded && !renderFailed">
+    <div class="row" style="padding: 10px 10px 0 10px"> <div class="infoTile" style="width: 100%;"> <div class="infoTileHead" style="width: 40%; height: 18px; display: inline-block;"> <div class="loaderDummyTile" style="height: 18px"></div> </div> <div class="infoTileHead" style="margin-top: 10px; width: 100%; height: 15px; display: inline-block;"> <div class="loaderDummyTile" style="height: 15px"></div> </div> <div class="infoTileHead" style="width: 100%; height: 15px; display: inline-block;"> <div class="loaderDummyTile" style="height: 15px"></div> </div> </div> </div>
+
+    <div class="row" style="padding: 10px 10px 0 10px"> <div class="infoTile" style="width: 100%;"> <div class="infoTileHead" style="width: 40%; height: 18px; display: inline-block;"> <div class="loaderDummyTile" style="height: 18px"></div> </div> <div class="infoTileHead" style="margin-top: 10px; width: 100%; height: 15px; display: inline-block;"> <div class="loaderDummyTile" style="height: 15px"></div> </div> <div class="infoTileHead" style="width: 100%; height: 15px; display: inline-block;"> <div class="loaderDummyTile" style="height: 15px"></div> </div> </div> </div>
+
+    <div class="row" style="padding: 10px 10px 0 10px"> <div class="infoTile" style="width: 100%;"> <div class="infoTileHead" style="width: 40%; height: 18px; display: inline-block;"> <div class="loaderDummyTile" style="height: 18px"></div> </div> <div class="infoTileHead" style="margin-top: 10px; width: 100%; height: 15px; display: inline-block;"> <div class="loaderDummyTile" style="height: 15px"></div> </div> <div class="infoTileHead" style="width: 100%; height: 15px; display: inline-block;"> <div class="loaderDummyTile" style="height: 15px"></div> </div> </div> </div>
+
+    <div class="row" style="padding: 10px 10px 0 10px"> <div class="infoTile" style="width: 100%;"> <div class="infoTileHead" style="width: 40%; height: 18px; display: inline-block;"> <div class="loaderDummyTile" style="height: 18px"></div> </div> <div class="infoTileHead" style="margin-top: 10px; width: 100%; height: 15px; display: inline-block;"> <div class="loaderDummyTile" style="height: 15px"></div> </div> <div class="infoTileHead" style="width: 100%; height: 15px; display: inline-block;"> <div class="loaderDummyTile" style="height: 15px"></div> </div> </div> </div>
+
+    <div class="row" style="padding: 10px 10px 0 10px"> <div class="infoTile" style="width: 100%;"> <div class="infoTileHead" style="width: 40%; height: 18px; display: inline-block;"> <div class="loaderDummyTile" style="height: 18px"></div> </div> <div class="infoTileHead" style="margin-top: 10px; width: 100%; height: 15px; display: inline-block;"> <div class="loaderDummyTile" style="height: 15px"></div> </div> <div class="infoTileHead" style="width: 100%; height: 15px; display: inline-block;"> <div class="loaderDummyTile" style="height: 15px"></div> </div> </div> </div>
+</div>
+
+<div ng-if="renderFailed" style="padding: 40px 20px 20px 20px;">
+  <center>
+    <img src="img/common/error_icon.png">
+    <p style="color: #e88f8f; margin: 10px; font-size: 15px;">Unable to fetch data. Try again.</p>
+  </center>
+</div>
+
+
+
+          <!-- Search bar -->
+          <div class="row" style="padding: 0 10px" ng-if="reservationsFilteredList.length > 1">
+            <div class="input-group" style="padding: 10px 0 0 0; border: none;">
+              <input type="text" id="searchInputBox" ng-model="searchKey.value" class="form-control input-lg" style="text-align: center; width: 100%; height: 42px;" placeholder="Search Completed Reservations">
+              <span class="input-group-btn">
+                  <div ng-click="resetSearchKey()" class="button button-default btn-lg" type="button" style="min-height: 10px; height: 42px !important; color: gray; border-radius: 0"><i class="icon" ng-class="{'ion-android-search': searchKey.value == '', 'ion-android-refresh': searchKey.value != ''}"></i></div>
+              </span>
+            </div>
+          </div>
+
+          <!-- No SEARCH RESULTS -->
+          <div ng-if="reservationsFilteredList.length != 0 && (reservationsFilteredList | filter: searchKey.value).length == 0" style="font-size: 12px; font-weight: 400; color: gray; text-align: center; padding: 15px 0;">No Search Results</div>  
+
+
+            <div class="row" style="padding: 10px 10px 0 10px" ng-repeat="reservation in allList = (reservationsFilteredList | filter: searchKey.value) track by $index" ng-if="isRenderLoaded">
+              <div class="reservationTile">
+                  <div class="reservationTileHead">
+                    
+                    <tag style="display: block; color: gray; font-size: 24px; font-weight: 300;"><i class="ion-ios-people-outline"></i> {{reservation.count}} People</tag>
+
+                    <tag ng-if="reservation.comments != '-' && reservation.statusCode == 0" ng-click="quickView(reservation)" style="display: block; height: 25px; width: 120px; color: #3498db; font-size: 12px; position: absolute; z-index: 100;" class="">  <i class="icon ion-android-hangout" style="font-size: 14px"></i> Comments</tag>
+
+                    <span class="reservationTileOptions" ng-click="openOptions('OPTIONS', reservation)"><i class="ion-more"></i></span>
+                  </div>
+
+                  <div class="reservationTileBody" style="text-align: right">
+                    <span style="display: block; color: #ab505d">{{reservation.user}}</span>
+                    <a href="tel:9790464526" style="display: block; font-size: 80%; letter-spacing: 2px; text-decoration: none; color: inherit; "><i class="fa fa-phone"></i> {{reservation.mobile}}</a>
+                  </div>
+
+                  <div class="reservationTileFoot" style="bottom: 15px">
+                    <tag style="display: block; color: #4ea4be; font-size: 18px; font-weight: 300;"><i class="ion-ios-clock-outline"></i> <span style="font-size: 18px">{{reservation.time}}</span></tag>
+                  </div>
+              </div>
+            </div>
+
+            <!-- No results -->
+             <div ng-if="reservationsFilteredList.length == 0">
+              <p style="padding: 40px 20px; text-align: center; font-size: 21px; font-weight: 300; color: #7b7b7b;">There are no Completed Reservations</p>
+             </div>
+
+
+          <div style="padding-bottom: 70px"></div>
+
+
+         </ion-content>
+
+
+         <div class="reservationBottomFilterHolder">
+            <tag class="reservationSessionLabel" ng-click="changeTimeFilter()">
+                <tag ng-if="timeFilterFlag == 'All'" style="text-transform: none">All Sessions</tag>
+                <tag ng-if="timeFilterFlag != 'All'" style="text-transform: none">{{timeFilterFlag}} Session Only</tag>
+            </tag>
+            <tag class="reservationAddButton" style="float: right" ng-click="newBook()"><i class="ion-plus"></i></tag>
+            <tag class="reservationAddButton" style="float: right; margin-right: 10px; background: #a9adad" ng-click="quickSummary()"><i class="fa fa-file-text-o"></i></tag>
+            <tag class="reservationAddButton" style="float: right; margin-right: 10px; background: #a9adad" ng-click="openSeatPlanView()"><i class="fa fa-th"></i></tag>
+         </div>
+
+
+    </ion-nav-view>
+  </ion-pane>
+
+  <ion-side-menu side="left" class="main-menu">
+    <header class="bar bar-header bar-stable" style="height: 80px; padding: 0; background: #661a18; display: flex; flex-direction: column; justify-content: center; align-items :center ;">
+      
+        <img style="width: 70%" ng-src="./img/common/white_logo.png"/>
+  
+    </header>
+    <ion-content class="has-header" style="top: 80px">
+    
+      <ion-list>
+        <ion-item class="item-icon-left" style="background: none" nav-clear menu-close ui-sref="main.app.landing">
+               <i class="icon" style="width: 60px; color: #FFF; text-align: center"><i class="fa fa-home" style="font-size: 70%; padding-left: 6px"></i></i>
+               <h2 class="menu-text">Home</h2>
+        </ion-item>
+        <ion-item class="item-icon-left" style="background: none" nav-clear menu-close ui-sref="main.app.feed.arabian">
+               <i class="icon" style="width: 60px; color: #FFF; text-align: center"><i class="fa fa-hand-pointer-o" style="font-size: 80%; padding-left: 6px"></i></i>
+               <h2 class="menu-text">Punch Order</h2>
+        </ion-item>        
+        <ion-item class="item-icon-left" style="background: none" nav-clear menu-close ui-sref="main.app.walkin">
+               <i class="icon" style="width: 60px; color: #FFF"><i class="fa fa-calendar-plus-o" style="font-size: 70%; padding-left: 6px"></i></i>
+               <h2 class="menu-text">New Reservation</h2>
+        </ion-item>
+        <ion-item class="item-icon-left" style="background: none" nav-clear menu-close ui-sref="main.app.feedbacks">
+               <i class="icon" style="width: 60px; color: #FFF"><i class="fa fa-star-half-o" style="font-size: 70%; padding-left: 6px"></i></i>
+               <h2 class="menu-text">Feedbacks</h2>
+        </ion-item>
+        <ion-item class="item-icon-left" style="background: none" nav-clear menu-close ui-sref="main.app.accounts">
+               <i class="icon" style="width: 60px; color: #FFF"><i class="fa fa-gear" style="font-size: 70%; padding-left: 6px"></i></i>
+               <h2 class="menu-text">Settings</h2>
+        </ion-item>
+        <ion-item style="padding-top: 0; background: none; bottom: 0; width: 100%; border: none;" nav-clear>
+               <p style="color: #521110; font-size: 11px; margin: 10px 0; text-align: center;">Version 0.0.9</p>
+        </ion-item>
+      </ion-list>
+
+    </ion-content>
+  </ion-side-menu>
+</ion-side-menus>

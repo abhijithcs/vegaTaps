@@ -1,0 +1,16 @@
+{
+  "name": "bazaar",
+  "app_id": "",
+  "gulpStartupTasks": [
+    "default",
+    "sass",
+    "watch"
+  ],
+  "watchPatterns": [
+    "www/**/*",
+    "!www/lib/**/*"
+  ],
+  "documentRoot": "www",
+  "integrations": {},
+  "type": "ionic1"
+}

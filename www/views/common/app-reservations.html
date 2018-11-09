@@ -1,0 +1,15 @@
+<ion-view class="app-tabbed-view">
+  <ion-pane>
+    <ion-tabs class="tabbed-navigation tabs-icon-top">
+      <ion-tab title="Upcoming" icon-off="pending-reservation-icon" icon-on="pending-reservation-icon" ui-sref="main.reservationsapp.upcoming">
+        <ion-nav-view name="reservations-upcoming"></ion-nav-view>
+      </ion-tab>
+      <ion-tab title="Seated" icon-off="confirmed-reservation-icon" icon-on="confirmed-reservation-icon" ui-sref="main.reservationsapp.seated">
+        <ion-nav-view name="reservations-seated"></ion-nav-view>
+      </ion-tab>
+      <ion-tab title="Completed" icon-off="completed-reservation-icon" icon-on="completed-reservation-icon" ui-sref="main.reservationsapp.completed">
+        <ion-nav-view name="reservations-completed"></ion-nav-view>
+      </ion-tab>
+    </ion-tabs>
+  </ion-pane>
+</ion-view>

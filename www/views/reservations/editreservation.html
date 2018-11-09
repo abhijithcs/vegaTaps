@@ -1,0 +1,49 @@
+<ion-view class="login-view auth-view" cache-view="false" style="background: #2c3e50">
+  <ion-content has-bouncing="false">
+    <div class="row form-row" style="padding-top: 20px">
+      <div class="col">
+        <form name="login_form" class="form-container" novalidate>
+          <center><img src="./img/common/white_logo.png" width="70%"></center>
+          <p style="color: #fff; text-align: center;">
+            Edit Reservation #{{mydata.id}}
+          </p>
+
+          <div class="row">
+            <div class="col col-50">
+              <button class="button button-block button-outline" ng-click="changeDate()"><strong style="color: #f1c40f">{{bookingDate}} </strong></button>
+            </div>
+            <div class="col col-50">
+              <span moment-picker="chosenTime" ng-model="mytime.time" format="HH:mm A" show-header="false" class="button button-block button-outline"><strong style="color: #f1c40f"> {{chosenTime || 'Set Time Slot' }} </strong></span>
+            </div>
+          </div>
+
+
+
+
+          <div class="input-list list list-inset">
+            <label  class="item item-input" style="margin-top: 15px">
+              <input type="text" style="font-size: 21px; background: none; color: rgba(255, 255, 255, 0.51);" placeholder="Name" name="" ng-model="mydata.name" disabled>
+            </label>
+            <label  class="item item-input" style="margin-top: 10px">
+              <input type="tel" style="font-size: 21px; background: none; color: rgba(255, 255, 255, 0.51);" placeholder="Mobile Number" name="" ng-model="mydata.mobile" required maxlength="10" disabled>
+            </label>
+            <label  class="item item-input" style="margin-top: 10px">
+              <input type="tel" style="font-size: 21px; color: #f1c40f" placeholder="Count" name="" ng-model="mydata.count" required maxlength="2">
+            </label>
+
+          </div>
+          <p ng-show="error" class="message error">{{error}}</p>
+          <button type="submit" class="button button-block auth-action-button" style="text-transform: none; font-weight: 300" ng-click="editBook(mydata)">
+            Save Changes
+          </button>
+
+          <button class="button button-block button-default button-outline" ng-click="main()">
+            Cancel
+          </button>
+
+        </form>
+
+      </div>
+    </div>
+  </ion-content>
+</ion-view>
