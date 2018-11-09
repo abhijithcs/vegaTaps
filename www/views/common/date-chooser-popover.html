@@ -1,0 +1,17 @@
+<ion-popover-view class="address-chooser-popover" style="background: #FFF;" ng-class="{'contains-{{ dateListSize }}-items' : true, 'contains-more-than-6-items' : (dateListSize > 5)}">
+
+  <ion-content has-bouncing="false">
+    <ion-scroll class="addresses-scroller" direction="y">
+      <div class="list addresses-list">
+
+        <ion-list>
+          <ion-item ng-repeat="date in dateList" ng-click="setDate(date)" style="background: none; border: 0px; border-bottom: 1px solid #FAFBEB; color: #a8302c;">
+            {{date.name}}
+          </ion-item>
+        </ion-list>
+
+      </div>
+    </ion-scroll>
+
+  </ion-content>
+</ion-popover-view>

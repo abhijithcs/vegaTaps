@@ -1,0 +1,64 @@
+<ion-view class="login-view auth-view" cache-view="false" style="background: #2c3e50">
+  <ion-content has-bouncing="false">
+    <div class="row form-row" style="padding-top: 20px">
+      <div class="col">
+        <form name="login_form" class="form-container" novalidate>
+          <center><img src="./img/common/white_logo.png" width="70%"></center>
+          <div class="button-bar padding">
+            <a grouped-radio="'walkin'" ng-click="setMode('reservation')" ng-model="walkin.bookingType">Walk In</a>
+            <a grouped-radio="'reservation'" ng-click="setMode('walkin')" ng-model="walkin.bookingType">Reserve</a>
+          </div>
+
+          <div class="row">
+            <div class="col col-50">
+              <button class="button button-block button-outline" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" ng-click="changeDate()"><strong style="color: #f1c40f">{{bookingDate}} </strong></button>
+            </div>
+            <div class="col col-50">
+              <span moment-picker="chosenTime" ng-model="mytime.slot" format="HH:mm A" show-header="false" class="button button-block button-outline" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><strong style="color: #f1c40f"> {{chosenTime || 'Set Time Slot' }} </strong></span>
+            </div>
+          </div>
+
+
+
+
+          <div class="input-list list list-inset">
+            <label  class="item item-input" style="margin-top: 15px">
+              <input type="text" style="font-size: 21px" placeholder="Name" name="" ng-model="walkin.name">
+            </label>
+            <label  class="item item-input" style="margin-top: 10px">
+              <input type="tel" style="font-size: 21px" placeholder="Mobile Number" name="" ng-model="walkin.mobile" required maxlength="10">
+            </label>
+            <label  class="item item-input" style="margin-top: 10px">
+              <input type="tel" style="font-size: 21px" placeholder="Count" name="" ng-model="walkin.count" required maxlength="2">
+            </label>
+            <label  class="item item-input" style="margin-top: 10px">
+              <input type="text" style="font-size: 16px" placeholder="Any Comments?" name="" ng-model="walkin.comments" required maxlength="200">
+            </label>
+
+            <div class="list" ng-if="walkin.bookingType == 'reservation'">			 
+              <label class="item item-input item-select" style="border: none; border: 1px solid #fff; margin: 0">
+                <div class="input-label" style="color: #FFF">
+                  Channel
+                </div>
+                <select ng-model="channel" ng-init="channel=channels[1]" ng-options="channel.name for channel in channels" ng-change="setChannel(channel)"></select>
+              </label>
+			  
+			  <p ng-click="refreshModesList()" style="color: #bdc3c7; font-size: 11px; margin: 0; text-align: right;">Refresh List</p>
+            </div>		
+
+          </div>
+          <p ng-show="error" class="message error">{{error}}</p>
+          <button type="submit" class="button button-block auth-action-button button-small" style="text-transform: capitalize; font-weight: 300" ng-click="addBook(walkin)">
+            Add {{walkin.bookingType}}
+          </button>
+
+          <button class="button button-block button-default button-outline" ng-click="main()">
+            Back
+          </button>
+
+        </form>
+
+      </div>
+    </div>
+  </ion-content>
+</ion-view>

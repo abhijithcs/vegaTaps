@@ -1,0 +1,11 @@
+<div style="margin-top: 10px"></div>
+<div ng-repeat="city in allList">
+  <div class="row" style="padding: 0px">
+    <div class="col" style="padding: 0px">
+      <h4 class="outletTitle" style="border: none; letter-spacing: 6px; font-weight: bold; margin: 10px 0 0 0; color: #444;">{{city.city}}</h4>
+    </div>
+  </div>
+  <div class="list">
+    <button class="button button-full" ng-repeat="outlet in city.outlets" style="text-align: left; color: #c52031; margin-bottom: 8px;" ng-click="setBranchFilter(outlet)">{{outlet.name}}</button>
+  </div>
+</div>
