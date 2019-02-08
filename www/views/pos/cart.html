@@ -1,10 +1,18 @@
 <ion-view class="shopping-cart-view" cache-view="false">
   <ion-header-bar class="shopping-cart-header" style="background: #a8302b !important">
 
-    <button class="button button-clear cancel-button" style="width: 35px;" ng-click="close()"><img src="img/common/back.png" width="20px" style="position: absolute; right: 5px; top: 5px; left: 5px;"></button>
-    <h1 class="title">Order Cart</h1>
+    <button class="button button-clear cancel-button" style="width: 35px;" ng-click="goToHomeMain()"><img src="img/common/back.png" width="20px" style="position: absolute; right: 5px; top: 5px; left: 5px;"></button>
+    
+
+    <h1 class="title" style="font-weight: 400; margin: 0 0 0 50px; text-align: left;" ng-if="isEditingOrder">Running Order <b>{{runningKOTNumber != '' ? '#'+runningKOTNumber : ''}}</b></h1>
+    <h1 class="title" style="font-weight: 400; margin: 0 0 0 50px; text-align: left;" ng-if="!isEditingOrder">New Order</h1>
+    
     <div class="buttons">
-      <button class="button button-clear checkout-button" style="padding: 0 10px; background: #57c384;" ng-click="sendKOT()"  ng-show="products.length > 0">Send KOT</button>
+     
+      <button ng-if="!isEditingOrder" class="button button-clear checkout-button" style="padding: 0 10px; background: #57c384;" ng-click="sendKOTToServer()"  ng-show="enableCheckPlaceOrderButton(products)">Place Order</button>
+
+      <button ng-if="isEditingOrder" class="button button-clear checkout-button" style="padding: 0 10px; background: #57c384;" ng-click="sendChangedKOT()"  ng-show="enableCheckPlaceOrderButton(products)">Confirm Changes</button>
+      
     </div>
     <!-- " -->
   </ion-header-bar>
@@ -19,16 +27,21 @@
     </div>
     <div ng-if="products.length > 0">
 
-    	<div class="billingModeBar" ng-click="changeBillingMode()">
-    		{{selectedBillingMode.name}} <i class="fa fa-caret-down"></i>
+    	<div class="billingModeBarGray" ng-if="isEditingOrder">
+    		{{selectedBillingMode.name}}
     		<span style="float: right; font-weight: 300;">Table <b>#{{selectedTable}}</b></span>
     	</div>
+
+      <div class="billingModeBarOrange" ng-click="changeBillingMode()" ng-if="!isEditingOrder">
+        {{selectedBillingMode.name}} <i class="fa fa-caret-down"></i>
+        <span style="float: right; font-weight: 300;">Table <b>#{{selectedTable}}</b></span>
+      </div>
 
 <div class="products-in-cart-row">
 
     <div class="shopping-cart-view">
     <ul class="list checkout-products">
-      <li class="item checkout-product" ng-repeat="product in products track by $index">
+      <li class="item checkout-product" ng-repeat="product in products | reverse track by $index">
         <div class="row">
 
           <div class="col col-75 col-center">
@@ -38,14 +51,11 @@
                   <a ng-click="removeFromCart(product)" class="button button-small noColorButton" style="border-top-right-radius: 0; border-bottom-right-radius: 0; color: #DE8F8F; border:none"><i class="icon ion-ios-close-outline"></i></a>
               </div>
               <div class="col col-90 col-center">
-                <span class="product-name item-text-wrap" style="color: #2d2d2d; font-weight: 300;">{{product.name}}</span>
-              </div>
-            </div>
-            <div class="row" ng-if="product.isCombo">
-              <div class="col col-10 col-center">
-              </div>
-              <div class="col col-90 col-center">
-                <p style="font-size: 10px; color: #707778; padding-top: 3px"><tag style="color: #8C8C8C;">{{product.combo}}</tag></p>
+                <span class="product-name item-text-wrap" style="color: #2d2d2d; font-weight: 400;">{{product.name}}
+                  <i ng-if="senseItemChange(product) == 'QUANTITY_INCREASE'" class="fa fa-caret-up" style="color: #2ecc71; padding-left: 3px; font-size: 18px"></i>
+                  <i ng-if="senseItemChange(product) == 'QUANTITY_DECREASE'" class="fa fa-caret-down" style="color: #c0392b; padding-left: 3px; font-size: 18px"></i>
+                  <i ng-if="senseItemChange(product) == 'NEW_ITEM'" class="fa fa-star" style="color: #ffa500; padding-left: 3px; font-size: 13px"></i>
+                </span>
               </div>
             </div>
             <div class="row">
@@ -55,7 +65,7 @@
                 <p style="font-size: 10px; color: #707778; padding-top: 3px"><i class="fa fa-inr"></i> {{product.price}} <span ng-if="product.isCustom"><i class="fa fa-circle" style="font-size: 5px; position: relative; top: -1px; margin: 0 4px;"></i> Choice: <tag style="color: #61C68B;">{{product.variant}}</tag></span></p>
               </div>
             </div>
-            <div class="row" ng-if="product.comments != ''">
+            <div class="row" ng-if="product.comments != '' && product.comments.length > 0">
               <div class="col col-10 col-center">
               </div>
               <div class="col col-90 col-center">
@@ -116,6 +126,16 @@
             </div>
           </div>
         </li>
+
+        <tag ng-if="!isEditingOrder || (isEditingOrder && !enableCheckPlaceOrderButton(products))">
+          <button class="button button-clear checkout-button" style="text-transform: uppercase; font-size: 11px; letter-spacing: 1px; padding: 0; width: 100%;" ng-click="clearWholeCart()">Clear Order</button>
+        </tag>
+
+        <tag ng-if="isEditingOrder && enableCheckPlaceOrderButton(products)">
+          <button class="button button-clear checkout-button" style="text-transform: uppercase; font-size: 11px; letter-spacing: 1px; padding: 0; width: 48%; float: left;" ng-click="clearWholeCart()">Clear Order</button>
+          <button class="button button-clear checkout-button" style="text-transform: uppercase; font-size: 11px; letter-spacing: 1px; padding: 0; width: 48%; float: right; color: #FF9800" ng-click="undoEditingOrder()">Undo Changes</button>
+        </tag>
+
       </ul>
 
 

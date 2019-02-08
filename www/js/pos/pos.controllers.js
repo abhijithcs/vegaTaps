@@ -1,22 +1,424 @@
 angular.module('pos.controllers', ['ionic'])
 
 
-    .controller('OrdersCtrl', function(outletService, menuService, locationChangeRouteTrackerService, $ionicLoading, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate, ShoppingCartService) {
+    .controller('StatusCtrl', function($ionicLoading, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate, ShoppingCartService) {
         
     })
 
-    .controller('OrdersRunningCtrl', function(outletService, menuService, locationChangeRouteTrackerService, $ionicLoading, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate, ShoppingCartService) {
-        
+    .controller('SettingsCtrl', function($ionicLoading, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate, ShoppingCartService) {
+     
+        $scope.navToggled = false;
+
+        $scope.showOptionsMenu = function() {
+            $ionicSideMenuDelegate.toggleLeft();
+            $scope.navToggled = !$scope.navToggled;
+        };
+
+        $scope.defaultServer = {};
+        $scope.defaultServer.ip_address = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@127.0.0.1:5984/';
+
+
+        $scope.saveServerAddress = function(){
+            window.localStorage.defaultServerIPAddress = $scope.defaultServer.ip_address;
+        }
+
     })
 
-    .controller('OrdersTablesCtrl', function(outletService, menuService, locationChangeRouteTrackerService, $ionicLoading, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate, ShoppingCartService) {
-        
+    
+
+    .controller('StatusRunningCtrl', function($ionicLoading, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate, ShoppingCartService) {
+      
+
+        let COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@127.0.0.1:5984/';
+
+
+        $scope.isRenderOrderLoaded = false;
+    
+        $scope.renderAllKOTs = function(){
+
+                    $scope.ordersMasterList = [];
+
+                    //FIRST LOAD
+                    $scope.renderOrderFailed = false;
+                    $scope.isRenderOrderLoaded = false;
+
+
+                    //Get all the live KOTs
+                    $http({
+                        method: 'GET',
+                        url: COMMON_IP_ADDRESS+'/accelerate_kot/_design/kot-fetch/_view/fetchbytype?startkey=["DINE"]&include_docs=true',
+                        timeout: 10000
+                    })
+                    .success(function(data) {
+
+                        if(data.total_rows > 0){
+
+                                    var orderData = data.rows;
+                                    orderData.sort(function(obj1, obj2) {
+                                        return obj1.value.table - obj2.value.table;
+                                    });
+
+                                    $scope.orders_list = [];
+                                    var g = 0;
+                                    while(orderData[g]){
+
+                                        $scope.orders_list.push(orderData[g].value);
+
+                                        if(g == orderData.length - 1){
+                                            break;
+                                        }
+
+                                        g++;
+                                    }
+
+                                    
+                                    $scope.renderOrderFailed = false;
+                                    $scope.isRenderOrderLoaded = true;
+
+                                    console.log($scope.orders_list[0])
+
+
+                        }
+                        else{
+                            
+                            $ionicLoading.hide();
+
+                            $ionicLoading.show({
+                                template: "Orders data not found. Please contact Accelerate Support.",
+                                duration: 3000
+                            });
+
+                            $scope.renderOrderFailed = true;
+                        }
+                    })
+                    .error(function(data) {
+
+                        $ionicLoading.hide();
+
+                        $ionicLoading.show({
+                            template: "Not responding. Check your connection.",
+                            duration: 3000
+                        });
+
+                        $scope.renderOrderFailed = true;
+                    });
+        }
+
+        $scope.renderAllKOTs();
+
+        $scope.filterTime = function(obj){
+            if(obj.timeKOT != ''){
+                return moment(obj.timeKOT, "hhmm").format('h:mm a');
+            }
+            else{
+                return moment(obj.timePunch, "hhmm").format('h:mm a');
+            }
+        }
+
+
+
+
+
+        $scope.openCommentsIfAdded = function(item){
+            if(item.comments && item.comments != ''){
+
+               var alertPopup = $ionicPopup.alert({
+                cssClass: 'popup-outer confirm-alert-view',
+                title: item.name + (item.isCustom ? ' ('+item.variant+')' : ''),
+                template: '<p style="padding: 20px 0px; color: #444; margin: 0; font-style: italic; font-size: 15px; font-weight: bold;"><i class="fa fa-comments-o" style="font-size: 24px; color: #cccccc; margin-right: 5px"></i>' + item.comments + '</p>'
+               });
+
+
+            }
+        }
+
+
+        //Open order to edit
+        $scope.openOrderToEdit = function(editOrder){
+
+                //Set _id from Branch mentioned in Licence
+                var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : 'JPNAGAR'; 
+                if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+                  var alertPopup = $ionicPopup.alert({
+                                            cssClass: 'popup-outer confirm-alert-view',
+                                            title: 'Invalid Licence Error',
+                                            template: '<p style="padding: 20px 0px; color: #444; margin: 0; font-size: 15px; font-weight: 400;">KOT can not be opened. Please contact Accelerate Support if problem persists.</p>'
+                                        });
+                  return '';
+                }
+
+                var kot_request_data = accelerate_licencee_branch +"_KOT_"+ editOrder.KOTNumber;
+
+
+
+                    //PRELOAD TABLE MAPPING
+                    $http({
+                        method: 'GET',
+                        url: COMMON_IP_ADDRESS+'/accelerate_kot/'+kot_request_data,
+                        timeout: 10000
+                    })
+                    .success(function(data) {
+                        if(data._id != ""){
+
+                            var kot = data;
+
+                            if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+
+                                var alreadyEditingKOT = JSON.parse(window.localStorage.edit_KOT_originalCopy);
+                                if(alreadyEditingKOT.KOTNumber == kot.KOTNumber)//if thats the same order, neglect.
+                                {
+                                    return '';
+                                }
+                                else{
+                                    //Editing order has unsaved changes
+                                    if(window.localStorage.hasUnsavedChangesFlag && window.localStorage.hasUnsavedChangesFlag == 1){
+                                        
+                                           var alertPopup = $ionicPopup.alert({
+                                            cssClass: 'popup-outer confirm-alert-view',
+                                            title: 'Warning',
+                                            template: '<p style="padding: 20px 0px; color: #444; margin: 0; font-size: 15px; font-weight: 400;">There is already an active order being modified. Please complete it to continue.</p>'
+                                           });
+
+                                           return '';
+                                    }
+                                }
+                            }
+
+                            $scope.overWriteCurrentRunningOrder(kot);
+
+                        }
+                        else{
+                                var alertPopup = $ionicPopup.alert({
+                                            cssClass: 'popup-outer confirm-alert-view',
+                                            title: 'Not Found Error',
+                                            template: '<p style="padding: 20px 0px; color: #444; margin: 0; font-size: 15px; font-weight: 400;">#'+kotID+' not found on Server. Please contact Accelerate Support.</p>'
+                                        });
+                        }
+                    })
+                    .error(function(data) {
+
+                        $ionicLoading.hide();
+
+                        $ionicLoading.show({
+                            template: "Not responding. Check your connection.",
+                            duration: 3000
+                        });
+                    });
+          
+        }
+
+
+        $scope.overWriteCurrentRunningOrder = function(kot){
+
+            var customerInfo = {};
+            customerInfo.name = kot.customerName;
+            customerInfo.mobile = kot.customerMobile;
+            customerInfo.count = parseInt(kot.guestCount);
+            customerInfo.mappedAddress = kot.table;
+            customerInfo.mode = kot.orderDetails.mode;
+            customerInfo.modeType = kot.orderDetails.modeType;
+            customerInfo.reference = kot.orderDetails.reference;
+            customerInfo.isOnline = kot.orderDetails.isOnline;
+
+
+            if(kot.specialRemarks && kot.specialRemarks != ''){
+                window.localStorage.specialRequests_comments = kot.specialRemarks;
+            }
+            else{
+                window.localStorage.specialRequests_comments = '';
+            }
+
+            if(kot.allergyInfo && kot.allergyInfo != []){
+                window.localStorage.allergicIngredientsData = JSON.stringify(kot.allergyInfo);
+            }
+            else{
+                window.localStorage.allergicIngredientsData = '';
+            }
+
+
+            //Pending new order will be removed off the cart.
+            window.localStorage.accelerate_cart = JSON.stringify(kot.cart);
+            window.localStorage.customerData = JSON.stringify(customerInfo);
+
+            //window.localStorage.edit_KOT_originalCopy = decodeURI(encodedKOT);
+            window.localStorage.edit_KOT_originalCopy = JSON.stringify(kot);
+
+
+            //record max cart index
+                var i = 0;
+                var maxCartIndex = 0;
+
+                while(i < kot.cart.length){
+                  if(maxCartIndex <= kot.cart[i].cartIndex){
+                        maxCartIndex = kot.cart[i].cartIndex;
+                  }
+
+                  i++;
+                }
+
+            window.localStorage.maxCartIndex = maxCartIndex;
+
+        }
+
+       
+
     })
 
-    .controller('PunchCtrl', function(ShoppingCartService, $timeout, $ionicLoading, $ionicPopup, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicPopover, $ionicSideMenuDelegate) {
+    .controller('StatusTablesCtrl', function($ionicLoading, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate) {
+        
+
+        let COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@127.0.0.1:5984/';
 
 
-    	let COMMON_IP_ADDRESS = 'http://192.168.1.2:5984/';
+        $scope.isRenderTableLoaded = false;
+
+    
+        $scope.openSeatPlanView = function(){
+
+                    $scope.tablesMasterList = [];
+
+                    //FIRST LOAD
+                    $scope.renderTableFailed = false;
+                    $scope.isRenderTableLoaded = false;
+
+
+                    //PRELOAD TABLE MAPPING
+                    $http({
+                        method: 'GET',
+                        url: COMMON_IP_ADDRESS+'/accelerate_tables/_design/filter-tables/_view/all/',
+                        timeout: 10000
+                    })
+                    .success(function(data) {
+
+                        if(data.total_rows > 0){
+
+                              var tableData = data.rows;
+                              tableData.sort(function(obj1, obj2) {
+                                return obj1.key - obj2.key; //Key is equivalent to sortIndex
+                              });
+
+
+
+                              //load table sections
+                                $http({
+                                    method: 'GET',
+                                    url: COMMON_IP_ADDRESS+'accelerate_settings/ACCELERATE_TABLE_SECTIONS',
+                                    timeout: 10000
+                                })
+                                .success(function(data) {
+
+                                    var sections_list = data.value;
+
+                                    $ionicLoading.hide();
+
+                                    //process tableData
+                                    var tables_list = [];
+                                    var g = 0;
+                                    while(tableData[g]){
+
+                                        tables_list.push(tableData[g].value);
+
+                                        if(g == tableData.length - 1){
+                                            nowRender();
+                                            break;
+                                        }
+
+                                        g++;
+                                    }
+
+                                    function nowRender(){
+
+                                        var n = 0;
+                                        while(sections_list[n]){
+                                            var filtered_tables = [];
+                                            for(var i = 0; i < tables_list.length; i++){
+                                                if(tables_list[i].type == sections_list[n]){
+                                                    filtered_tables.push(tables_list[i])
+                                                }
+
+                                                if(i == tables_list.length - 1){ //last iteration
+                                                    $scope.tablesMasterList.push({
+                                                        "section": sections_list[n],
+                                                        "tables": filtered_tables
+                                                    });
+                                                }
+                                            }
+                                            n++;
+                                        }
+
+                                        $scope.renderTableFailed = false;
+                                        $scope.isRenderTableLoaded = true;
+                                    }
+
+
+                                })
+                                .error(function(data) {
+
+                                    $ionicLoading.hide();
+
+                                    $ionicLoading.show({
+                                        template: "Not responding. Check your connection.",
+                                        duration: 3000
+                                    });
+
+                                    $scope.renderTableFailed = true;
+                                });
+
+
+
+
+                        }
+                        else{
+                            
+                            $ionicLoading.hide();
+
+                            $ionicLoading.show({
+                                template: "Tables data not found. Please contact Accelerate Support.",
+                                duration: 3000
+                            });
+
+                            $scope.renderTableFailed = true;
+                        }
+                    })
+                    .error(function(data) {
+
+                        $ionicLoading.hide();
+
+                        $ionicLoading.show({
+                            template: "Not responding. Check your connection.",
+                            duration: 3000
+                        });
+
+                        $scope.renderTableFailed = true;
+                    });
+        }
+
+        $scope.openSeatPlanView();
+
+
+
+
+        $scope.getMyClass = function(seat) {
+            if (seat.status == 0) {
+                return "button-balanced";
+            } else if (seat.status == 1) {
+                return "button-assertive";
+            } else if (seat.status == 2) {
+                return "button-energized";
+            }
+            else if (seat.status == 5) {
+                return "mySpecialReservedButton";
+            }
+        }
+
+
+    })
+
+    .controller('PunchCtrl', function(ShoppingCartService, currentGuestData, kitchen_comments, $timeout, $ionicLoading, $ionicPopup, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicPopover, $ionicSideMenuDelegate) {
+
+
+    	let COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@127.0.0.1:5984/';
+
 
     	if(window.localStorage.serverURL == '' || !window.localStorage.serverURL){
     		
@@ -25,6 +427,7 @@ angular.module('pos.controllers', ['ionic'])
     		COMMON_IP_ADDRESS = window.localStorage.serverURL;
     	}	
 
+        $scope.kitchenComments = kitchen_comments;
 
         //Check if already cached
         var isCached = false;
@@ -64,6 +467,191 @@ angular.module('pos.controllers', ['ionic'])
                 duration: 1000
             });
         }
+
+        //Selected Table
+        $scope.selectedTable = '';
+
+        if(window.localStorage.current_table_selection && window.localStorage.current_table_selection != ''){
+            $scope.selectedTable = window.localStorage.current_table_selection;
+        }
+
+
+        //User Profile
+        $scope.isProfileSelected = false;
+        $scope.selectedUserProfile = '';
+
+        $scope.setUserProfile = function(profile_name, profile_mobile){
+
+            $scope.selectedUserProfile = profile_name;
+            window.localStorage.loggedInUser_name = profile_name;
+            window.localStorage.loggedInUser_mobile = profile_mobile;
+
+            $scope.isProfileSelected = true;
+
+        }
+
+
+
+
+        //Choose User Profile
+        $scope.chooseUserProfile = function(){
+
+                    $scope.allProfileData = [];
+
+                    $http({
+                        method: 'GET',
+                        url: COMMON_IP_ADDRESS+'accelerate_settings/ACCELERATE_STAFF_PROFILES',
+                        timeout: 10000
+                    })
+                    .success(function(response) {
+                        $scope.allProfileData = response.value;
+
+                        console.log($scope.allProfileData)
+                       
+                        //Render Template
+                        var i = 0;
+                        var choiceTemplate = '<div style="margin-top: 10px">';
+                        while (i < $scope.allProfileData.length) {
+                            choiceTemplate = choiceTemplate + '<button class="button button-full" style="text-align: left; color: #c52031; margin-bottom: 8px;" ng-click="selectProfileFromWindow(\'' + $scope.allProfileData[i].name + '\', ' + $scope.allProfileData[i].code + ')">' + $scope.allProfileData[i].name + ' </button>';
+                            i++;
+                        }
+                        choiceTemplate = choiceTemplate + '</div>';
+
+                        var newCustomPopup = $ionicPopup.show({
+                            cssClass: 'popup-outer new-shipping-address-view',
+                            template: choiceTemplate,
+                            title: 'Select User',
+                            scope: $scope,
+                            buttons: [{
+                                text: 'Cancel'
+                            }]
+                        });
+
+
+                        $scope.selectProfileFromWindow = function(user_name, user_mobile) {
+                            $scope.setUserProfile(user_name, user_mobile);
+                            newCustomPopup.close();
+                        }
+
+
+
+                    })
+                    .error(function(data) {
+                        $ionicLoading.show({
+                            template: "Not responding. Check your connection.",
+                            duration: 3000
+                        });
+                    });
+        }
+
+        $scope.initUserProfile = function(){
+            if(window.localStorage.loggedInUser_name && window.localStorage.loggedInUser_name != ''){
+                $scope.selectedUserProfile = window.localStorage.loggedInUser_name;
+                $scope.isProfileSelected = true;
+            }
+            else{
+                $scope.chooseUserProfile();
+            }
+        }
+
+        $scope.initUserProfile();
+
+
+        //Current time display
+        $scope.currentTimeDisplay = '00:00';
+
+        function updateClock() {
+            $scope.currentTimeDisplay = moment().format('hh:mm a');
+        }
+
+        function timedUpdate () {
+          updateClock();
+          setTimeout(timedUpdate, 1000);
+        }
+
+        timedUpdate();
+
+
+
+      //Guest details
+      $scope.guestData = currentGuestData.getGuest();
+
+      $scope.guestDataTemp = {};
+      $scope.guestDataTemp.name = "";
+      $scope.guestDataTemp.mobile = "";
+      $scope.guestDataTemp.count = "";
+
+      var guest_data_modal = $ionicModal.fromTemplateUrl('views/common/templates/enter-guest-details.html', {
+        scope: $scope,
+        animation: 'slide-in-up'
+      }).then(function(modal) {
+        $scope.guest_modal = modal;
+      });
+
+      $scope.openGuestDetails = function(){
+        var temp_name = $scope.guestData.name;
+        var temp_mobile = $scope.guestData.mobile;
+        var temp_count = $scope.guestData.count;
+
+        $scope.guestDataTemp = {};
+        $scope.guestDataTemp.name = temp_name;
+        $scope.guestDataTemp.mobile = temp_mobile;
+        $scope.guestDataTemp.count = temp_count;
+        $scope.guestDataTemp.countManual = temp_count;
+
+        $scope.guest_modal.show();
+      };
+
+      $scope.saveGuestData = function(){
+
+        var temp_name = $scope.guestDataTemp.name;
+        var temp_mobile = $scope.guestDataTemp.mobile;
+        var temp_count = $scope.guestDataTemp.count;
+
+        $scope.guestData.name = temp_name;
+        $scope.guestData.mobile = temp_mobile;
+        $scope.guestData.count = temp_count;
+
+        currentGuestData.setGuest(temp_name, temp_mobile, temp_count);
+
+        $scope.guest_modal.hide();
+      }
+
+      $scope.isGuestDataEntered = function(){
+        if($scope.guestData.name == "" && $scope.guestData.mobile == "" && $scope.guestData.count == ""){
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+      }
+
+      $scope.getGuestContent = function(){
+        if($scope.guestData.name != ""){
+            if($scope.guestData.count > 2){
+                return $scope.guestData.name +" and "+($scope.guestData.count - 1)+" others";
+            }
+            else{
+                return $scope.guestData.name;
+            }
+        }
+        else if($scope.guestData.count != "" && $scope.guestData.count > 0){
+            return $scope.guestData.count + " guests";
+        }
+        else if($scope.guestData.mobile != ""){
+            return $scope.guestData.mobile;
+        }
+      }
+
+
+
+    $scope.$on('guest_updated', function(event, guest_object) {
+        $scope.guestData = guest_object;
+        console.log($scope.guestData)
+    });
+
+
 
 
 
@@ -142,6 +730,9 @@ angular.module('pos.controllers', ['ionic'])
 
         ShoppingCartService.addProduct(processed_item);
         $scope.help_modal.hide();
+
+        $scope.search.query = '';
+
       }
 
         $scope.getProductsInCart = function() {
@@ -212,6 +803,7 @@ angular.module('pos.controllers', ['ionic'])
         $scope.navToggled = false;
 
         $scope.showOptionsMenu = function() {
+            console.log('toggle sidemenu...', $scope.navToggled)
             $ionicSideMenuDelegate.toggleLeft();
             $scope.navToggled = !$scope.navToggled;
         };
@@ -237,12 +829,10 @@ angular.module('pos.controllers', ['ionic'])
 
                     $http({
                         method: 'GET',
-                        url: COMMON_IP_ADDRESS+'zaitoon_settings/ZAITOON_MASTER_MENU',
+                        url: COMMON_IP_ADDRESS+'accelerate_settings/ACCELERATE_MASTER_MENU',
                         timeout: 10000
                     })
                     .success(function(response) {
-
-                    	console.log(response)
 
                         $scope.menu = response.value;
 
@@ -282,14 +872,12 @@ angular.module('pos.controllers', ['ionic'])
 
 
         $scope.openSubMenu = function(target){
-
             for(var n = 0; n < $scope.menu.length; n++){
                 if($scope.menu[n].category == target){
 
                     $scope.renderingSubMenu = target;
                     $scope.allItemsList = $scope.menu[n].items;
 
-                    console.log($scope.allItemsList)
                     $scope.isRenderingItems = true;
 
                     break;
@@ -299,28 +887,70 @@ angular.module('pos.controllers', ['ionic'])
                     //No results
                 }
             }
+
+            $scope.allItemsList.sort(function(itemOne, itemTwo) {
+                return itemOne.name.localeCompare(itemTwo.name);
+            });  
         }
 
 
         $scope.openCorresponsingMainMenu = function(target){
-            $scope.shortlistMainMenu = target;            
             
-            //filter sub categories for say Arabian
-            var temp_data = JSON.parse('{"_id":"ZAITOON_MENU_CATEGORIES","_rev":"25-6558009cc87f33b6b169ab3463074f8d","identifierTag":"ZAITOON_MENU_CATEGORIES","value":["Hummus & Salads","Arabian Rices","Grills & Barbeques","Tawa Kababs","Chinese Veg. Dry/Gravy","Chinese Chicken Gravy","Soups","Chinese Vegitarian Starters","Chinese Chicken Starters","Chinese SeaFood Starters","Fried Rice","Noodles","Chinese SeaFood Gravy","Lamb Dry Dishes","Chinese Macaroni","Rolls & Fries","Tandoor Starters","Egg Main Course","Indian Breads","Biriyani & Pulao","Raita & Pappad","Indian Veg. Main Course","Indian Mutton Main Course","Indian Chicken Main Course","Indian SeaFood Main Course","Milk Shakes","Ice Creams","Faloodas","Fruit Creams","Fresh Juices","Soft  Drinks","Hot Beverages","Grilled Sandwiches","Arabian Gravies","Combos","Shawarma","sizzlers","Temporary"]}')
+                $scope.shortlistMainMenu = target;            
             
-            function chunk(arr, size) {
-              var newArr = [];
-              for (var i=0; i<arr.length; i+=size) {
-                newArr.push(arr.slice(i, i+size));
-              }
-              return newArr;
-            }
+                    //Menu Categories
+                    $http({
+                        method: 'GET',
+                        url: COMMON_IP_ADDRESS+'accelerate_settings/ACCELERATE_MENU_CATALOG',
+                        timeout: 10000
+                    })
+                    .success(function(data) {
 
-            $scope.subMenuList = chunk(temp_data.value, 2);
+                        var menu_categories = data.value;
+
+                        var short_listed = [];
+                        var n = 0;
+                        while(menu_categories[n]){
+
+                            if(menu_categories[n].mainType == $scope.shortlistMainMenu){
+                                short_listed.push(menu_categories[n].name);
+                            }
+                            
+                            if(n == menu_categories.length - 1){ //last iteration
+
+                                short_listed.sort(function(categoryOne, categoryTwo) {
+                                    return categoryOne.localeCompare(categoryTwo);
+                                });  
+
+                                function chunk(arr, size) {
+                                  var newArr = [];
+                                  for (var i=0; i<arr.length; i+=size) {
+                                    newArr.push(arr.slice(i, i+size));
+                                  }
+                                  return newArr;
+                                }
+
+                                $scope.subMenuList = chunk(short_listed, 2);
+                            }
+
+                            n++;
+                        }
+
+                    })
+                    .error(function(data) {
+
+                        $ionicLoading.hide();
+
+                        $ionicLoading.show({
+                            template: "Not responding. Check your connection.",
+                            duration: 3000
+                        });
+
+                        $scope.renderTableFailed = true;
+                    });
         }
 
         $scope.openCorresponsingMainMenu('ARABIAN');
-
 
         $scope.goToMainSelection = function(){
             $scope.isRenderingItems = false;
@@ -339,12 +969,9 @@ angular.module('pos.controllers', ['ionic'])
 
 
 
-
-
-    /*
-    	TABLES
-    */
-
+        /*
+        	TABLES
+        */
 
         $scope.getMyClass = function(seat) {
             if (seat.status == 0) {
@@ -370,88 +997,127 @@ angular.module('pos.controllers', ['ionic'])
         $scope.table_modal = modal;
       });
 
+
+
+
       $scope.openSeatPlanView = function(){
 
-      	console.log('opening...')
 
-	                $ionicLoading.show({
-	                    template: '<ion-spinner></ion-spinner> Loading Tables...'
-	                });
+                    $scope.tablesMasterList = [];
 
-	                //FIRST LOAD
-	              	$scope.renderTableFailed = false;
-	               	$scope.isRenderTableLoaded = false;
+                    $ionicLoading.show({
+                        template: '<ion-spinner></ion-spinner> Loading Tables...'
+                    });
 
-	               	//Table Sections
+                    //FIRST LOAD
+                    $scope.renderTableFailed = false;
+                    $scope.isRenderTableLoaded = false;
+
+
+                    //PRELOAD TABLE MAPPING
                     $http({
                         method: 'GET',
-                        url: 'https://www.zaitoon.online/services/fetchoutlets.php',
+                        url: COMMON_IP_ADDRESS+'/accelerate_tables/_design/filter-tables/_view/all/',
                         timeout: 10000
                     })
                     .success(function(data) {
 
-								var sam_data1 = JSON.parse('{ "_id": "ZAITOON_TABLE_SECTIONS", "_rev": "19-4f024b3cfc35cbac381bb5c3151b40ef", "identifierTag": "ZAITOON_TABLE_SECTIONS", "value": [ "Main" ] }');
-								var sections_list = sam_data1.value;
+                        if(data.total_rows > 0){
 
-                    			//Tables
-			                    $http({
-			                        method: 'GET',
-			                        url: 'https://www.zaitoon.online/services/fetchoutlets.php',
-			                        timeout: 10000
-			                    })
-			                    .success(function(data) {	
-
-			                    	$ionicLoading.hide();
-
-			                    	var sam_data = JSON.parse('{ "_id": "ZAITOON_TABLES_MASTER", "_rev": "1843-2916fd2b4d73ea6207a87222b9af3f7e", "identifierTag": "ZAITOON_TABLES_MASTER", "value": [ { "table": "1", "capacity": 4, "type": "Main", "assigned": "", "KOT": "K54", "status": 1, "lastUpdate": "1153", "sortIndex": 1, "remarks": "" }, { "table": "2", "remarks": "", "capacity": 4, "type": "Main", "assigned": "", "KOT": "K53", "status": 1, "lastUpdate": "1342", "sortIndex": 2 }, { "table": "3", "remarks": "", "capacity": 4, "type": "Main", "sortIndex": 3, "KOT": "K50", "status": 1, "lastUpdate": "0445", "assigned": "" }, { "table": "4", "remarks": "", "capacity": 4, "type": "Main", "sortIndex": 4, "KOT": "K52", "status": 1, "lastUpdate": "0445", "assigned": "" }, { "table": "5", "remarks": "", "capacity": 4, "type": "Main", "sortIndex": 5, "KOT": "", "status": 0, "lastUpdate": "", "assigned": "" } ] }');
-			                    	var tables_list = sam_data.value;
-
-			                    	console.log(tables_list)
-
-
-			                    	var n = 0;
-			                    	while(sections_list[n]){
-			                    		var filtered_tables = [];
-			                    		for(var i = 0; i < tables_list.length; i++){
-			                    			if(tables_list[i].type == sections_list[n]){
-			                    				filtered_tables.push(tables_list[i])
-			                    			}
-
-			                    			if(i == tables_list.length - 1){ //last iteration
-			                    				$scope.tablesMasterList.push({
-			                    					"section": sections_list[n],
-			                    					"tables": filtered_tables
-			                    				});
-
-			                    				console.log($scope.tablesMasterList)
-			                    			}
-			                    		}
-			                    		n++;
-			                    	}
+                              var tableData = data.rows;
+                              tableData.sort(function(obj1, obj2) {
+                                return obj1.key - obj2.key; //Key is equivalent to sortIndex
+                              });
 
 
 
-			                    	$scope.renderTableFailed = false;
-			                        $scope.isRenderTableLoaded = true;
+                              //load table sections
+                                $http({
+                                    method: 'GET',
+                                    url: COMMON_IP_ADDRESS+'accelerate_settings/ACCELERATE_TABLE_SECTIONS',
+                                    timeout: 10000
+                                })
+                                .success(function(data) {
 
-			                        $scope.table_modal.show();
-			                    })
-			                    .error(function(data) {
+                                    var sections_list = data.value;
 
-			                    	$ionicLoading.hide();
+                                    $ionicLoading.hide();
 
-			                        $ionicLoading.show({
-			                            template: "Not responding. Check your connection.",
-			                            duration: 3000
-			                        });
+                                    //process tableData
+                                    var tables_list = [];
+                                    var g = 0;
+                                    while(tableData[g]){
 
-			                        $scope.renderTableFailed = true;
-			                    });
+                                        tables_list.push(tableData[g].value);
 
+                                        if(g == tableData.length - 1){
+                                            nowRender();
+                                            break;
+                                        }
+
+                                        g++;
+                                    }
+
+                                    function nowRender(){
+
+                                        var n = 0;
+                                        while(sections_list[n]){
+                                            var filtered_tables = [];
+                                            for(var i = 0; i < tables_list.length; i++){
+                                                if(tables_list[i].type == sections_list[n]){
+                                                    filtered_tables.push(tables_list[i])
+                                                }
+
+                                                if(i == tables_list.length - 1){ //last iteration
+                                                    $scope.tablesMasterList.push({
+                                                        "section": sections_list[n],
+                                                        "tables": filtered_tables
+                                                    });
+                                                }
+                                            }
+                                            n++;
+                                        }
+
+                                        $scope.renderTableFailed = false;
+                                        $scope.isRenderTableLoaded = true;
+
+                                        $scope.table_modal.show();
+                                    }
+
+
+                                })
+                                .error(function(data) {
+
+                                    $ionicLoading.hide();
+
+                                    $ionicLoading.show({
+                                        template: "Not responding. Check your connection.",
+                                        duration: 3000
+                                    });
+
+                                    $scope.renderTableFailed = true;
+
+                                });
+
+
+
+
+                        }
+                        else{
+                            
+                            $ionicLoading.hide();
+
+                            $ionicLoading.show({
+                                template: "Tables data not found. Please contact Accelerate Support.",
+                                duration: 3000
+                            });
+
+                            $scope.renderTableFailed = true;
+                        }
                     })
                     .error(function(data) {
 
-                    	$ionicLoading.hide();
+                        $ionicLoading.hide();
 
                         $ionicLoading.show({
                             template: "Not responding. Check your connection.",
@@ -460,8 +1126,202 @@ angular.module('pos.controllers', ['ionic'])
 
                         $scope.renderTableFailed = true;
                     });
+
+        }
+
+
+
+
+    $scope.seatOptions = function(seat){
+
+
+        if(seat.status == 2){
+            //Billed Order
+            $ionicLoading.show({
+                template: "This order has been already billed",
+                duration: 2000
+            });    
+
+            return "";       
+        }
+
+
+
+        //Already an order being edited
+        if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
+
+                var hasUnsavedChanges = !window.localStorage.hasUnsavedChangesFlag || window.localStorage.hasUnsavedChangesFlag == 0 ? false : true;
+        
+                if(hasUnsavedChanges){
+                    var confirmPopup = $ionicPopup.confirm({
+                        cssClass: 'popup-outer confirm-alert-alternate',
+                        title: 'There are unsaved changes in the cart. Are you sure want to start a new order?'
+                    });
+
+                    confirmPopup.then(function(res) {
+                        if(res){
+                            if(seat.status == 0){ //free table
+                                ShoppingCartService.clearCartToEmpty();
+                                currentGuestData.clearGuest();
+                                $scope.selectedTable = seat.table;
+                                window.localStorage.current_table_selection = seat.table;
+                            }
+                            else if(seat.status == 1){ //running order table
+                                copyKOTtoCart(seat);
+                            }
+                        }
+                    });            
+                }
+                else{
+                            if(seat.status == 0){ //free table
+                                ShoppingCartService.clearCartToEmpty();
+                                currentGuestData.clearGuest();
+                                $scope.selectedTable = seat.table;
+                                window.localStorage.current_table_selection = seat.table;
+                            }
+                            else if(seat.status == 1){ //running order table
+                                copyKOTtoCart(seat);
+                                $scope.selectedTable = seat.table;
+                                window.localStorage.current_table_selection = seat.table;
+                            }
+                }
+
+        }
+        else{
+            var cart_products = !_.isUndefined(window.localStorage.accelerate_cart) ? JSON.parse(window.localStorage.accelerate_cart) : [];
+
+            if(cart_products.length == 0){ //cart is empty!
+                if(seat.status == 0){ //free table
+                    $scope.selectedTable = seat.table;
+                    window.localStorage.current_table_selection = seat.table;
+                }
+                else if(seat.status == 1){ //running order table
+                    copyKOTtoCart(seat);
+                }
+            }
+            else{ //The cart is not empty, fresh order being punched
+                if(seat.status == 0){ //free table
+                    $scope.selectedTable = seat.table;
+                    window.localStorage.current_table_selection = seat.table;
+                }
+                else if(seat.status == 1){ //running order table
+                    
+                    var confirmPopup = $ionicPopup.confirm({
+                        cssClass: 'popup-outer confirm-alert-alternate',
+                        title: 'There are unsaved changes in the cart. Are you sure want to start a new order?'
+                    });
+
+                    confirmPopup.then(function(res) {
+                        if(res){
+                            $scope.selectedTable = seat.table;
+                            window.localStorage.current_table_selection = seat.table;
+                            copyKOTtoCart(seat);
+                        }
+                    });         
+
+                }
+            }
+        }
+
+
+
+            function copyKOTtoCart(seat){//Editing Order
+
+                $scope.hasUnsavedChanges = false;
+                window.localStorage.hasUnsavedChangesFlag = 0;
+            
+                //Set _id from Branch mentioned in Licence
+                var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : 'JPNAGAR'; 
+                if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+                  var alertPopup = $ionicPopup.alert({
+                                            cssClass: 'popup-outer confirm-alert-view',
+                                            title: 'Invalid Licence Error',
+                                            template: '<p style="padding: 20px 0px; color: #444; margin: 0; font-size: 15px; font-weight: 400;">KOT can not be opened. Please contact Accelerate Support if problem persists.</p>'
+                                        });
+                  return '';
+                }
+
+
+                    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ seat.KOT;
+
+                    //PRELOAD TABLE MAPPING
+                    $http({
+                        method: 'GET',
+                        url: COMMON_IP_ADDRESS+'/accelerate_kot/'+kot_request_data,
+                        timeout: 10000
+                    })
+                    .success(function(data) {
+                        if(data._id != ""){
+
+                            var kot = data;
+
+                            window.localStorage.edit_KOT_originalCopy = JSON.stringify(kot);
+                            window.localStorage.accelerate_cart = JSON.stringify(kot.cart);
+
+                            //Update Guest details
+                            currentGuestData.setGuest(kot.customerName, kot.customerMobile ? parseInt(kot.customerMobile) : '', kot.guestCount ? parseInt(kot.guestCount) : '');
+                        }
+                        else{
+                                var alertPopup = $ionicPopup.alert({
+                                    cssClass: 'popup-outer confirm-alert-view',
+                                    title: 'Not Found Error',
+                                    template: '<p style="padding: 20px 0px; color: #444; margin: 0; font-size: 15px; font-weight: 400;">#'+kotID+' not found on Server. Please contact Accelerate Support.</p>'
+                                });
+                        }
+                    })
+                    .error(function(data) {
+
+                        $ionicLoading.hide();
+
+                        $ionicLoading.show({
+                            template: "Not responding. Check your connection.",
+                            duration: 3000
+                        });
+                    });
+
+            }
+
+        $scope.table_modal.hide();
     }
 
+
+
+
+
+
+
+    //SEARCH
+    $scope.isSearching = false;
+    $scope.search = {};
+    $scope.search.query = "";
+
+    $scope.startSearching = function(){
+            $scope.isSearching = true;
+            $scope.allSearchItemsList = [];
+
+            for(var n = 0; n < $scope.menu.length; n++){
+                $scope.allSearchItemsList = $scope.allSearchItemsList.concat($scope.menu[n].items);
+            } 
+
+            $scope.allSearchItemsList.sort(function(itemOne, itemTwo) {
+                return itemOne.name.localeCompare(itemTwo.name);
+            });  
+    }
+
+    $scope.resetSearch = function(){
+        $scope.isSearching = false;
+        $scope.search.query = "";
+    }
+
+
+
+        //Unavailable features
+        $scope.notAvailable = function(text){
+            $ionicLoading.show({
+                template: text,
+                duration: 3000
+            });                 
+        }
 
 
 
@@ -568,17 +1428,255 @@ angular.module('pos.controllers', ['ionic'])
 
 
 
- .controller('ShoppingCartCtrl', function(products, billing_modes, billing_parameters, $scope, $ionicLoading, $ionicModal, $state, $rootScope, $ionicActionSheet, ShoppingCartService) {
+ .controller('ShoppingCartCtrl', function(products, billing_modes, billing_parameters, $http, $scope, $ionicLoading, $ionicModal, $state, $rootScope, $ionicActionSheet, ShoppingCartService) {
+
+
+    let COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@127.0.0.1:5984/';
+
 
  	$scope.products = products;
+    var cart_products = products;
+
+    $scope.hasUnsavedChanges = false;
+    $scope.isEditingOrder = false;
+    $scope.runningKOTNumber = '';
+
+    if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+        $scope.isEditingOrder = true;
+
+        var original_order = JSON.parse(window.localStorage.edit_KOT_originalCopy);
+        $scope.runningKOTNumber = original_order.KOTNumber;
+    }   
+    else{
+        $scope.isEditingOrder = false;
+        $scope.runningKOTNumber = '';
+    }
+
+    $scope.senseItemChange = function(product){
+        if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+            var change_noticed = checkForItemChanges(product.code, product.variant, product.qty, product.cartIndex);
+            
+            if(change_noticed != '' && !$scope.hasUnsavedChanges){
+                $scope.hasUnsavedChanges = true;
+            }
+
+            $scope.isEditingOrder = true;
+
+            return change_noticed;
+        }
+        else{
+            $scope.isEditingOrder = false;
+        }
+    }
+
+    $scope.getBillingModeBarClass = function(){
+
+        if($scope.hasUnsavedChanges){
+            return 'billingModeBarOrange';
+        }
+        else{
+            return 'billingModeBarGray';
+        }
+    }
+
+    //Clear cart
+    $scope.clearWholeCart = function() {
+        $ionicActionSheet.show({
+            buttons: [
+                { text: '<i class="icon ion-trash-a assertive"></i> <i class="assertive">Remove All Items</i>' },
+                { text: '<i class="icon"></i> <i class="dark">Close</i>' },
+              ],
+            titleText: 'Are you sure want to remove all the items from the cart?',
+            buttonClicked: function(index) {
+                if(index == 0){
+                    ShoppingCartService.clearCartItems();
+                }
+                return true;
+            },
+        });
+    };
+
+    $scope.undoEditingOrder = function(){ //to recover original cart
+        if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+
+            var original_order = JSON.parse(window.localStorage.edit_KOT_originalCopy);
+            window.localStorage.accelerate_cart = JSON.stringify(original_order.cart);
+
+            $rootScope.$broadcast('cart_updated', original_order.cart);
+            $rootScope.$emit('cart_updated', original_order.cart);
+
+
+            $scope.hasUnsavedChanges = false;
+            window.localStorage.hasUnsavedChangesFlag = 0;
+        }
+        else{
+            $scope.hasUnsavedChanges = false;
+            window.localStorage.hasUnsavedChangesFlag = 0;
+        }
+    }
+
+    $scope.goToHomeMain = function(){
+        $state.go('main.app.punch');
+    }
+
+
+    $scope.enableCheckPlaceOrderButton = function(cartProducts){
+        if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+            
+            var hasUnsavedChanges = !window.localStorage.hasUnsavedChangesFlag || window.localStorage.hasUnsavedChangesFlag == 0 ? false : true;
+
+            if(hasUnsavedChanges){ //has unsaved changes
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+        else{
+            if(cartProducts.length > 0){
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+    }
+
+
+    function checkForItemChanges(code, variant, quantity, cart_index){
+
+    /*
+        Check if a particular item in accelerate_cart has any change w.r.t originalCart 
+        (useful while editing an order)
+    */
+
+        var isCustom = true;
+        if(!variant || variant == ''){
+            isCustom = false;
+        }
+
+        if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+
+            var originalData = window.localStorage.edit_KOT_originalCopy ?  JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
+            
+            var changed_cart_products = window.localStorage.accelerate_cart ?  JSON.parse(window.localStorage.accelerate_cart) : [];
+            if(changed_cart_products.length == 0){
+                return 'ERROR';
+            }
+
+
+            //Compare changes in the Cart
+            var original_cart_products = originalData.cart;
+            if(original_cart_products.length == 0){
+                return 'ERROR';
+            }
+
+
+                //Search for the item in orignal Cart
+                for(var m = 0; m < original_cart_products.length; m++){
+                    //check if item is found, not found implies New Item!
+                    if(!isCustom && (code == original_cart_products[m].code && cart_index == original_cart_products[m].cartIndex)){
+                        //Item Found
+                        if(quantity > original_cart_products[m].qty){ //qty increased
+                            return 'QUANTITY_INCREASE';
+                        }
+                        else if(quantity < original_cart_products[m].qty){ //qty decreased
+                            return 'QUANTITY_DECREASE';
+                        }
+                        
+                        break;
+                    }
+                    else if(isCustom && (code == original_cart_products[m].code && cart_index == original_cart_products[m].cartIndex) && (variant == original_cart_products[m].variant)){
+                        //Item Found
+                        if(quantity > original_cart_products[m].qty){ //qty increased
+                            return 'QUANTITY_INCREASE';
+                        }
+                        else if(quantity < original_cart_products[m].qty){ //qty decreased
+                            return 'QUANTITY_DECREASE';
+                        }
+                        break;
+                    }
+
+                    //Last iteration to find the item
+                    if(m == original_cart_products.length-1){ //New item
+                        return 'NEW_ITEM';
+                    }
+                } 
+        }
+        else{
+            return 'ERROR';
+        }
+
+        return 'NO_CHANGE';
+    }
+
+
+
+    function checkIfItemDeleted(){
+
+    /*
+        Check if any item in accelerate_cart has been deleted w.r.t originalCart 
+        (useful while editing an order)
+    */
+
+        if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+
+
+            var originalData = window.localStorage.edit_KOT_originalCopy ?  JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
+
+            var changed_cart_products = window.localStorage.accelerate_cart ?  JSON.parse(window.localStorage.accelerate_cart) : [];
+            if(changed_cart_products.length == 0){
+                return 'DELETED_ALL';
+            }
+
+
+            //Compare changes in the Cart
+            var original_cart_products = originalData.cart;
+            if(original_cart_products.length == 0){
+                return 'ERROR';
+            }
+
+            //Search for changes in the existing items
+            var n = 0;
+            while(original_cart_products[n]){
+                
+                //Find each item in original cart in the changed cart
+                var itemFound = false;
+                for(var i = 0; i < changed_cart_products.length; i++){
+                    //same item found, check for its quantity and report changes
+                    if((original_cart_products[n].cartIndex == changed_cart_products[i].cartIndex) && (original_cart_products[n].code == changed_cart_products[i].code)){
+                        itemFound = true;
+                        break;
+                    }
+
+                    //Last iteration to find the item
+                    if(i == changed_cart_products.length-1){
+                        if(!itemFound){ //Item Deleted
+                            return 'DELETED';
+                        }
+                    }
+                } 
+
+                n++;
+            }
+
+            return 'NONE';
+
+        }
+        else{
+            return 'ERROR';
+        }
+
+    }
+
+
+
+
  	
 
     //Billing Modes
     $scope.billingModes = billing_modes;
     $scope.billingParameters = billing_parameters;
-
-
-    console.log($scope.billingModes)
 
     $scope.billingModesDine = [];
     var k = 0;
@@ -587,13 +1685,15 @@ angular.module('pos.controllers', ['ionic'])
     		$scope.billingModesDine.push($scope.billingModes[k]);
     	}
 
-    	console.log($scope.selectedBillingMode)
-
     	k++;
     }
 
     $scope.selectedBillingMode = $scope.billingModesDine[0];
-    $scope.selectedTable = null;
+    $scope.selectedTable = '';
+
+    if(window.localStorage.current_table_selection && window.localStorage.current_table_selection != ''){
+        $scope.selectedTable = window.localStorage.current_table_selection;
+    }
 
     $scope.changeBillingMode = function(){
 
@@ -670,8 +1770,67 @@ angular.module('pos.controllers', ['ionic'])
 
     $scope.$on('cart_updated', function(event, cart_products) {
         $scope.products = cart_products;
+        $scope.lookForChangesInCart();
         $scope.calculateExtrasList();
     });
+
+
+    //If any item changed in cart (if Editing Mode)
+    $scope.lookForChangesInCart = function(){
+
+        $scope.hasUnsavedChanges = false;
+        window.localStorage.hasUnsavedChangesFlag = 0;
+
+        var cart_products = !_.isUndefined(window.localStorage.accelerate_cart) ? JSON.parse(window.localStorage.accelerate_cart) : [];
+
+
+        if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+
+            var i = 0;
+            while(i < cart_products.length){
+
+                var tempItemCheck = checkForItemChanges(cart_products[i].code, cart_products[i].variant, cart_products[i].qty, cart_products[i].cartIndex);
+
+                switch(tempItemCheck){
+                    case 'QUANTITY_INCREASE':{
+                        $scope.hasUnsavedChanges = true;
+                        window.localStorage.hasUnsavedChangesFlag = 1;
+                        break;
+                    }
+                    case 'QUANTITY_DECREASE':{
+                        $scope.hasUnsavedChanges = true;
+                        window.localStorage.hasUnsavedChangesFlag = 1;
+                        break;
+                    }
+                    case 'NEW_ITEM':{
+                        $scope.hasUnsavedChanges = true;
+                        window.localStorage.hasUnsavedChangesFlag = 1;
+                        break;
+                    }
+                    default:{
+                        break;
+                    }
+                }
+
+                i++;
+            }
+        }
+        else{
+            $scope.hasUnsavedChanges = false;
+            window.localStorage.hasUnsavedChangesFlag = 0;
+        }
+
+
+        //Delete test
+        var itemDeleteTest = checkIfItemDeleted();
+        if(itemDeleteTest == 'DELETED' || itemDeleteTest == 'DELETED_ALL'){
+            $scope.hasUnsavedChanges = true;
+            window.localStorage.hasUnsavedChangesFlag = 1;
+        }
+
+    }
+
+
 
     $scope.close = function() {
         var previous_view = _.last($rootScope.previousView);
@@ -776,7 +1935,92 @@ angular.module('pos.controllers', ['ionic'])
 
 
     //Send KOT
-    $scope.sendKOT = function(){
+    $scope.sendKOTToServer = function(){
+         
+              var orderMetaInfo = {};
+                orderMetaInfo.mode = 'Dine In';
+                orderMetaInfo.modeType = 'DINE';
+                orderMetaInfo.reference = '';
+                orderMetaInfo.isOnline = false;
+
+
+
+              var today = "0912";
+              var time = "1324";
+
+              var specialRemarksInfo = window.localStorage.specialRequests_comments ? window.localStorage.specialRequests_comments : '';
+              var allergyData = window.localStorage.allergicIngredientsData ? JSON.parse(window.localStorage.allergicIngredientsData) : [];
+
+              var obj = {}; 
+              obj.KOTNumber = "";
+              obj.orderDetails = orderMetaInfo;
+              obj.table = '2';
+
+              obj.customerName = 'Abijith';
+              obj.customerMobile = '904369087'; 
+              obj.guestCount = 2;
+              obj.machineName = 'Tab1';
+              
+              var sessionInfo = window.localStorage.setSessionData ? JSON.parse(window.localStorage.setSessionData) : {};
+              obj.sessionName = sessionInfo.name ? sessionInfo.name : '';
+
+              obj.stewardName = 'Test';
+              obj.stewardCode = '90439230444';
+
+              obj.date = today;
+              obj.timePunch = time;
+              obj.timeKOT = "";
+              obj.timeBill = "";
+              obj.timeSettle = "";
+
+              var cart_products = window.localStorage.accelerate_cart ? JSON.parse(window.localStorage.accelerate_cart) : [];
+              obj.cart = cart_products;
+              obj.specialRemarks = '';
+              obj.allergyInfo = [];
+
+
+              var otherCharges = [{
+                    "name": "GST",
+                    "value": 2.5,
+                    "unit": "PERCENTAGE",
+                    "amount": 25,
+                    "isPackagedExcluded": false
+              }];
+
+              obj.extras = otherCharges;
+              obj.discount = {};
+              obj.customExtras = {};
+
+              let COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@127.0.0.1:5984/';
+                        
+
+                      //Post to local Server
+                      $http({
+                            method  : 'OPTIONS',
+                            url     : COMMON_IP_ADDRESS+'accelerate_taps_orders/',
+                            data    : obj,
+                            headers : {'Content-Type': 'application/json'},
+                            timeout : 10000
+                        })
+                        .success(function(response) { 
+                        
+                          if(response.data.ok){
+
+                          }
+                          else{
+                            $ionicLoading.show({
+                                template: "Not responding. Check your connection.",
+                                duration: 3000
+                            });
+                          }
+
+                        })
+                        .error(function(data) {
+                            $ionicLoading.show({
+                                template: "Not responding. Check your connection.",
+                                duration: 3000
+                            });
+                        });
 
     }
     

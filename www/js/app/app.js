@@ -241,8 +241,27 @@ angular.module('zaitoonFirst', [
                         templateUrl: 'views/pos/punch.html',
                         controller: 'PunchCtrl'
                     }
+                },
+                resolve: {
+                    kitchen_comments: function(ShoppingCartService) {
+                        return ShoppingCartService.getComments();
+                    }
                 }
             })
+
+
+            .state('main.app.settings', {
+                url: '/settings',
+                nativeTransitions: { type: "fade" },
+                views: {
+                    'app-punch@main.app': {
+                        templateUrl: 'views/pos/pos-settings.html',
+                        controller: 'SettingsCtrl'
+                    }
+                }
+            })
+
+
 
 
             .state('main.app.shopping-cart', {
@@ -299,39 +318,34 @@ angular.module('zaitoonFirst', [
 */
 
 
-            .state('main.app.orders', {
-                url: '/orders',
+            .state('main.app.status', {
+                url: '/status',
                 nativeTransitions: null,
                 views: {
-                    'app-orders@main.app': {
-                        templateUrl: 'views/pos/orders.html'
+                    'app-status@main.app': {
+                        templateUrl: 'views/pos/status.html'
                     }
                 }
             })
 
-            .state('main.app.orders.tables', {
-                url: '/orders-table',
+            .state('main.app.status.tables', {
+                url: '/status-table',
                 nativeTransitions: { type: "fade" },
                 views: {
-                    'my-tables@main.app.orders': {
-                        templateUrl: 'views/pos/my-tables.html',
-                        controller: 'OrdersTablesCtrl'
-                    }
-                },
-                resolve: {
-                    user: function(ProfileService) {
-                        return ProfileService.getUserData();
+                    'status-tables@main.app.status': {
+                        templateUrl: 'views/pos/status-tables.html',
+                        controller: 'StatusTablesCtrl'
                     }
                 }
             })
 
-            .state('main.app.orders.running', {
-                url: '/orders-running',
+            .state('main.app.status.running', {
+                url: '/status-running',
                 nativeTransitions: { type: "fade" },
                 views: {
-                    'my-running@main.app.orders': {
-                        templateUrl: 'views/pos/my-running.html',
-                        controller: 'OrdersRunningCtrl'
+                    'status-running@main.app.status': {
+                        templateUrl: 'views/pos/status-running.html',
+                        controller: 'StatusRunningCtrl'
                     }
                 }
             })
@@ -342,5 +356,5 @@ angular.module('zaitoonFirst', [
   ;
 
   // if none of the above states are matched, use this as the fallback
-  $urlRouterProvider.otherwise('/main/app/punch');
+  $urlRouterProvider.otherwise('/main/app/landing');
 });

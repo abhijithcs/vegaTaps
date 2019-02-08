@@ -41,8 +41,8 @@
 
 			.tab-item
 			{
-				background-color: $account-tabs-bg;
-				color: $account-tabs-color;
+				background-color: #dde0e0;
+				color: #a0a3a7 !important;
 				opacity: 1;
 
 				&:nth-of-type(1)
@@ -59,8 +59,8 @@
 
 				&.tab-item-active
 				{
-					background-color: $account-tabs-active-bg;
-					color: $account-tabs-active-color;
+					background-color: #37495d;
+					color: #FFF !important;
 				}
 
 				.tab-title
@@ -68,6 +68,7 @@
 					text-transform: none;
 					font-size: 16px;
 					font-weight: 400;
+					color: unset !important;
 				}
 			}
 		}
