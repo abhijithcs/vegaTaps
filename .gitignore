@@ -3,6 +3,7 @@
 
 node_modules/
 platforms/
+platform/
 plugins/
 showcase/
 UPLOAD/
