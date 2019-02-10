@@ -11,7 +11,7 @@
      
       <button ng-if="!isEditingOrder" class="button button-clear checkout-button" style="padding: 0 10px; background: #57c384;" ng-click="sendKOTToServer()"  ng-show="enableCheckPlaceOrderButton(products)">Place Order</button>
 
-      <button ng-if="isEditingOrder" class="button button-clear checkout-button" style="padding: 0 10px; background: #57c384;" ng-click="sendChangedKOT()"  ng-show="enableCheckPlaceOrderButton(products)">Confirm Changes</button>
+      <button ng-if="isEditingOrder" class="button button-clear checkout-button" style="padding: 0 10px; background: #57c384;" ng-click="sendChangedKOT(runningKOTNumber)"  ng-show="enableCheckPlaceOrderButton(products)">Confirm Changes</button>
       
     </div>
     <!-- " -->

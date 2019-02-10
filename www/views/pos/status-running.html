@@ -2,15 +2,12 @@
   <ion-content>
 
   <ion-refresher
-    on-refresh="doRefresh()">
+    on-refresh="doStatusRefresh()">
   </ion-refresher>
 
 
     <div class="orders-row">
-      <div ng-if="isEmpty"><p style="color: #C7C7C7; text-align: center">There are no orders placed yet.</p></div>
-
-      <div ng-if="isFail"><p style="color: #C7C7C7; text-align: center">{{failMsg}}</p></div>
-
+      <div ng-if="isEmpty"><p style="color: #C7C7C7; text-align: center">There are no running orders.</p></div>
 
       <!-- Loader Dummy Tiles -->
       <div ng-if="!isRenderOrderLoaded && !renderOrderFailed"> 

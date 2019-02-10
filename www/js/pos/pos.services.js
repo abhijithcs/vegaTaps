@@ -26,6 +26,11 @@ angular.module('pos.services', [])
   }
 
   this.setGuest = function(name, mobile, count){
+
+    if(count == null || count == ''){
+      count = 0;
+    }
+
     guestName = name;
     guestMobile = mobile;
     guestCount = count;
@@ -422,7 +427,7 @@ angular.module('pos.services', [])
 
 .service('ShoppingCartService', function ($http, $q, $rootScope){
 
-  let COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@127.0.0.1:5984/';
+  var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@192.168.1.3:5984/';
 
   //Billing Modes
   this.getBillingModes = function(){
