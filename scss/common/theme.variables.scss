@@ -231,6 +231,22 @@
     color: #FFF !important;  
 }
 
+.passcodeButton{
+    width: 90px;
+    display: inline-block;
+    border-radius: 50%;
+    height: 90px;
+    border: none;
+    font-size: 40px;
+    color: #989898;
+    background: #f6f6f6;
+    margin-bottom: 18px;  
+}
+
+.passcodeButton.active, .passcodeButton.focus, .passcodeButton.hover{
+  background: #dcdcdc;
+}
+
 .guestCountInput{
     width: 45px !important;
     display: inline-block !important;

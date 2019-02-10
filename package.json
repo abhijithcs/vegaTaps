@@ -6,7 +6,7 @@
         "angular-chart.js": "^1.1.1",
         "async": "^1.4.0",
         "cordova-android": "^6.4.0",
-        "cordova-ios": "3.8.0",
+        "cordova-ios": "^3.8.0",
         "cordova-plugin-console": "^1.0.2",
         "cordova-plugin-datetime-picker": "~0.5.1",
         "cordova-plugin-device": "^1.1.1",

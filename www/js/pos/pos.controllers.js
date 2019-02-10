@@ -15,7 +15,7 @@ angular.module('pos.controllers', ['ionic'])
         };
 
         $scope.defaultServer = {};
-        $scope.defaultServer.ip_address = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@192.168.1.3:5984/';
+        $scope.defaultServer.ip_address = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@127.0.0.1:5984/';
 
 
         $scope.saveServerAddress = function(){
@@ -29,7 +29,7 @@ angular.module('pos.controllers', ['ionic'])
     .controller('StatusRunningCtrl', function($ionicLoading, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate, ShoppingCartService) {
       
 
-        var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@192.168.1.3:5984/';
+        var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@127.0.0.1:5984/';
 
 
         $scope.isRenderOrderLoaded = false;
@@ -287,7 +287,7 @@ angular.module('pos.controllers', ['ionic'])
     .controller('StatusTablesCtrl', function($ionicLoading, ShoppingCartService, currentGuestData, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate) {
         
 
-        var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@192.168.1.3:5984/';
+        var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@127.0.0.1:5984/';
 
 
         $scope.isRenderTableLoaded = false;
@@ -603,7 +603,7 @@ angular.module('pos.controllers', ['ionic'])
     .controller('PunchCtrl', function(ShoppingCartService, currentGuestData, kitchen_comments, $timeout, $ionicLoading, $ionicPopup, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicPopover, $ionicSideMenuDelegate) {
 
 
-    	var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@192.168.1.3:5984/';
+    	var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@127.0.0.1:5984/';
 
 
     	if(window.localStorage.serverURL == '' || !window.localStorage.serverURL){
@@ -666,11 +666,18 @@ angular.module('pos.controllers', ['ionic'])
         $scope.isProfileSelected = false;
         $scope.selectedUserProfile = '';
 
-        $scope.setUserProfile = function(profile_name, profile_mobile){
+        $scope.setUserProfile = function(profile_name, profile_mobile, flag){
 
             $scope.selectedUserProfile = profile_name;
             window.localStorage.loggedInUser_name = profile_name;
             window.localStorage.loggedInUser_mobile = profile_mobile;
+
+            if(flag && flag == 'ADMIN'){
+                window.localStorage.loggedInUser_admin = 1;
+            }
+            else{
+                window.localStorage.loggedInUser_admin = 0;
+            }
 
             $scope.isProfileSelected = true;
 
@@ -692,13 +699,11 @@ angular.module('pos.controllers', ['ionic'])
                     .success(function(response) {
                         $scope.allProfileData = response.value;
 
-                        console.log($scope.allProfileData)
-                       
                         //Render Template
                         var i = 0;
                         var choiceTemplate = '<div style="margin-top: 10px">';
                         while (i < $scope.allProfileData.length) {
-                            choiceTemplate = choiceTemplate + '<button class="button button-full" style="text-align: left; color: #c52031; margin-bottom: 8px;" ng-click="selectProfileFromWindow(\'' + $scope.allProfileData[i].name + '\', ' + $scope.allProfileData[i].code + ')">' + $scope.allProfileData[i].name + ' </button>';
+                            choiceTemplate = choiceTemplate + '<button class="button button-full" style="text-align: left; color: #c52031; margin-bottom: 8px;" ng-click="selectProfileFromWindow(\'' + $scope.allProfileData[i].name + '\', ' + $scope.allProfileData[i].code + ', \''+$scope.allProfileData[i].role+'\')">' + $scope.allProfileData[i].name + ' </button>';
                             i++;
                         }
                         choiceTemplate = choiceTemplate + '</div>';
@@ -713,10 +718,107 @@ angular.module('pos.controllers', ['ionic'])
                             }]
                         });
 
+                                  var login_passcode_modal = $ionicModal.fromTemplateUrl('views/common/templates/enter-user-passcode.html', {
+                                    scope: $scope,
+                                    animation: 'slide-in-up'
+                                  }).then(function(modal) {
+                                    $scope.login_passcode_modal = modal;
+                                  });
 
-                        $scope.selectProfileFromWindow = function(user_name, user_mobile) {
-                            $scope.setUserProfile(user_name, user_mobile);
+
+
+                        $scope.selectProfileFromWindow = function(user_name, user_mobile, user_role) {
+                            
                             newCustomPopup.close();
+
+                            if(window.localStorage.loggedInUser_mobile &&  window.localStorage.loggedInUser_mobile == user_mobile){
+
+                                return '';
+                            }
+
+
+                            if(user_role != 'ADMIN'){
+                                $scope.setUserProfile(user_name, user_mobile);
+                            }
+                            else{ //Ask for passcode
+
+                                  $scope.login_passcode_modal.show();
+
+                                  $scope.passcodeEntered = [];
+
+                                  $scope.clearPasscode = function(){
+                                    $scope.passcodeEntered = [];
+                                  }
+
+                                  $scope.appendToPasscode = function(key){
+
+                                    if($scope.passcodeEntered.length >= 4){
+                                        return '';
+                                    }
+                                    else{
+                                        $scope.passcodeEntered.push(key);
+                                        if($scope.passcodeEntered.length == 4){
+                                            var code_string = $scope.passcodeEntered[0]+''+$scope.passcodeEntered[1]+''+$scope.passcodeEntered[2]+''+$scope.passcodeEntered[3];
+                                            validatePasscode(parseInt(code_string));
+
+                                            function validatePasscode(number){
+
+                                                $ionicLoading.show({
+                                                    template: '<ion-spinner></ion-spinner> Loading Tables...'
+                                                });
+
+                                                $http({
+                                                    method: 'GET',
+                                                    url: COMMON_IP_ADDRESS+'accelerate_settings/ACCELERATE_STAFF_PROFILES',
+                                                    timeout: 10000
+                                                })
+                                                .success(function(response) {
+
+                                                    $ionicLoading.hide();
+                                                    
+                                                    var profile_data = response.value;
+
+                                                    var i = 0;
+                                                    while (i < profile_data.length) {
+                                                        if(profile_data[i].code == user_mobile){
+                                                            
+                                                            if(number == profile_data[i].password){
+                                                                $scope.login_passcode_modal.hide();
+                                                                $scope.setUserProfile(user_name, user_mobile, 'ADMIN');
+                                                            }
+                                                            else{
+                                                                $ionicLoading.show({
+                                                                    template: "Incorrect Passcode",
+                                                                    duration: 1000
+                                                                });
+
+                                                                $scope.passcodeEntered = [];
+                                                                return '';
+                                                            }
+
+                                                            break;
+                                                        }
+
+                                                        i++
+                                                    }
+                                                })
+                                                .error(function(data) {
+
+                                                    $ionicLoading.hide();
+
+                                                    $ionicLoading.show({
+                                                        template: "Not responding. Check your connection.",
+                                                        duration: 3000
+                                                    });
+                                                });
+                                                
+                                            }
+                                        }
+                                    }
+
+                                  }
+                            }
+                            
                         }
 
 
@@ -1619,7 +1721,7 @@ angular.module('pos.controllers', ['ionic'])
  .controller('ShoppingCartCtrl', function(products, currentGuestData, billing_modes, billing_parameters, $http, $scope, $ionicLoading, $ionicModal, $state, $rootScope, $ionicActionSheet, ShoppingCartService) {
 
 
-    var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@192.168.1.3:5984/';
+    var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@127.0.0.1:5984/';
 
 
  	$scope.products = products;
@@ -2313,7 +2415,7 @@ angular.module('pos.controllers', ['ionic'])
                           obj.customExtras = {};
 
 
-                          var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@192.168.1.3:5984/';
+                          var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@127.0.0.1:5984/';
                                 
                           //LOADING
                           $ionicLoading.show({

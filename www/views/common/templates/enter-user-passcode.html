@@ -1,0 +1,81 @@
+<ion-modal-view class="modal-view legal-view" style="background: #607D8B;">
+  <ion-content>
+
+    <div class="row copy-row">
+      <div class="col">
+        <h2 class="legal-title" style="margin: 25px 0; font-size: 24px; font-weight: 400 !important;">Enter Passcode</h2>
+
+        <div class="legal-content" style="padding: 10px">
+
+
+          <div style="margin: 25px 0; height: 30px; display: block; border-bottom: 1px dashed #f6f6f6;">
+            <span style="text-align: center; display: block; color: #444; letter-spacing: 10px; font-size: 21px"><i class="fa fa-circle" ng-repeat="dot in passcodeEntered track by $index"></i></span>
+          </div>
+
+
+          <div>
+            <div class="row">
+              <div class="col col-33" style="text-align: center">
+                <button class="passcodeButton" ng-click="appendToPasscode(1)">1</button>
+              </div>
+              <div class="col col-33" style="text-align: center">
+                <button class="passcodeButton" ng-click="appendToPasscode(2)">2</button>
+              </div>
+              <div class="col col-33" style="text-align: center">
+                <button class="passcodeButton" ng-click="appendToPasscode(3)">3</button>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col col-33" style="text-align: center">
+                <button class="passcodeButton" ng-click="appendToPasscode(4)">4</button>
+              </div>
+              <div class="col col-33" style="text-align: center">
+                <button class="passcodeButton" ng-click="appendToPasscode(5)">5</button>
+              </div>
+              <div class="col col-33" style="text-align: center">
+                <button class="passcodeButton" ng-click="appendToPasscode(6)">6</button>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col col-33" style="text-align: center">
+                <button class="passcodeButton" ng-click="appendToPasscode(7)">7</button>
+              </div>
+              <div class="col col-33" style="text-align: center">
+                <button class="passcodeButton" ng-click="appendToPasscode(8)">8</button>
+              </div>
+              <div class="col col-33" style="text-align: center">
+                <button class="passcodeButton" ng-click="appendToPasscode(9)">9</button>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col col-33" style="text-align: center">
+                
+              </div>
+              <div class="col col-33" style="text-align: center">
+                <button class="passcodeButton" ng-click="appendToPasscode(0)">0</button>
+              </div>
+              <div class="col col-33" style="text-align: center">
+                
+              </div>
+            </div>
+          </div>
+
+      </div>
+    </div>
+
+  <div style="border-radius: 0; position: absolute; bottom: 0; z-index: 1000; margin: 0; left: 0; width: 100%; border-top: 2px solid #4d606b;">
+   
+    <button class="button button-default close-button" style="width: 35%; float: left; margin: 0; border-radius: 0;" ng-click="login_passcode_modal.hide()">Close</button>
+
+    <button ng-click="clearPasscode()" style="width: 65%; float: right; display: inline-block; position: absolute; right: 0; border-radius: 0; top: 0; margin: 0; " class="button button-default button-block">Clear</button>
+
+  </div>
+
+  </ion-content>
+</ion-modal-view>
+
+
+
