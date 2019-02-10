@@ -1,6 +1,18 @@
 /* Changes for POS */
 
-.billingModeBar{
+.billingModeBarGray{
+    height: 40px;
+    width: 100%;
+    font-size: 16px;
+    padding: 10px;
+    background: #e4e4e4;
+    border-bottom: 2px solid #c5c5c5;
+    color: #444;
+    font-weight: bold;
+}
+
+
+.billingModeBarOrange{
     height: 40px;
     width: 100%;
     background: #ff984c;
@@ -11,9 +23,9 @@
     font-weight: bold;
 }
 
-.billingModeBar:focus,
-.billingModeBar:active,
-.billingModeBar:hover
+.billingModeBarOrange:focus,
+.billingModeBarOrange:active,
+.billingModeBarOrange:hover
 {
   background: #d37936; 
 }
@@ -105,8 +117,9 @@
     font-size: 16px;
     float: right;
     top: 2px;
-    position: relative;
+    position: absolute;
     line-height: 24px;
+    right: 3px;
 }
 
 .mainTypeButton{
@@ -143,10 +156,10 @@
 
 .posSubButton{
     width: 100%;
-    background: #f9fff1;
+    background: #effbff;
     height: 36px;
     display: block;
-    border: 1px solid #e4ecd7;
+    border: 1px solid #75cde6;
     border-radius: 2px;
     overflow:hidden; 
     white-space:nowrap; 
@@ -157,8 +170,8 @@
 .posSubButton:hover,
 .posSubButton:active,
 .posSubButton:focus{
-  border-color: #6dcea8 !important;
-  background: #6dcea8 !important;
+  border-color: #11c1f3 !important;
+  background: #11c1f3 !important;
 }
 
 .posSubButton:hover .posSubText,
@@ -171,7 +184,7 @@
     font-size: 18px;
     line-height: 33px;
     font-weight: 400;
-    color: #4d583c;
+    color: #0a9dc7;
 }
 
 .liveCartLabel{
@@ -195,10 +208,10 @@
     box-shadow: 0 1px 3px 0px rgba(0, 0, 0, 0.2);
 }
 
-
 .liveCartLabel.active{
     background-color: #33cd5f !important;
     color: #FFF !important;
+    text-align: left !important;
 }
 
 .guestCountButton{
@@ -210,6 +223,7 @@
     font-size: 24px;
     color: #989898;
     background: #f6f6f6;
+    margin-bottom: 2px;
 }
 
 .guestCountButton.active{
@@ -266,11 +280,10 @@
     margin-bottom: 10px;
     text-align: center;
     padding-bottom: 7px;  
-
-    background: #2c2d2d;
+    background: #11c1f3;
     color: #FFF;
     font-weight: 400;
-    border-bottom: 3px solid #a8302b;
+    border-bottom: 3px solid #0a9dc7;
 }
 
 
@@ -297,12 +310,28 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    color: #ffab6b;  
+    color: #5a5a5a;  
     float: right;
 }
 
 .posMyItem{
     border-bottom: 1px solid #f6f7f8;
+}
+
+.guestMobileInput{
+    border-radius: 0px;
+    border-top: none;
+    border-right: none;
+    border-left: none;
+    border-image: initial;
+    resize: none;
+    border-bottom: 1px solid rgb(235, 235, 235) !important;
+    width: 100%;
+    font-size: 18px;
+    line-height: 21px;
+    padding: 10px 0px;
+    color: #a9591a;
+    text-align: center;
 }
 
 
@@ -842,6 +871,31 @@ letter-spacing: 1px;
     padding: 0px;
     font-size: 14px;
 }
+
+
+.guestAddButton{
+    background-color: #a9adad;
+    color: #FFF;
+    position: relative;
+    display: inline-block;
+    margin: 0;
+    border: none;
+    vertical-align: top;
+    text-align: center;
+    text-overflow: ellipsis;
+    line-height: 32px;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    padding: 0px;
+    font-size: 14px;
+}
+
+.guestAddButton.active{
+    background-color: #ff984c;
+}
+
 
 .reservationBottomFilterHolder{
     position: absolute;

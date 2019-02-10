@@ -9,13 +9,26 @@
             </button>
 
 
-            <button class="button button-clear" style="text-align: left; margin-left: 10px; font-weight: 400; color: #FFF; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; font-size: 18px;">
-              Punch Order
+            <button class="button button-clear" style="text-align: left; margin-left: 5px; font-weight: 400; color: #FFF; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; font-size: 18px;" ng-click="openSeatPlanView()">
+              <tag class="reservationAddButton" style="float: right; background: rgb(255, 255, 255); width: 120px; border-radius: 4px; color: #e84a37; font-style: italic;" ng-if="selectedTable == ''">
+                <i class="fa fa-th"></i> Select
+              </tag>
+              <tag class="reservationAddButton" style="float: right; background: #55bf5a; width: 120px; border-radius: 4px; font-weight: bold;" ng-if="selectedTable != ''">
+                Table #{{selectedTable}}
+              </tag>
             </button>  
+
+            <!-- Captains details -->
+            <div style="position: relative; top: 3px; left: 6px; display: block; width: 180px;">
+              <tag style="color: #FFF; font-size: 17px; font-weight: 300; position: absolute;">{{currentTimeDisplay}}</tag>
+              <tag style="color: #FFF; font-size: 10px; font-weight: bold; position: absolute; top: 12px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; width: 100%; display: block; text-transform: uppercase" ng-if="isProfileSelected" ng-click="chooseUserProfile()">{{selectedUserProfile}}</tag>
+              <tag style="color: #FFC107; font-size: 12px; font-weight: bold; position: absolute; top: 12px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; width: 100%; display: block; font-style: italic" ng-if="!isProfileSelected" ng-click="chooseUserProfile()">Select User</tag>
+            </div>
+            
 
 
             <!-- filter by date -->
-            <button class="button button-clear clearSearchFilterButton" style="position: absolute; top: 0px; right: 0px;">
+            <button class="button button-clear clearSearchFilterButton" style="position: absolute; top: 0px; right: 0px;" ng-click="startSearching()">
               <i class="icon ion-android-search"></i> 
             </button>  
 
@@ -40,6 +53,27 @@
 
       </ion-header-bar>
 
+
+
+
+  <ion-header-bar class="search-header" ng-if="isSearching" style="background: #e73c70">
+    <div class="row item-input-inset search-row">
+      <div class="col col-90">
+        <label class="item-input-wrapper search-label">
+          <i class="icon ion-ios-search placeholder-icon"></i>
+          <input type="search" id="menu_search_input" placeholder="Search" name="search_query" ng-model="search.query">
+        </label>
+      </div>
+      <div class="col">
+        <button class="button button-clear cancel-button ion-close" style="float: right; width: 50px; color: #FFF;" ng-click="resetSearch()">
+        </button>
+      </div>
+    </div>
+  </ion-header-bar>
+
+
+
+
     <ion-nav-view animation="slide-left-right">
          <ion-content class="categories-feeds-content" overflow-scroll="true" has-bouncing="false" delegate-handle="feeds-content" style="background: #FFF;" ng-class='{hasBanner : isFilterEnabled}'>
 
@@ -55,6 +89,29 @@
           </bannerbutton>
 
 
+
+<!-- Search Results -->
+<div class="feed-view" ng-if="isSearching">
+      <div class="posMyItem" ng-class="{'unavail': !item.isAvailable}" ng-repeat="item in itemList = (allSearchItemsList | searchField : 'item.name' | filter:search.query) track by $index" ng-click="openItemDetails(item)">
+        <div class="row">
+          <div class="col vegFlagPOS">
+            <span class="icon ion-android-radio-button-on nveg"></span>
+          </div>
+          <div class="col col-75">
+            <span class="menuPOSItemText">{{item.name}}</span>
+          </div>
+          <div class="col">
+            <span class="menuPOSItemPrice"><i class="fa fa-inr" style="font-size: 80%"></i><b>{{item.price}}</b></span>
+          </div>
+        </div>
+      </div>
+
+      <p ng-if="itemList.length == 0" style="margin: 15px 0; text-align: center; color: #e86868; font-style: italic;">No items found</p>
+</div>  
+
+
+
+<div ng-if="!isSearching"> <!-- ~ NOT SEARCHING -->
 
 <!-- Showing Items -->
 <div class="feed-view" ng-if="isRenderingItems">
@@ -73,19 +130,16 @@
             <span class="menuPOSItemText">{{item.name}}</span>
           </div>
           <div class="col">
-            <span class="menuPOSItemPrice"><i class="fa fa-inr" style="font-size: 80%"></i> {{item.price}}</span>
+            <span class="menuPOSItemPrice"><i class="fa fa-inr" style="font-size: 80%"></i><b>{{item.price}}</b></span>
           </div>
         </div>
       </div>
 </div>  
 
 
-
-
-
-
 <!-- Select Main Category -->
-<div ng-if="!isRenderingItems">
+<div ng-if="!isRenderingItems && (isRenderLoaded && !renderFailed)">
+  
     <div class="posHolderMain">
       <div class="row info-row">
         <div class="col col-50">
@@ -155,6 +209,9 @@
 </div>
 
 
+</div> <!-- ~ NOT SEARCHING -->
+
+
 
           <!-- Search bar -->
           <div class="row" style="padding: 0 10px" ng-if="reservationsFilteredList.length > 1">
@@ -204,17 +261,21 @@
          </ion-content>
 
 
-         <div class="reservationBottomFilterHolder">
-            <tag class="liveCartLabel" ng-class="{'active' : getProductsInCart() > 0}" ng-click="openCartWindow()">
-                <tag style="text-transform: none; font-size: 18px">Cart<b id="cart-image-icon" ng-if="getProductsInCart() > 0" class="cartCounter">{{getProductsInCart()}}</b></tag>
-            </tag>
-            <tag class="reservationAddButton" style="float: right; background: #a9adad" ng-click="newBook()"><i class="ion-plus"></i></tag>
-            <tag class="reservationAddButton" style="float: right; margin-right: 10px; background: #a9adad" ng-click="quickSummary()"><i class="fa fa-filter"></i></tag>
+         <div class="reservationBottomFilterHolder" ng-show="selectedTable != ''">
 
-            <tag class="reservationAddButton" style="float: right; margin-right: 10px; background: #e73c70; width: 90px; border-radius: 4px;" ng-click="openSeatPlanView()">
-              <span ng-if="selectedTable == null"><i class="fa fa-th"></i> Select</span>
-              <span ng-if="selectedTable != null">Table #{{selectedTable}}</span>
+            <tag class="reservationAddButton" style="float: left; background: #a9adad" ng-click="notAvailable('Custom Item feature is not available in this version')"><i class="ion-plus"></i></tag>
+            <tag class="reservationAddButton" style="float: left; background: #a9adad; margin-left: 10px;" ng-click="notAvailable('Filter feature is not available in this Version')"><i class="fa fa-filter"></i></tag>
+
+            <tag class="guestAddButton" ng-class="{'active' : isGuestDataEntered()}" style="float: left; width: 160px; border-radius: 4px; margin-left: 10px" ng-click="openGuestDetails()">
+                <span ng-if="isGuestDataEntered()" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis; width: 100%; display: block; padding-left: 22px;"><i class="fa fa-user-o" style="position: absolute; left: 8px; top: 8px;"></i> {{getGuestContent()}}</span>
+                <span ng-if="!isGuestDataEntered()" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis; width: 100%; display: block; padding-left: 22px;"><i class="fa fa-user-o" style="position: absolute; left: 8px; top: 8px;"></i> <i style="font-style: italic">Enter Guest Details</i></span>
             </tag>
+
+
+            <tag class="liveCartLabel" ng-class="{'active' : getProductsInCart() > 0}" ng-click="openCartWindow()" style="float: right; width: 100px;">
+                <tag style="text-transform: none; font-size: 16px;">Cart<b id="cart-image-icon" ng-if="getProductsInCart() > 0" class="cartCounter">{{getProductsInCart()}}</b></tag>
+            </tag>
+
          </div>
 
 
@@ -246,7 +307,7 @@
                <i class="icon" style="width: 60px; color: #FFF"><i class="fa fa-star-half-o" style="font-size: 70%; padding-left: 6px"></i></i>
                <h2 class="menu-text">Feedbacks</h2>
         </ion-item>
-        <ion-item class="item-icon-left" style="background: none" nav-clear menu-close ui-sref="main.app.accounts">
+        <ion-item class="item-icon-left" style="background: none" nav-clear menu-close ui-sref="main.app.settings">
                <i class="icon" style="width: 60px; color: #FFF"><i class="fa fa-gear" style="font-size: 70%; padding-left: 6px"></i></i>
                <h2 class="menu-text">Settings</h2>
         </ion-item>

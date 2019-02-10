@@ -587,3 +587,102 @@
 		}
 	}
 }
+
+
+.confirm-alert-view
+{
+	&.popup-container
+	{
+		.popup
+		{
+			background-color: $checkout-popup-bg;
+		}
+
+		.popup-buttons
+		{
+		  height: initial;
+		  min-height: 0px;
+		  padding: 0px;
+			margin: 0px;
+			border-top: 1px solid #4c5a6a;
+		  background-color: $address-popup-button-bg;
+			border-radius: 0px 0px 6px 6px;
+
+			.button
+			{
+				margin: 0px;
+				background-color: $address-popup-button-bg;
+				color: $address-popup-button-color;
+				border-radius: 0px;
+				border: none;
+
+				&:first-child
+				{
+					color: #FFF;
+					border-bottom-left-radius: 6px;
+				}
+				&:last-child
+				{
+					background-color: #4c5a6a;
+					border-bottom-right-radius: 6px;
+				}
+
+				&.delete-button
+				{
+					background-color: $address-popup-button-delete-bg;
+					@include flex(0 0 40%);
+				}
+			}
+		}
+	}
+}
+
+
+
+.confirm-alert-alternate
+{
+	&.popup-container
+	{
+		.popup
+		{
+			background-color: $checkout-popup-bg;
+		}
+
+		.popup-buttons
+		{
+		  height: initial;
+		  min-height: 0px;
+		  padding: 0px;
+			margin: 0px;
+			//border-top: 1px solid #4c5a6a;
+		  background-color: $address-popup-button-bg;
+			border-radius: 0px 0px 6px 6px;
+
+			.button
+			{
+				margin: 0px;
+				background-color: #b5b5b5;
+				color: $address-popup-button-color;
+				border-radius: 0px;
+				border: none;
+
+				&:first-child
+				{
+					color: #FFF;
+					border-bottom-left-radius: 6px;
+				}
+				&:last-child
+				{
+					background-color: #4c5a6a;
+					border-bottom-right-radius: 6px;
+				}
+
+				&.delete-button
+				{
+					background-color: $address-popup-button-delete-bg;
+					@include flex(0 0 40%);
+				}
+			}
+		}
+	}
+}

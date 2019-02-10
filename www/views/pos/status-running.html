@@ -1,0 +1,89 @@
+<ion-view class="account-orders-view account-sub-view" cache-view="false" view-title="My Orders">
+  <ion-content>
+
+  <ion-refresher
+    on-refresh="doStatusRefresh()">
+  </ion-refresher>
+
+
+    <div class="orders-row">
+      <div ng-if="isEmpty"><p style="color: #C7C7C7; text-align: center">There are no running orders.</p></div>
+
+      <!-- Loader Dummy Tiles -->
+      <div ng-if="!isRenderOrderLoaded && !renderOrderFailed"> 
+          <div class="row"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 40%; height: 18px; display: inline-block;"> <div class="loaderDummyTile" style="height: 16px"></div> </div> <div class="infoTileHead" style="width: 100%; height: 13px; display: inline-block;"> <div class="loaderDummyTile" style="height: 13px"></div> </div> <div class="infoTileHead" style="width: 100%; height: 13px; display: inline-block;"> <div class="loaderDummyTile" style="height: 13px"></div> </div> </div> </div>
+
+          <div class="row" style="margin-top: 5px"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 40%; height: 18px; display: inline-block;"> <div class="loaderDummyTile" style="height: 16px"></div> </div> <div class="infoTileHead" style="width: 100%; height: 13px; display: inline-block;"> <div class="loaderDummyTile" style="height: 13px"></div> </div> <div class="infoTileHead" style="width: 100%; height: 13px; display: inline-block;"> <div class="loaderDummyTile" style="height: 13px"></div> </div> </div> </div>
+
+          <div class="row" style="margin-top: 5px"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 40%; height: 18px; display: inline-block;"> <div class="loaderDummyTile" style="height: 16px"></div> </div> <div class="infoTileHead" style="width: 100%; height: 13px; display: inline-block;"> <div class="loaderDummyTile" style="height: 13px"></div> </div> <div class="infoTileHead" style="width: 100%; height: 13px; display: inline-block;"> <div class="loaderDummyTile" style="height: 13px"></div> </div> </div> </div>
+
+          <div class="row" style="margin-top: 5px"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 40%; height: 18px; display: inline-block;"> <div class="loaderDummyTile" style="height: 16px"></div> </div> <div class="infoTileHead" style="width: 100%; height: 13px; display: inline-block;"> <div class="loaderDummyTile" style="height: 13px"></div> </div> <div class="infoTileHead" style="width: 100%; height: 13px; display: inline-block;"> <div class="loaderDummyTile" style="height: 13px"></div> </div> </div> </div>
+
+          <div class="row" style="margin-top: 5px"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 40%; height: 18px; display: inline-block;"> <div class="loaderDummyTile" style="height: 16px"></div> </div> <div class="infoTileHead" style="width: 100%; height: 13px; display: inline-block;"> <div class="loaderDummyTile" style="height: 13px"></div> </div> <div class="infoTileHead" style="width: 100%; height: 13px; display: inline-block;"> <div class="loaderDummyTile" style="height: 13px"></div> </div> </div> </div>
+
+      </div>
+
+      <div ng-if="renderOrderFailed" style="padding: 40px 20px 20px 20px;">
+        <center>
+          <img src="img/common/error_icon.png">
+          <p style="color: #d4d4d4; margin: 10px; font-size: 15px; margin-top: -15px;">Failed to load the content. Try again.</p>
+        </center>
+      </div>
+
+<div ng-show="isRenderOrderLoaded && !renderOrderFailed">
+
+      <div class="card order-item" ng-repeat="order in orders_list">
+        <div class="item item-divider order-header" style="background: #4a5a6b; padding-right: 10px; padding-left: 10px;" ng-click="openOrderToEdit(order)">
+          <span class="header-title"><span style="font-size: 120%; font-weight: 900; background: #758ba5; color: #FFF; border-radius: 4px; padding: 0 5px;">{{order.table}}</span> <tag style="font-size: 80%"><tag style="font-weight: 400">{{order.stewardName}}</tag> at {{filterTime(order)}}</tag><jafry style="color:white; float:right">#{{order.KOTNumber}}</jafry></span>
+        </div>
+        <div class="item item-text-wrap order-content">
+          <div class="row order-product" ng-repeat="product in order.cart track by $index" style="height: 32px;" ng-click="openCommentsIfAdded(product)">
+            <div class="col col-75 col-center">
+              <span class="product-name">
+                <tag style="font-weight: 500; color: #2a323c;">{{product.name}}</tag>
+                <tag ng-if="product.isCustom" style="font-size: 80%; font-weight: 500"> ({{product.variant}})</tag>
+                <tag ng-if="product.comments && product.comments != ''" style="font-size: 80%"> <i class="fa fa-comment-o"></i></tag>
+              </span>
+            </div>
+            <div class="col col-center">
+              <span class="product-price" style="text-align: right; font-weight: 500; color: #2a323c;">x {{product.qty}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="item item-divider order-footer" ng-if="order.status==0">
+          <span class="status-title" style="color:#d35400; float: left">Pending Confirmation</span>
+          <div class="button button-small button-outline button-primary" style="float: right; margin-top:5px; color: #33cd5f; border-color: #33cd5f" ng-click="trackMe(order.orderID)">TRACK ORDER</div>
+        </div>
+        <div class="item item-divider order-footer" ng-if="order.status==1">
+          <span class="status-title" style="color:#27ae60; float: left">Order Confirmed</span>
+          <div class="button button-small button-outline button-primary" style="float: right; margin-top:5px; color: #33cd5f; border-color: #33cd5f" ng-click="trackMe(order.orderID)">TRACK ORDER</div>
+        </div>
+        <div class="item item-divider order-footer" ng-if="order.status==2">
+          <span class="status-title" style="color:#2c3e50; float: left">
+			<tag ng-if="order.isTakeaway">Ready for Pickup</tag>
+			<tag ng-if="!order.isTakeaway">Dispatched</tag>
+		  </span>
+          <div class="button button-small button-outline button-primary" style="float: right; margin-top:5px; color: #33cd5f; border-color: #33cd5f" ng-click="trackMe(order.orderID)">TRACK ORDER</div>
+        </div>
+        <div class="item item-divider order-footer" ng-if="order.status==3">
+          <span class="status-title" style="color:#2c3e50; float: left">Delivered</span>
+        </div>
+        <div class="item item-divider order-footer" ng-if="order.status==5">
+          <span class="status-title" style="color:#e74c3c; float: left">Cancelled</span>
+        </div>
+      </div>
+</div>
+
+
+    </div>
+
+    <i ng-if="left == 0"><center><img src=img/common/end.png></center></i>
+    
+    <ion-infinite-scroll
+      immediate-check="false"
+      ng-if="left"
+      on-infinite="loadMore()"
+      distance="1%">
+    </ion-infinite-scroll>
+  </ion-content>
+</ion-view>

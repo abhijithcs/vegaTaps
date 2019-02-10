@@ -1,42 +1,63 @@
 angular.module('pos.services', [])
 
-
-.service('OutletFetchService', function ($http, $q){
-  this.getOutlet = function(code){
-    var dfd = $q.defer();
-    $http.get('https://www.zaitoon.online/services/fetchoutlets.php?outletcode='+code).success(function(data) {
-      dfd.resolve(data.response);
-    });
-    return dfd.promise;
+.filter('reverse', function() {
+  return function(items) {
+    return items.slice().reverse();
   };
 })
 
-.service('outletWarningStatusService', function ($http, $q){
-  var isWarningPrefered = true;
-  var isDelayWarningPrefered = true;
+
+.service('currentGuestData', function ($http, $rootScope, $q){
+  
+  var guestName = '';
+  var guestMobile = '';
+  var guestCount = '';
 
   /* For Closure */ 
-  this.getStatus = function(){
-    return isWarningPrefered;
+  this.getGuest = function(){
+
+    var guestObject = {
+      "name" : guestName,
+      "mobile" : guestMobile,
+      "count" : guestCount
+    }
+
+    return guestObject;
   }
 
-  this.clearWarning = function(){
-    isWarningPrefered = false;
+  this.setGuest = function(name, mobile, count){
+
+    if(count == null || count == ''){
+      count = 0;
+    }
+
+    guestName = name;
+    guestMobile = mobile;
+    guestCount = count;
+
+    var guestObject = {
+      "name" : guestName,
+      "mobile" : guestMobile,
+      "count" : guestCount
+    }
+
+    $rootScope.$broadcast('guest_updated', guestObject);
+    $rootScope.$emit('guest_updated', guestObject);
   }
 
+  this.clearGuest = function(){
+    guestName = '';
+    guestMobile = '';
+    guestCount = '';  
 
-  /* For Delay */
-  this.getDelayStatus = function(){
-    return isDelayWarningPrefered;
-  }
+    var guestObject = {
+      "name" : guestName,
+      "mobile" : guestMobile,
+      "count" : guestCount
+    }
 
-  this.clearDelayWarning = function(){
-    isDelayWarningPrefered = false;
-  }
-
-  this.reset = function(){
-    isWarningPrefered = true;
-    isDelayWarningPrefered = true;
+    $rootScope.$broadcast('guest_updated', guestObject);
+    $rootScope.$emit('guest_updated', guestObject);  
   }
 
 })
@@ -406,23 +427,18 @@ angular.module('pos.services', [])
 
 .service('ShoppingCartService', function ($http, $q, $rootScope){
 
+  var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@192.168.1.3:5984/';
+
   //Billing Modes
   this.getBillingModes = function(){
     var dfd = $q.defer();
 
-    var data = {};
-    data.token = "MALA";
-
     $http({
-      method  : 'POST',
-      url     : 'https://www.zaitoon.online/services/fetchusers.php',
-      data    : data,
-      headers : {'Content-Type': 'application/x-www-form-urlencoded'}
+      method  : 'GET',
+      url     : COMMON_IP_ADDRESS + 'accelerate_settings/ACCELERATE_BILLING_MODES'
      })
     .then(function(response) {
-      var sample_data = JSON.parse('{"_id":"ZAITOON_BILLING_MODES","_rev":"57-1d5355fa14406fe6439f0c85f61ed249","identifierTag":"ZAITOON_BILLING_MODES","value":[{"name":"Dine In","isDiscountable":true,"type":"DINE","maxDiscount":2000,"extras":[{"name":"SGST","value":"3.50"},{"name":"CGST","value":"2.50"}]},{"name":"Delivery - Zatioon App","isDiscountable":true,"type":"DELIVERY","maxDiscount":2000,"extras":[{"name":"CGST","value":"2.50"},{"name":"SGST","value":"2.50"},{"name":"Parcel Charges","value":"7.00"}]},{"name":"Delivery - Phone","isDiscountable":true,"type":"DELIVERY","maxDiscount":2000,"extras":[{"name":"CGST","value":"2.50"},{"name":"SGST","value":"2.50"},{"name":"Parcel Charges","value":"7.00"}]},{"name":"Takeaway - Zatioon App","isDiscountable":true,"type":"PARCEL","maxDiscount":2000,"extras":[{"name":"SGST","value":"2.50"},{"name":"CGST","value":"2.50"},{"name":"Parcel Charges","value":"5.00"}]},{"name":"Swiggy","isDiscountable":true,"type":"PARCEL","maxDiscount":2000,"extras":[{"name":"SGST","value":"2.50"},{"name":"CGST","value":"2.50"},{"name":"Container Charges","value":"5.00"}]},{"name":"Dine AC","isDiscountable":true,"type":"DINE","maxDiscount":2000,"extras":[{"name":"SGST","value":"2.50"},{"name":"CGST","value":"2.50"}]},{"name":"iitm","isDiscountable":true,"type":"TOKEN","maxDiscount":2000,"extras":[{"name":"Container Charges","value":"5.00"}]},{"name":"toekn","isDiscountable":true,"type":"TOKEN","maxDiscount":2000,"extras":[{"name":"SGST","value":"2.50"},{"name":"CGST","value":"2.50"},{"name":"Container Charges","value":"5.00"},{"name":"Parcel Charges","value":"10.00"}]}]}');
-      console.log(sample_data)
-      dfd.resolve(sample_data.value);
+      dfd.resolve(response.data.value);
     });
 
     return dfd.promise;
@@ -432,20 +448,30 @@ angular.module('pos.services', [])
   this.getBillingParameters = function(){
     var dfd = $q.defer();
 
-    var data = {};
-    data.token = "MALA";
-
     $http({
-      method  : 'POST',
-      url     : 'https://www.zaitoon.online/services/fetchusers.php',
-      data    : data,
-      headers : {'Content-Type': 'application/x-www-form-urlencoded'}
+      method  : 'GET',
+      url     : COMMON_IP_ADDRESS + 'accelerate_settings/ACCELERATE_BILLING_PARAMETERS'
      })
     .then(function(response) {
-      var sample_data = JSON.parse('{ "_id": "ZAITOON_BILLING_PARAMETERS", "_rev": "37-dee65966c6125646a2198729b99c8cf2", "identifierTag": "ZAITOON_BILLING_PARAMETERS", "value": [ { "name": "SGST", "excludePackagedFoods": true, "value": 2.5, "unit": "PERCENTAGE", "unitName": "Percentage (%)" }, { "name": "CGST", "excludePackagedFoods": true, "value": 2.5, "unit": "PERCENTAGE", "unitName": "Percentage (%)" }, { "name": "Container Charges", "excludePackagedFoods": true, "value": 5, "unit": "PERCENTAGE", "unitName": "Percentage (%)" }, { "name": "Parcel Charges", "excludePackagedFoods": false, "value": 10, "unit": "FIXED", "unitName": "Fixed Amount (Rs)" } ] }');
-      console.log(sample_data)
+      dfd.resolve(response.data.value);
+    });
 
-      dfd.resolve(sample_data.value);
+    return dfd.promise;
+  };  
+
+
+  this.getComments = function(){
+    var dfd = $q.defer();
+
+    $http({
+      method  : 'GET',
+      url     : COMMON_IP_ADDRESS + 'accelerate_settings/ACCELERATE_SAVED_COMMENTS'
+     })
+    .then(function(response) {
+      var my_data = response.data.value;
+      my_data.sort();
+      
+      dfd.resolve(my_data);
     });
 
     return dfd.promise;
@@ -454,18 +480,39 @@ angular.module('pos.services', [])
 
 
   this.getProducts = function(){
-    return JSON.parse(window.localStorage.zaitoonFirst_cart || '[]');
+    return JSON.parse(window.localStorage.accelerate_cart || '[]');
   };
 
+  this.clearCartToEmpty = function(){
+    window.localStorage.removeItem('accelerate_cart');
+    window.localStorage.edit_KOT_originalCopy = '';
+    window.localStorage.hasUnsavedChangesFlag = 0;
+    
+    var cart_products = [];
+  
+    $rootScope.$broadcast('cart_updated', cart_products);
+    $rootScope.$emit('cart_updated', cart_products);
+  };
+
+  this.clearCartItems = function(){
+    window.localStorage.removeItem('accelerate_cart');
+    
+    var cart_products = [];
+  
+    $rootScope.$broadcast('cart_updated', cart_products);
+    $rootScope.$emit('cart_updated', cart_products);
+  }
+
+
   this.updatedProducts = function(products){
-    //window.localStorage.zaitoonFirst_cart = JSON.stringify(products);
+    //window.localStorage.accelerate_cart = JSON.stringify(products);
 
     $rootScope.$broadcast('cart_updated', products);
   };
 
   this.addProduct = function(productToAdd){
 
-    var cart_products = !_.isUndefined(window.localStorage.zaitoonFirst_cart) ? JSON.parse(window.localStorage.zaitoonFirst_cart) : [];
+    var cart_products = !_.isUndefined(window.localStorage.accelerate_cart) ? JSON.parse(window.localStorage.accelerate_cart) : [];
 
     var maxCartIndex = 0;
 
@@ -480,38 +527,13 @@ angular.module('pos.services', [])
     }
 
     productToAdd.cartIndex = maxCartIndex + 1;
-    console.log(productToAdd)
 
       cart_products.push(productToAdd);
       $rootScope.$broadcast('cart_updated', cart_products);
       $rootScope.$emit('cart_updated', cart_products);
 
-    /*
-    else{ //Increment the cart count
-      if(productToAdd.isCustom){
-        var i = 0;
-        while(i < cart_products.length){
-          if((cart_products[i].code == productToAdd.code) && (cart_products[i].variant == productToAdd.variant)){
-            cart_products[i].qty++;
-            break;
-          }
-          i++;
-        }
-      }
-      else{
-        var i = 0;
-        while(i < cart_products.length){
-          if(cart_products[i].code == productToAdd.code){
-            cart_products[i].qty++;
-            break;
-          }
-          i++;
-        }
-      }
-    }
-    */
 
-    window.localStorage.zaitoonFirst_cart = JSON.stringify(cart_products);
+    window.localStorage.accelerate_cart = JSON.stringify(cart_products);
     $rootScope.$broadcast('cart_updated', cart_products);
 
     //animateCartIcon();
@@ -519,7 +541,7 @@ angular.module('pos.services', [])
 
   this.lessProduct = function(cart_index){
 
-    var cart_products = JSON.parse(window.localStorage.zaitoonFirst_cart);
+    var cart_products = JSON.parse(window.localStorage.accelerate_cart);
     
     for(var i = 0; i < cart_products.length; i++){
       if(cart_products[i].cartIndex == cart_index){
@@ -529,7 +551,7 @@ angular.module('pos.services', [])
       }
     }
 
-    window.localStorage.zaitoonFirst_cart = JSON.stringify(cart_products);
+    window.localStorage.accelerate_cart = JSON.stringify(cart_products);
     $rootScope.$broadcast('cart_updated', cart_products);
   };
 
@@ -538,7 +560,7 @@ angular.module('pos.services', [])
 
     console.log(cart_index)
 
-    var cart_products = JSON.parse(window.localStorage.zaitoonFirst_cart);
+    var cart_products = JSON.parse(window.localStorage.accelerate_cart);
       
     for(var i = 0; i < cart_products.length; i++){
       if(cart_products[i].cartIndex == cart_index){
@@ -547,19 +569,19 @@ angular.module('pos.services', [])
       }
     }
 
-    window.localStorage.zaitoonFirst_cart = JSON.stringify(cart_products);
+    window.localStorage.accelerate_cart = JSON.stringify(cart_products);
     $rootScope.$broadcast('cart_updated', cart_products);
   };
 
   this.removeProduct = function(cart_index){
 
-    var cart_products = JSON.parse(window.localStorage.zaitoonFirst_cart);
+    var cart_products = JSON.parse(window.localStorage.accelerate_cart);
     
     var new_cart_products = _.reject(cart_products, function(product){
         return (product.cartIndex == cart_index);
     });
     
-    window.localStorage.zaitoonFirst_cart = JSON.stringify(new_cart_products);
+    window.localStorage.accelerate_cart = JSON.stringify(new_cart_products);
     $rootScope.$broadcast('cart_updated', new_cart_products);
 
   };

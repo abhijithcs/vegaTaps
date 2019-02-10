@@ -2,7 +2,7 @@
 <widget id="com.accelerate.zaitoontaps" version="0.0.9" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>Zaitoon Taps</name>
     <description>
-    POS Mobile App for Zaitoon Restaurants
+    Mobile POS for Zaitoon Restaurants
   </description>
     <author email="support@accelerate.net.in" href="http://www.accelerate.net.in/">
     Accelerate
