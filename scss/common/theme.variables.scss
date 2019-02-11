@@ -105,21 +105,21 @@
 
 
 .cartCounter{
-    background: rgb(255, 255, 255);
+    background: white;
     border-radius: 50%;
     margin-left: 5px;
-    color: rgb(98, 205, 96);
+    color: #62cd60;
     padding: 0px;
     display: inline-block;
-    width: 26px;
-    height: 26px;
+    width: 36px;
+    height: 36px;
     text-align: center;
-    font-size: 16px;
+    font-size: 24px;
     float: right;
-    top: 2px;
+    top: 3px;
     position: absolute;
-    line-height: 24px;
-    right: 3px;
+    line-height: 36px;
+    right: 5px;
 }
 
 .mainTypeButton{
@@ -215,15 +215,16 @@
 }
 
 .guestCountButton{
-    width: 45px;
+    width: 75px;
     display: inline-block;
     border-radius: 50%;
-    height: 45px;
+    height: 75px;
     border: none;
-    font-size: 24px;
+    font-size: 32px;
     color: #989898;
     background: #f6f6f6;
-    margin-bottom: 2px;
+    margin-bottom: 10px;
+    margin-left: 5px;
 }
 
 .guestCountButton.active{
@@ -248,17 +249,18 @@
 }
 
 .guestCountInput{
-    width: 45px !important;
+    width: 75px !important;
     display: inline-block !important;
     background: transparent !important;
     border-radius: 50% !important;
-    height: 45px !important;
+    height: 75px !important;
     margin-top: -11px !important;
     color: #62cd60 !important;
-    font-size: 24px !important;
+    font-size: 32px !important;
     text-align: center !important;
     font-weight: bold !important;
     border: 1px dashed #989898 !important;
+    margin-left: 5px;
 }
 
 .guestCountInput:focus,
@@ -888,6 +890,25 @@ letter-spacing: 1px;
     font-size: 14px;
 }
 
+.customItemAddButton{
+    background-color: #1abc9c;
+    color: #FFF;
+    position: relative;
+    display: inline-block;
+    margin: 0;
+    border: none;
+    vertical-align: top;
+    text-align: center;
+    text-overflow: ellipsis;
+    line-height: 45px;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    padding: 0px;
+    font-size: 21px;  
+}
+
 
 .guestAddButton{
     background-color: #a9adad;
@@ -1032,6 +1053,10 @@ letter-spacing: 1px;
     text-transform: none;
     color: #de8182;
     text-align: right;
+}
+
+.searchBarBlue{
+  height: 100px; background: #5691c8;  
 }
 
 .loadMoreButton{

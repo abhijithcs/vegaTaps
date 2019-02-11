@@ -143,35 +143,35 @@ angular.module('pos.services', [])
 
 
 
-.service('userLocationService', function ($http, $q){
+.service('menuContentService', function ($http, $q){
   
   //Default Parameters
-  var latitude = "";
-  var longitude = "";
+  var menu = [];
+  var itemsList = [];
 
-  var locationText = "";
+  this.setMenu = function(menuData){
 
-  this.setCoords = function(lat, lng){
-    latitude = lat;
-    longitude = lng;
+            var items_listed = [];
+
+            for(var n = 0; n < menuData.length; n++){
+                items_listed = items_listed.concat(menuData[n].items);
+            } 
+
+            items_listed.sort(function(itemOne, itemTwo) {
+                return itemOne.name.localeCompare(itemTwo.name);
+            });  
+
+            itemsList = items_listed;
+            menu = menuData;
   }
 
-  this.getCoords = function(){
-    var data = {
-      "lat":latitude,
-      "lng":longitude
-    }
-    return data;
+  this.getMenu = function(){
+    return menuData;
   }  
 
-  this.setText = function(loc){
-    locationText = loc;
+  this.getMenuItems = function(){
+    return itemsList;
   }
-
-  this.getText = function(){
-    return locationText;
-  }
-
 })
 
 .service('locationChangeRouteTrackerService', function ($http, $q){
@@ -427,7 +427,7 @@ angular.module('pos.services', [])
 
 .service('ShoppingCartService', function ($http, $q, $rootScope){
 
-  var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@127.0.0.1:5984/';
+  var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@192.168.1.3:5984/';
 
   //Billing Modes
   this.getBillingModes = function(){
@@ -437,8 +437,11 @@ angular.module('pos.services', [])
       method  : 'GET',
       url     : COMMON_IP_ADDRESS + 'accelerate_settings/ACCELERATE_BILLING_MODES'
      })
-    .then(function(response) {
-      dfd.resolve(response.data.value);
+    .success(function(response) {
+      dfd.resolve(response.value);
+    })
+    .error(function(response) {
+      dfd.resolve([]);
     });
 
     return dfd.promise;
@@ -452,8 +455,11 @@ angular.module('pos.services', [])
       method  : 'GET',
       url     : COMMON_IP_ADDRESS + 'accelerate_settings/ACCELERATE_BILLING_PARAMETERS'
      })
-    .then(function(response) {
-      dfd.resolve(response.data.value);
+    .success(function(response) {
+      dfd.resolve(response.value);
+    })
+    .error(function(response) {
+      dfd.resolve([]);
     });
 
     return dfd.promise;
@@ -467,11 +473,14 @@ angular.module('pos.services', [])
       method  : 'GET',
       url     : COMMON_IP_ADDRESS + 'accelerate_settings/ACCELERATE_SAVED_COMMENTS'
      })
-    .then(function(response) {
-      var my_data = response.data.value;
+    .success(function(response) {
+      var my_data = response.value;
       my_data.sort();
       
       dfd.resolve(my_data);
+    })
+    .error(function(response) {
+      dfd.resolve([]);
     });
 
     return dfd.promise;
