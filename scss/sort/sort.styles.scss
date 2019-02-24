@@ -1,3 +1,79 @@
+.popup-tiles
+{
+  .popup
+  {
+    border-radius: 6px;
+    background-color: $popup-bg;
+    width: 80%;
+    max-width: 260px;
+    position: relative;
+  }
+
+  .popup-head
+  {
+    padding: 13px $popup-padding;
+		background-color: #e74c3c;
+		border-radius: 6px 6px 0px 0px;
+		border: none;
+
+		background: #ED213A;  /* fallback for old browsers */
+		background: -webkit-linear-gradient(to left, #93291E, #ED213A);  /* Chrome 10-25, Safari 5.1-6 */
+		background: linear-gradient(to left, #93291E, #ED213A); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+  }
+
+  .popup-body
+  {
+    padding: 6px;
+  }
+
+  .popup-title
+  {
+    color: $popup-header-color;
+		text-align: left;
+    margin-top: -1px;
+		font-weight: 400;
+		line-height: 19px;
+
+		    text-align: center;
+	    text-transform: uppercase;
+	    font-size: 13px;
+	    font-weight: bold;
+	    letter-spacing: 2px;
+  }
+
+  .popup-buttons
+  {
+    height: 0px;
+    min-height: 0px;
+    padding: 0px;
+
+    .close-popup
+    {
+			border-radius: 0px 6px 0px 0px;
+      top: 0px;
+      position: absolute;
+      right: 0px;
+      background-color: #ff4300;
+      color: $popup-header-color;
+      border: none;
+      padding: 11px $popup-padding;
+      min-width: 0px;
+      min-height: 0px;
+      margin: 0px;
+      display: inline-block;
+      font-weight: 500;
+      font-size: 16px;
+
+      &.activated
+  		{
+  			box-shadow: none;
+  		}
+    }
+  }
+}
+
+
 .popup-outer
 {
   .popup

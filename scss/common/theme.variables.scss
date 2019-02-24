@@ -1,5 +1,15 @@
 /* Changes for POS */
 
+
+.customItemsList .item-content{
+  color: #27ae60 !important;
+}
+
+.button-tile{
+  width: 50%;
+  display: inline-block;
+}
+
 .billingModeBarGray{
     height: 40px;
     width: 100%;
@@ -233,15 +243,15 @@
 }
 
 .passcodeButton{
-    width: 90px;
+    width: 75px;
     display: inline-block;
     border-radius: 50%;
-    height: 90px;
+    height: 75px;
     border: none;
-    font-size: 40px;
+    font-size: 32px;
     color: #989898;
     background: #f6f6f6;
-    margin-bottom: 18px;  
+    margin-bottom: 18px;
 }
 
 .passcodeButton.active, .passcodeButton.focus, .passcodeButton.hover{
@@ -920,17 +930,32 @@ letter-spacing: 1px;
     vertical-align: top;
     text-align: center;
     text-overflow: ellipsis;
-    line-height: 32px;
+    line-height: 45px;
     cursor: pointer;
     border-radius: 50%;
-    width: 30px;
-    height: 30px;
+    width: 45px;
+    height: 45px;
     padding: 0px;
-    font-size: 14px;
+    font-size: 21px;  
 }
 
 .guestAddButton.active{
-    background-color: #ff984c;
+    background-color: #1ABCA9 !important;
+}
+
+.guestCountTag{
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    right: -7px;
+    background: #4b6962;
+    font-size: 13px;
+    height: 21px;
+    width: 21px;
+    border-radius: 50%;
+    line-height: 1.6em;
+    font-weight: bold;
+    text-align: center;  
 }
 
 
@@ -1903,7 +1928,7 @@ color: #FFF;
 
 	.item-radio input:checked + .radio-content .item-content {
 			background: #27ae60;
-			color: #FFF;
+			color: #FFF !important;
 	}
 }
 
@@ -2052,3 +2077,4 @@ ion-side-menu
 .dealsNoAddButton{
   position: absolute; top: 8px; right: 8px; background: rgba(86, 86, 86, 0.8); color: #b7b7b7; border-radius: 8px; padding: 5px 8px; font-weight: bold; height: 32px; 
 }
+

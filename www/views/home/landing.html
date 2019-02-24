@@ -3,24 +3,10 @@
     <div class="row form-row" style="padding-top: 20px">
       <div class="col">
         <form name="login_form" class="form-container" style="margin: 15px" novalidate>
-          <center><img src="./img/common/white_logo.png" width="70%"></center>
-          <div class="input-list list list-inset">
 
-              <button class="button button-block button-default button-outline" style="color: #fbb9b9; border: none; font-weight: bold; margin-bottom: 0" ng-click="selectCalendarDate()">SELECT DATE<span style="padding-left: 10px; font-size: 18px" class="icon ion-calendar"></span></button>
-              <div class="row address-row" style="padding: 0">
-                <!-- Date Chooser -->
-                <div class="address-chooser" ng-click="openDatePopover($event)" style="width: 100%; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">
-                  <button class="button button-block icon-right addresses-popover-button-forlocation" style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap;background: rgba(138, 18, 12, 0.6); color: #FFF; ; margin-top: 0" ng-class="{'ion-chevron-up': date_popover.isShown(), 'ion-chevron-down' : !date_popover.isShown()}"> {{dateSelected.name || 'Select Date'}}
-                  </button>
-                </div>
-              </div>
+          <center style="margin-bottom: 30px;"><img src="./img/common/white_logo.png" width="70%"></center>
 
-
-          </div>
-          <p ng-show="error" class="message error">{{error}}</p>
-
-
-          <div class="landingTile" ng-click="goToPunchOrder()" ng-disabled="login_form.$invalid">
+          <div class="landingTile" ng-click="goToPunchOrder()" style="border-radius: 8px; margin-bottom: 12px;">
             <div class="landingTileIcon">
               <img src="img/feed/punch_order.png" style="width: 50px; margin-left: 5px;">
             </div>
@@ -30,7 +16,7 @@
           </div>
 
 
-          <div class="landingTile" ng-click="fetchReservations()" ng-disabled="login_form.$invalid">
+          <div class="landingTile" ng-click="fetchReservations()" style="border-radius: 8px; margin-bottom: 12px;">
             <div class="landingTileIcon">
               <img src="img/feed/reserve_table.png" style="width: 55px">
             </div>
@@ -40,7 +26,7 @@
           </div>
 
 
-          <div class="landingTile" ng-click="newReservation()">
+          <div class="landingTile" ng-click="newReservation()" style="border-radius: 8px; margin-bottom: 12px;">
             <div class="landingTileIcon">
               <img src="img/feed/reserve_addnew.png" style="width: 48px">
             </div>
@@ -49,7 +35,7 @@
             </div>
           </div>
 
-          <div class="landingTile" ng-click="" ng-disabled="login_form.$invalid">
+          <div class="landingTile" ng-click="" style="border-radius: 8px; margin-bottom: 12px;">
             <div class="landingTileIcon">
               <img src="img/feed/star_rating.png" style="width: 52px">
             </div>

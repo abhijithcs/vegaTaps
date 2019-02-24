@@ -1,41 +1,48 @@
-<ion-modal-view class="modal-view legal-view" style="background: #a71d2b">
-  <ion-content>
-    <div class="row copy-row">
-      <div class="col">
-        <h2 class="legal-title" style="margin: 15px 0 5px 0; font-size: 21px; font-weight: bold;">{{myItem.name}}</h2>
-        <div class="legal-content" style="padding: 10px">
 
-          <span style="text-align: center; display: block; color: #444; letter-spacing: 2px;">QUANTITY</span>
+<ion-modal-view class="modal-view legal-view" style="background: #ED213A; /* fallback for old browsers */ background: -webkit-linear-gradient(to bottom, #93291E, #ED213A); /* Chrome 10-25, Safari 5.1-6 */ background: linear-gradient(to bottom, #93291E, #ED213A); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */">
+
+  <ion-content>
+
+
+<!-- Search Results -->
+<div class="feed-view" style="padding: 0 15px; background: none">
+
+    <h2 class="legal-title" style="margin: 15px 0 5px 0; font-size: 21px; font-weight: bold;">{{myItem.name}}</h2>
+
+    <div style="padding: 15px; border-radius: 4px; background-color: #FFF; color: #ecf0f1; font-size: 12px;">
+
+          <span style="text-align: center; display: block; color: #444; letter-spacing: 2px; font-weight: bold;">QUANTITY</span>
           <div>
             <div class="row">
-              <div class="col">
+              <div class="col" style="text-align: center">
                 <button class="guestCountButton" ng-click="myItem.qty = 1; myItem.qtyManual = '';" ng-class="{'active' : myItem.qty == 1}">1</button>
                 <button class="guestCountButton" ng-click="myItem.qty = 2; myItem.qtyManual = '';" ng-class="{'active' : myItem.qty == 2}">2</button>
                 <button class="guestCountButton" ng-click="myItem.qty = 3; myItem.qtyManual = '';" ng-class="{'active' : myItem.qty == 3}">3</button>
                 <button class="guestCountButton" ng-click="myItem.qty = 4; myItem.qtyManual = '';" ng-class="{'active' : myItem.qty == 4}">4</button>
                 <button class="guestCountButton" ng-click="myItem.qty = 5; myItem.qtyManual = '';" ng-class="{'active' : myItem.qty == 5}">5</button>
-                <button class="guestCountButton" ng-click="myItem.qty = 6; myItem.qtyManual = '';" ng-class="{'active' : myItem.qty == 6}">6</button>
-                <button class="guestCountButton" ng-click="myItem.qty = 7; myItem.qtyManual = '';" ng-class="{'active' : myItem.qty == 7}">7</button>
-                <button class="guestCountButton" ng-click="myItem.qty = 8; myItem.qtyManual = '';" ng-class="{'active' : myItem.qty == 8}">8</button>
-                <button class="guestCountButton" ng-click="myItem.qty = 9; myItem.qtyManual = '';" ng-class="{'active' : myItem.qty == 9}">9</button>
-                <button class="guestCountButton" ng-click="myItem.qty = 10; myItem.qtyManual = '';" ng-class="{'active' : myItem.qty == 10}">10</button>
-                <input type="number" ng-model="myItem.qtyManual" ng-class="{'active' : myItem.qtyManual && myItem.qtyManual >= 11}" ng-change="myItem.qty = myItem.qtyManual" class="guestCountInput">
+                <input type="number" ng-model="myItem.qtyManual" ng-class="{'active' : myItem.qtyManual && myItem.qtyManual >= 6}" ng-change="myItem.qty = myItem.qtyManual" class="guestCountInput">
+
+                <button class="guestCountButton" ng-click="easyReduceItem()"><i class="fa fa-arrow-down" style="color: #e7c3c3"></i></button>
+                
+                <button class="guestCountButton" ng-click="easyIncrementItem()"><i class="fa fa-arrow-up" style="color: #c3e7c7"></i></button>
+
               </div>
             </div>
           </div>
          
-        <div ng-if="myItem.isCustom">
-          <span style="text-align: center; display: block; color: #444; letter-spacing: 2px;">OPTIONS</span>
+        <div ng-if="myItem.isCustom" style="padding: 5px 8px 2px 8px; border: 1px dashed #c2e6bd; margin-bottom: 8px; background: #f9ffef;">
+          <span style="text-align: center; display: block; color: #444; font-weight: bold; letter-spacing: 2px; margin-bottom: 4px;">OPTIONS</span>
 
-            <div class="paymentRadio" style="padding: 0px 0px" ng-if="1">
+            <div class="paymentRadio customItemsList" style="padding: 0px 0px">
               <ion-list>
-                <ion-radio ng-repeat="custom in myItem.customOptions" ng-model="myItem.variant" ng-value="custom.customName" ng-click="setType(custom)">{{custom.customName}}<tag style="margin-left: 5px">{{custom.customPrice}}</tag></ion-radio>
+                <ion-radio ng-repeat="custom in myItem.customOptions" style="font-size: 18px;
+    font-weight: bold;" ng-model="myItem.variant" ng-value="custom.customName" ng-click="setType(custom)">{{custom.customName}}<tag style="margin-left: 5px">{{custom.customPrice}}</tag></ion-radio>
               </ion-list>
             </div>
         </div>
 
 
-          <span style="text-align: center; display: block; color: #444; letter-spacing: 2px;">COMMENTS</span>
+          <span style="text-align: center; display: block; color: #444; font-weight: bold; letter-spacing: 2px;">COMMENTS</span>
 
           <textarea placeholder="Any Comments?" ng-model="myItem.comment" style="border-radius: 0px; resize: none; border: 1px solid #ebebeb; color: #3a3939; padding: 10px; width: 100%; font-size: 16px; line-height: 21px;" rows="3"></textarea>
 
@@ -44,19 +51,27 @@
 
           </div>
 
+    </div>  
 
-      </div>
-    </div>
-
-
-
-
-  <div style="border-radius: 0; position: absolute; bottom: 0; z-index: 1000; margin: 0; left: 0; width: 100%; border-top: 2px solid #8e3837;">
-    <button class="button button-default close-button" style="width: 35%; float: left; margin: 0; border-radius: 0;" ng-click="help_modal.hide()">Close</button>
-    <button ng-click="addItemProcess()" style="width: 65%; float: right; display: inline-block; position: absolute; right: 0; border-radius: 0; top: 0; margin: 0; font-weight: bold; text-transform: uppercase;" class="button button-balanced button-block">Add Item</button>
-  </div>
-
-  
+</div> 
 
   </ion-content>
+
+  <ion-footer-bar class="search-header" style="padding: 0; background: #FFF; height: 45px;">
+    <div style="border-radius: 0; position: absolute; bottom: 0; z-index: 1000; margin: 0; left: 0; width: 100%; border-top: 2px solid #4d606b;">
+
+      <button class="button button-default close-button" style="width: 35%; float: left; margin: 0; border-radius: 0; height: 45px; font-size: 16px;" ng-click="help_modal.hide()">Close</button>
+
+    <button ng-click="addItemProcess()" style="width: 65%; float: right; display: inline-block; position: absolute; right: 0; border-radius: 0; top: 0; margin: 0; font-weight: bold; text-transform: uppercase; height: 45px; font-size: 16px;" class="button button-balanced button-block">Add Item</button>
+
+
+    </div>  
+  </ion-footer-bar>
+
 </ion-modal-view>
+
+
+
+
+
+

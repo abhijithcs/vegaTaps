@@ -1,6 +1,71 @@
 angular.module('pos.controllers', ['ionic'])
 
 
+
+
+    .controller('loginCtrl', function(changeSlotService, $scope, $ionicPopup, ionicTimePicker, ionicDatePicker, $state, $http, $ionicPopover, $ionicLoading, $timeout, mappingService, currentBooking) {
+
+
+        //Already Logged in case
+        if (!_.isUndefined(window.localStorage.admin) && window.localStorage.admin != '') {
+  
+        }
+        else{
+          $state.go('main.app.login');
+        }
+
+        $scope.loginError = "";
+        $scope.mydata = {};
+        $scope.mydata.mobile = "";
+        $scope.mydata.password = "";
+        $scope.doLogin = function() {
+
+            $ionicLoading.show({
+                template: '<ion-spinner></ion-spinner>'
+            });
+            $http({
+                    method: 'POST',
+                    url: 'https://www.zaitoon.online/services/adminlogin.php',
+                    data: $scope.mydata,
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    timeout: 10000
+                })
+                .success(function(response) {
+                    $ionicLoading.hide();
+                    if (response.status) {
+                        window.localStorage.admin = response.response;
+                        $state.go('main.app.landing');
+                    } else {
+                        $scope.loginError = response.error;
+                    }
+
+                })
+                .error(function(data) {
+                    $ionicLoading.hide();
+                    $ionicLoading.show({
+                        template: "Not responding. Check your connection.",
+                        duration: 3000
+                    });
+                });
+        }
+
+    })
+
+
+    .controller('landingCtrl', function($ionicLoading, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate, ShoppingCartService) {
+        
+        $scope.goToPunchOrder = function(){
+            $state.go('main.app.punch')
+        }
+    })
+
+
+
+
+
+
     .controller('StatusCtrl', function($ionicLoading, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate, ShoppingCartService) {
         
     })
@@ -16,10 +81,12 @@ angular.module('pos.controllers', ['ionic'])
 
         $scope.defaultServer = {};
         $scope.defaultServer.ip_address = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@192.168.1.3:5984/';
+        $scope.defaultServer.license_branch = window.localStorage.accelerate_licence_branch && window.localStorage.accelerate_licence_branch != '' ? window.localStorage.accelerate_licence_branch : 'NAVALUR';
 
 
         $scope.saveServerAddress = function(){
             window.localStorage.defaultServerIPAddress = $scope.defaultServer.ip_address;
+            window.localStorage.accelerate_licence_branch = $scope.defaultServer.license_branch;
         }
 
     })
@@ -705,15 +772,15 @@ angular.module('pos.controllers', ['ionic'])
 
                         //Render Template
                         var i = 0;
-                        var choiceTemplate = '<div style="margin-top: 10px">';
+                        var choiceTemplate = '<div style="margin-top: 5px">';
                         while (i < $scope.allProfileData.length) {
-                            choiceTemplate = choiceTemplate + '<button class="button button-full" style="text-align: left; color: #c52031; margin-bottom: 8px;" ng-click="selectProfileFromWindow(\'' + $scope.allProfileData[i].name + '\', ' + $scope.allProfileData[i].code + ', \''+$scope.allProfileData[i].role+'\')">' + $scope.allProfileData[i].name + ' </button>';
+                            choiceTemplate = choiceTemplate + '<button class="button button-full" style="text-align: left; color: #c52031; margin-bottom: 8px; font-size: 18px; height: 54px; font-weight: 500; " ng-click="selectProfileFromWindow(\'' + $scope.allProfileData[i].name + '\', ' + $scope.allProfileData[i].code + ', \''+$scope.allProfileData[i].role+'\')">' + $scope.allProfileData[i].name + ' </button>';
                             i++;
                         }
                         choiceTemplate = choiceTemplate + '</div>';
 
                         var newCustomPopup = $ionicPopup.show({
-                            cssClass: 'popup-outer new-shipping-address-view',
+                            cssClass: 'popup-tiles new-shipping-address-view',
                             template: choiceTemplate,
                             title: 'Select User',
                             scope: $scope,
@@ -900,6 +967,14 @@ angular.module('pos.controllers', ['ionic'])
         var temp_mobile = $scope.guestDataTemp.mobile;
         var temp_count = $scope.guestDataTemp.count;
 
+        if(temp_count == '' || temp_count == 0){
+                $ionicLoading.show({
+                    template: 'Please add number of guests',
+                    duration: 1000
+                });
+                return "";
+        }
+
         $scope.guestData.name = temp_name;
         $scope.guestData.mobile = temp_mobile;
         $scope.guestData.count = temp_count;
@@ -971,8 +1046,42 @@ angular.module('pos.controllers', ['ionic'])
       	}
 
         $scope.myItem = itemData;
+        
+        $scope.myItem.qty = 1;
+
         $scope.help_modal.show();
       };
+
+
+      $scope.easyIncrementItem = function(){
+        if($scope.myItem.qty < 5){
+            $scope.myItem.qty = $scope.myItem.qty + 1;
+        }
+        else if($scope.myItem.qty == 5){
+            $scope.myItem.qtyManual = 6;
+            $scope.myItem.qty = $scope.myItem.qtyManual;
+        }
+        else if($scope.myItem.qty > 5){
+            $scope.myItem.qtyManual = $scope.myItem.qtyManual + 1;
+            $scope.myItem.qty = $scope.myItem.qtyManual;
+        }
+      }
+
+      $scope.easyReduceItem = function(){
+        if($scope.myItem.qty > 6){
+            $scope.myItem.qtyManual = $scope.myItem.qtyManual - 1;
+            $scope.myItem.qty = $scope.myItem.qtyManual;
+        }
+        else if($scope.myItem.qty == 6){
+            $scope.myItem.qtyManual = '';
+            $scope.myItem.qty = 5;
+        }
+        else if($scope.myItem.qty < 6 && $scope.myItem.qty > 1){
+            $scope.myItem.qtyManual = '';
+            $scope.myItem.qty = $scope.myItem.qty - 1;
+        }
+      }
+
 
       $scope.addItemProcess = function(){
 
@@ -1329,7 +1438,6 @@ angular.module('pos.controllers', ['ionic'])
                               tableData.sort(function(obj1, obj2) {
                                 return obj1.key - obj2.key; //Key is equivalent to sortIndex
                               });
-
 
 
                               //load table sections
@@ -1751,6 +1859,7 @@ angular.module('pos.controllers', ['ionic'])
     var cart_products = products;
 
     $scope.hasUnsavedChanges = false;
+    $scope.hasRestrictedEdits = false;
     $scope.isEditingOrder = false;
     $scope.runningKOTNumber = '';
 
@@ -1774,7 +1883,6 @@ angular.module('pos.controllers', ['ionic'])
             }
 
             $scope.isEditingOrder = true;
-
             return change_noticed;
         }
         else{
@@ -2485,6 +2593,48 @@ angular.module('pos.controllers', ['ionic'])
 
     //Send changed KOT to server
     $scope.sendChangedKOT = function(runningKOTNumber){
+
+        $scope.hasRestrictedEdits = false;
+
+        if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+
+            var new_updated_cart = !_.isUndefined(window.localStorage.accelerate_cart) ? JSON.parse(window.localStorage.accelerate_cart) : [];
+            var isAdmin = window.localStorage.loggedInUser_admin && window.localStorage.loggedInUser_admin != '' ? window.localStorage.loggedInUser_admin : 0;
+            var i = 0;
+            while(new_updated_cart[i]){
+
+                var change_observed = checkForItemChanges(new_updated_cart[i].code, new_updated_cart[i].variant, new_updated_cart[i].qty, new_updated_cart[i].cartIndex);
+                if(change_observed == 'QUANTITY_DECREASE'){
+
+                   $scope.hasRestrictedEdits = true;
+
+                   if(isAdmin == 0){ //not an admin
+                        $ionicLoading.show({
+                            template: "Only an Admin can make these changes.",
+                            duration: 3000
+                        });
+                        return '';
+                   } 
+                }
+                i++;
+            }
+
+                //Delete test
+                var itemDeleteTest = checkIfItemDeleted();
+                if(itemDeleteTest == 'DELETED' || itemDeleteTest == 'DELETED_ALL'){
+                    $scope.hasRestrictedEdits = true;
+                    
+                    if(isAdmin == 0){ //not an admin
+                        $ionicLoading.show({
+                            template: "Only an Admin can make these changes.",
+                            duration: 3000
+                        });
+                        return '';
+                   } 
+                }
+
+
+        }
        
 
         //fetch the first KOT

@@ -20,7 +20,7 @@
 
 <!-- Search Results -->
 <div class="feed-view" ng-if="isSearching" style="padding-top: 65px">
-      <div class="posMyItem" ng-class="{'unavail': !item.isAvailable}" ng-repeat="item in itemList = (allSearchItemsList | searchField : 'item.name' | filter:search.query) track by $index" ng-click="openItemDetails(item)">
+      <div class="posMyItem" ng-class="{'unavail': !item.isAvailable}" ng-repeat="item in itemList = (allSearchItemsList | searchField : 'item.name' | filter:search.query | limitTo:10) track by $index" ng-click="openItemDetails(item)">
         <div class="row">
           <div class="col vegFlagPOS">
             <span class="icon ion-android-radio-button-on nveg"></span>

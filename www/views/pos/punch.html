@@ -153,11 +153,12 @@
          <div class="reservationBottomFilterHolder" ng-show="selectedTable != ''">
 
             <tag class="customItemAddButton" style="float: left; background: #a9adad" ng-click="notAvailable('Custom Item feature is not available in this version')"><i class="ion-plus"></i></tag>
+
             <tag class="customItemAddButton" style="float: left; background: #a9adad; margin-left: 10px;" ng-click="notAvailable('Filter feature is not available in this Version')"><i class="fa fa-filter"></i></tag>
 
-            <tag class="guestAddButton" ng-class="{'active' : isGuestDataEntered()}" style="float: left; width: 160px; border-radius: 4px; margin-left: 10px; margin-top: 8px;" ng-click="openGuestDetails()">
-                <span ng-if="isGuestDataEntered()" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis; width: 100%; display: block; padding-left: 22px;"><i class="fa fa-user-o" style="position: absolute; left: 8px; top: 8px;"></i> {{getGuestContent()}}</span>
-                <span ng-if="!isGuestDataEntered()" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis; width: 100%; display: block; padding-left: 22px;"><i class="fa fa-user-o" style="position: absolute; left: 8px; top: 8px;"></i> <i style="font-style: italic">Enter Guest Details</i></span>
+            <tag class="guestAddButton" ng-class="{'active' : isGuestDataEntered()}" style="float: left; margin-left: 10px;" ng-click="openGuestDetails()">
+                <i class="fa fa-user-o"></i>
+                <span ng-if="isGuestDataEntered()" class="guestCountTag">{{guestData.count}}</span>
             </tag>
 
 

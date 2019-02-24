@@ -356,5 +356,5 @@ angular.module('zaitoonFirst', [
   ;
 
   // if none of the above states are matched, use this as the fallback
-  $urlRouterProvider.otherwise('/main/app/punch');
+  $urlRouterProvider.otherwise('/main/app/landing');
 });

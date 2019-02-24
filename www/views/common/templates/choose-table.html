@@ -10,7 +10,7 @@
 
                     <h2 class="legal-title" style="margin: 15px 0 5px 0; font-size: 14px; font-weight: 400; color: #444; text-transform: uppercase; letter-spacing: 2px;">{{section.section}}</h2>
 
-                    <button class="button" ng-attr-id="{{'seat_'+seat.table}}" ng-repeat="seat in section.tables" ng-class="getMyClass(seat)" ng-click="seatOptions(seat);" style="line-height: initial; width: 80px; max-width: 32%; height: 40px; margin: 2px; padding: 2px;">
+                    <button class="button" ng-attr-id="{{'seat_'+seat.table}}" ng-repeat="seat in section.tables track by $index" ng-class="getMyClass(seat)" ng-click="seatOptions(seat);" style="line-height: initial; width: 80px; max-width: 32%; height: 40px; margin: 2px; padding: 2px;">
                     
                       
                       <tag class="seatName">{{seat.table}}</tag>
