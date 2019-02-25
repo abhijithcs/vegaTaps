@@ -130,14 +130,19 @@
          </ion-content>
 
 
+
+
          <div class="reservationBottomFilterHolder">
-            <tag class="reservationSessionLabel" ng-click="changeTimeFilter()">
+            <tag class="reservationSessionLabel" style="margin-top: 7px;" ng-click="changeTimeFilter()">
                 <tag ng-if="timeFilterFlag == 'All'" style="text-transform: none">All Sessions</tag>
                 <tag ng-if="timeFilterFlag != 'All'" style="text-transform: none">{{timeFilterFlag}} Session Only</tag>
             </tag>
-            <tag class="reservationAddButton" style="float: right" ng-click="newBook()"><i class="ion-plus"></i></tag>
-            <tag class="reservationAddButton" style="float: right; margin-right: 10px; background: #a9adad" ng-click="quickSummary()"><i class="fa fa-file-text-o"></i></tag>
-            <tag class="reservationAddButton" style="float: right; margin-right: 10px; background: #a9adad" ng-click="openSeatPlanView()"><i class="fa fa-th"></i></tag>
+
+            <tag class="customItemAddButton" style="float: right; margin-left: 10px" ng-click="newBook()"><i class="ion-plus"></i></tag>
+
+            <tag class="customItemAddButton" style="float: right; margin-left: 10px; background: #a9adad" ng-click="quickSummary()"><i class="fa fa-file-text-o"></i></tag>
+
+            <tag class="customItemAddButton" style="float: right; background: #a9adad" ng-click="openSeatPlanView()"><i class="fa fa-th"></i></tag>
          </div>
 
 
@@ -156,7 +161,7 @@
                <i class="icon" style="width: 60px; color: #FFF; text-align: center"><i class="fa fa-home" style="font-size: 70%; padding-left: 6px"></i></i>
                <h2 class="menu-text">Home</h2>
         </ion-item>
-        <ion-item class="item-icon-left" style="background: none" nav-clear menu-close ui-sref="main.app.feed.arabian">
+        <ion-item class="item-icon-left" style="background: none" nav-clear menu-close ui-sref="main.app.punch">
                <i class="icon" style="width: 60px; color: #FFF; text-align: center"><i class="fa fa-hand-pointer-o" style="font-size: 80%; padding-left: 6px"></i></i>
                <h2 class="menu-text">Punch Order</h2>
         </ion-item>        
@@ -168,7 +173,7 @@
                <i class="icon" style="width: 60px; color: #FFF"><i class="fa fa-star-half-o" style="font-size: 70%; padding-left: 6px"></i></i>
                <h2 class="menu-text">Feedbacks</h2>
         </ion-item>
-        <ion-item class="item-icon-left" style="background: none" nav-clear menu-close ui-sref="main.app.accounts">
+        <ion-item class="item-icon-left" style="background: none" nav-clear menu-close ui-sref="main.app.settings">
                <i class="icon" style="width: 60px; color: #FFF"><i class="fa fa-gear" style="font-size: 70%; padding-left: 6px"></i></i>
                <h2 class="menu-text">Settings</h2>
         </ion-item>

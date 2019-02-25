@@ -61,6 +61,17 @@
   }
 }
 
+.tile-actions-view-list
+{
+  &.popup-container
+  {
+    .popup-body
+    {
+      padding: 0 10px !important;
+    }
+  }
+}
+
 
 .tile-actions-view
 {

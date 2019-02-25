@@ -54,13 +54,6 @@ angular.module('pos.controllers', ['ionic'])
     })
 
 
-    .controller('landingCtrl', function($ionicLoading, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate, ShoppingCartService) {
-        
-        $scope.goToPunchOrder = function(){
-            $state.go('main.app.punch')
-        }
-    })
-
 
 
 

@@ -1,4 +1,4 @@
-<ion-view class="login-view auth-view" cache-view="false" style="background: #2c3e50">
+<ion-view class="login-view auth-view" cache-view="false" style="background: #FF5F6D; background: -webkit-linear-gradient(to top, #272726, #FF5F6D); background: linear-gradient(to top, #272726, #FF5F6D);">
   <ion-content has-bouncing="false">
     <div class="row form-row" style="padding-top: 20px">
       <div class="col">
@@ -11,50 +11,56 @@
 
           <div class="row">
             <div class="col col-50">
-              <button class="button button-block button-outline" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" ng-click="changeDate()"><strong style="color: #f1c40f">{{bookingDate}} </strong></button>
+              <button class="button button-block" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: rgba(115, 65, 69, 0.5); color: #FFF !important" ng-click="changeDate()"><strong style="color: #FFF">{{bookingDate}} </strong></button>
             </div>
             <div class="col col-50">
-              <span moment-picker="chosenTime" ng-model="mytime.slot" format="HH:mm A" show-header="false" class="button button-block button-outline" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><strong style="color: #f1c40f"> {{chosenTime || 'Set Time Slot' }} </strong></span>
+              <span moment-picker="chosenTime" ng-model="mytime.slot" format="HH:mm A" show-header="false" class="button button-block" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: rgba(115, 65, 69, 0.5);"><strong style="color: #FFF"> {{formatMyTime(chosenTime) || 'Set Time Slot' }} </strong></span>
             </div>
           </div>
 
 
 
-
-          <div class="input-list list list-inset">
-            <label  class="item item-input" style="margin-top: 15px">
-              <input type="text" style="font-size: 21px" placeholder="Name" name="" ng-model="walkin.name">
-            </label>
-            <label  class="item item-input" style="margin-top: 10px">
-              <input type="tel" style="font-size: 21px" placeholder="Mobile Number" name="" ng-model="walkin.mobile" required maxlength="10">
-            </label>
-            <label  class="item item-input" style="margin-top: 10px">
-              <input type="tel" style="font-size: 21px" placeholder="Count" name="" ng-model="walkin.count" required maxlength="2">
-            </label>
-            <label  class="item item-input" style="margin-top: 10px">
-              <input type="text" style="font-size: 16px" placeholder="Any Comments?" name="" ng-model="walkin.comments" required maxlength="200">
-            </label>
-
-            <div class="list" ng-if="walkin.bookingType == 'reservation'">			 
-              <label class="item item-input item-select" style="border: none; border: 1px solid #fff; margin: 0">
-                <div class="input-label" style="color: #FFF">
-                  Channel
-                </div>
-                <select ng-model="channel" ng-init="channel=channels[1]" ng-options="channel.name for channel in channels" ng-change="setChannel(channel)"></select>
-              </label>
-			  
-			  <p ng-click="refreshModesList()" style="color: #bdc3c7; font-size: 11px; margin: 0; text-align: right;">Refresh List</p>
-            </div>		
-
+          <div style="margin-top: 5px; position: relative">
+            <span style="text-align: center; color: #FFF; -ms-transform: rotate(20deg); /* -webkit-transform: rotate(20deg); */ transform: rotate(270deg); display: inline-block; position: absolute; top: 22px; left: -11px; font-weight: bold; font-size: 12px;">MOBILE</span>
+            <input type="tel" ng-model="walkin.mobile" class="guestMobileInput" style="font-size: 24px; font-weight: bold; height: 64px; padding: 0px; width: 100%; text-align: center; background: none; color: rgb(255, 255, 255); border-width: 1px 1px 1px 26px !important; border-style: solid !important; border-color: rgba(0, 0, 0, 0.3) !important; border-image: initial !important; border-top-right-radius: 6px !important; border-bottom-right-radius: 4px !important;" placeholder="MOBILE">
           </div>
-          <p ng-show="error" class="message error">{{error}}</p>
-          <button type="submit" class="button button-block auth-action-button button-small" style="text-transform: capitalize; font-weight: 300" ng-click="addBook(walkin)">
-            Add {{walkin.bookingType}}
-          </button>
 
-          <button class="button button-block button-default button-outline" ng-click="main()">
-            Back
-          </button>
+          <div style="margin-top: 5px; position: relative">
+            <span style="text-align: center; color: #FFF; -ms-transform: rotate(20deg); /* -webkit-transform: rotate(20deg); */ transform: rotate(270deg); display: inline-block; position: absolute; top: 22px; left: -5px; font-weight: bold; font-size: 12px;">NAME</span>
+            <input type="text" ng-model="walkin.name" class="guestMobileInput" style="font-size: 24px; font-weight: bold; height: 64px; padding: 0px; width: 100%; text-align: center; background: none; color: rgb(255, 255, 255); border-width: 1px 1px 1px 26px !important; border-style: solid !important; border-color: rgba(0, 0, 0, 0.3) !important; border-image: initial !important; border-top-right-radius: 6px !important; border-bottom-right-radius: 4px !important; text-transform: uppercase" placeholder="NAME">
+          </div>
+
+          <div style="margin-top: 5px; position: relative">
+            <span style="text-align: center; color: #FFF; -ms-transform: rotate(20deg); /* -webkit-transform: rotate(20deg); */ transform: rotate(270deg); display: inline-block; position: absolute; top: 22px; left: -9px; font-weight: bold; font-size: 12px;">COUNT</span>
+            <input type="tel" ng-model="walkin.count" class="guestMobileInput" style="font-size: 24px; font-weight: bold; height: 64px; padding: 0px; width: 100%; text-align: center; background: none; color: rgb(255, 255, 255); border-width: 1px 1px 1px 26px !important; border-style: solid !important; border-color: rgba(0, 0, 0, 0.3) !important; border-image: initial !important; border-top-right-radius: 6px !important; border-bottom-right-radius: 4px !important;" placeholder="COUNT">
+          </div>
+
+
+          <div style="margin-top: 5px; position: relative" ng-if="walkin.bookingType == 'reservation'">
+            <span style="text-align: center; color: #FFF; -ms-transform: rotate(20deg); /* -webkit-transform: rotate(20deg); */ transform: rotate(270deg); display: inline-block; position: absolute; top: 22px; left: -13px; font-weight: bold; font-size: 12px;">SOURCE</span>
+            <div style="height: 64px; padding: 0px; width: 100%; text-align: center; background: none; color: rgb(255, 255, 255); border-width: 1px 1px 1px 26px !important; border-style: solid !important; border-color: rgba(0, 0, 0, 0.3) !important; border-image: initial !important; border-top-right-radius: 6px !important; border-bottom-right-radius: 4px !important;">
+
+              <button class="button button-default" style="border: none; color: #FFF; margin: 0; border-radius: 0; display: block; text-transform: capitalize; font-size: 24px; font-weight: 400; height: 64px; padding: 0px; width: 100%; text-align: center; background: none;" ng-click="selectChannel()">
+              {{channel}}
+              </button>
+            </div>
+          </div>
+
+
+            <label  class="item item-input" style="margin-top: 10px; height: 55px; padding: 15px 20px; margin-bottom: 13px; text-align: center; background: none; border: 1px dashed #e8a3a4; color: #FFF;">
+              <input type="text" style="font-size: 16px;" placeholder="Any Special Requests?" name="" ng-model="walkin.comments" required maxlength="200">
+            </label>
+
+
+        <div style="width: 100%; display: block">  
+            <button type="submit" class="button button-royal" style="text-transform: capitalize; font-weight: 400; width: 70%; border: none; border-radius: 0; float: right; margin: 0; display: block; border-bottom-right-radius: 4px; border-top-right-radius: 4px;" ng-click="addBook(walkin)">
+              Add {{walkin.bookingType}}
+            </button>
+
+            <button class="button button-default" style="width: 30%; border: none; float: left; margin: 0; border-radius: 0; display: block; border-bottom-left-radius: 4px; border-top-left-radius: 4px;" ng-click="main()">
+              Close
+            </button>
+        </div>
 
         </form>
 
