@@ -11,6 +11,9 @@ angular.module('zaitoonFirst', [
   'common.directives',
   'common.controllers',
 
+  'feedback.controllers',
+  'feedback.services',
+
   'reservations.controllers',
   'reservations.services',
 
@@ -209,10 +212,44 @@ angular.module('zaitoonFirst', [
         }
     })
 
+    /**********************
+           FEEDBACKS
+    ***********************/
+
+          .state('main.app.feedback', {
+            url: '/feedback',
+            views: {
+              'main-view@main': {
+                templateUrl: 'views/feedbacks/user-feedback.html',
+                controller: 'feedbackCtrl'
+              }
+            }
+          })    
+
+          .state('main.app.feedbacklanding', {
+            url: '/feedbacklanding',
+            views: {
+              'main-view@main': {
+                templateUrl: 'views/feedbacks/landing-customer-info.html',
+                controller: 'feedbackLandingCtrl'
+              }
+            }
+          })
+
+
+          .state('main.app.feedbackthanks', {
+            url: '/feedbackthanks',
+            views: {
+              'main-view@main': {
+                templateUrl: 'views/feedbacks/thanks.html',
+                controller: 'thanksCtrl'
+              }
+            }
+          })
 
 
     /**********************
-               POS
+              POS
     ***********************/
 
 

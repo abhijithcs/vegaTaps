@@ -69,8 +69,8 @@ angular.module('common.controllers', [])
             $state.go('main.app.walkin');
         };
         
-        $scope.viewFeedbacks = function() {
-            $state.go('main.app.feedbacks');
+        $scope.goToFeedback = function() {
+            $state.go('main.app.feedback');
         }
 
 

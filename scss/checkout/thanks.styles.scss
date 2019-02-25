@@ -317,6 +317,7 @@
 							margin: 0px;
 							@include display(inline-flex);
 							margin: 0px 8px 10px 0px;
+							background: none;
 
 							.checkbox
 							{
@@ -334,9 +335,10 @@
 									height: $tag-filter-item-height;
 									margin: 0px;
 									border-radius: 15px;
-									border: 1px solid $filter-group-color;
-									background-color: $filter-group-bg;
-									color: $filter-group-color;
+									
+									background: none;
+									    border: 1px solid rgba(255, 255, 255, 0.5);
+    								color: #FFF;
 								  font-weight: 400;
 									font-size: 16px;
   								line-height: $tag-filter-item-height - 2px;
@@ -364,6 +366,7 @@
 							margin: 0px;
 							@include display(inline-flex);
 							margin: 0px 8px 10px 0px;
+							background: none;
 
 							.checkbox
 							{

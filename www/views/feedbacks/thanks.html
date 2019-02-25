@@ -1,0 +1,24 @@
+<ion-view class="login-view auth-view" cache-view="false">
+  <ion-content has-bouncing="false">
+    <div class="row form-row" style="padding-top: 20px">
+      <div class="col">
+        <form name="login_form" class="form-container" novalidate>
+          <center><img src="./img/common/white_logo.png" width="70%"></center>
+          <div class="input-list list list-inset">
+            <center>
+              <h1 style="color: #FFF; margin-top: 60px">{{message}}</h1>
+              <p style="color: #C7C7C7; font-size: 18px; line-height: 24px; font-weight: 200;">{{customMessage}}</p>     
+            </center>
+          </div>
+
+          <center>      
+            <button type="submit" class="button" style="background: none; margin-top: 100px" ng-click="new()">
+        <tag style="font-weight: 200; font-size: 32px; color: rgba(255, 255, 255, 0.3);">{{counter}}</tag>
+            </button>
+        </center>
+        </form>
+
+      </div>
+    </div>
+  </ion-content>
+</ion-view>
