@@ -1,5 +1,54 @@
 /* Changes for POS */
 
+.shadeGreenYellow{
+  background: #a8ff78;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #78ffd6, #a8ff78);  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #78ffd6, #a8ff78); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+.shadeYellowOrange{
+  background: #FDC830;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #F37335, #FDC830);  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #F37335, #FDC830); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */ 
+}
+
+.shadeRedPink{
+  background: #FF416C;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #FF4B2B, #FF416C);  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #FF4B2B, #FF416C); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+.shadeBlueViolet{
+  background: #36D1DC;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #5B86E5, #36D1DC);  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #5B86E5, #36D1DC); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */ 
+}
+
+.actionTile{
+    width: 100%;
+    text-align: center;  
+}
+
+.actionTileIcon{
+    height: 100px;
+    width: 100px !important;
+    border-radius: 100%;
+    font-size: 60px;
+    text-align: center;
+    line-height: 1.6em;
+    display: inline-block;  
+    color: #FFF;
+    font-weight: bold;
+}
+
+.actionTileText{
+    margin-top: 5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 13px;
+    font-weight: 400;
+    color: #727272;  
+}
 
 .customItemsList .item-content{
   color: #27ae60 !important;
@@ -139,6 +188,7 @@
     display: block;
     border: 2px solid #fde4d9;
     border-radius: 4px;
+    position: relative;
 }
 
 .mainTypeButton.active{
@@ -167,14 +217,15 @@
 .posSubButton{
     width: 100%;
     background: #effbff;
-    height: 36px;
+    height: 45px;
     display: block;
     border: 1px solid #75cde6;
     border-radius: 2px;
-    overflow:hidden; 
-    white-space:nowrap; 
-    text-overflow:ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
     padding: 0 10px;
+    margin-bottom: 6px;
 }
 
 .posSubButton:hover,
@@ -192,7 +243,7 @@
 
 .posSubText{
     font-size: 18px;
-    line-height: 33px;
+    line-height: 44px;
     font-weight: 400;
     color: #0a9dc7;
 }
@@ -320,7 +371,7 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    color: #865555;  
+    color: #1c1e1f;  
     display: block;
 }
 

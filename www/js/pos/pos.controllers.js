@@ -207,6 +207,62 @@ angular.module('pos.controllers', ['ionic'])
         }
 
 
+        $scope.viewOrderOptions = function(orderData){
+
+                        var choiceTemplate =    '<div class="row">'+
+                                                    '<div class="col col-50">'+
+                                                        '<div class="actionTile" ng-click="actionTileFunction(\'OPEN\')">'+
+                                                            '<div class="actionTileIcon shadeGreenYellow">O</div>'+
+                                                            '<div class="actionTileText" style="color: #88deba">Open Order</div>'+
+                                                        '</div>'+
+                                                    '</div>'+
+                                                    '<div class="col col-50">'+
+                                                        '<div class="actionTile" ng-click="actionTileFunction(\'PRINT_VIEW\')">'+
+                                                            '<div class="actionTileIcon shadeYellowOrange">V</div>'+
+                                                            '<div class="actionTileText" style="color: #e48345">Print View</div>'+
+                                                        '</div>'+
+                                                    '</div>'+
+                                                '</div>'+
+                                                '<div class="row" style="margin-top: 6px;">'+
+                                                    '<div class="col col-50">'+
+                                                        '<div class="actionTile" ng-click="actionTileFunction(\'PRINT_KOT\')">'+
+                                                            '<div class="actionTileIcon shadeRedPink">K</div>'+
+                                                            '<div class="actionTileText" style="color: #de6066">Dupliate KOT</div>'+
+                                                        '</div>'+
+                                                    '</div>'+
+                                                    '<div class="col col-50">'+
+                                                        '<div class="actionTile" ng-click="actionTileFunction(\'PRINT_BILL\')">'+
+                                                            '<div class="actionTileIcon shadeBlueViolet">B</div>'+
+                                                            '<div class="actionTileText" style="color: #5ca7dc">Print Bill</div>'+
+                                                        '</div>'+
+                                                    '</div>'+
+                                                '</div>';
+
+                        $scope.actionTilesDataContent = orderData;
+                        $scope.actionTilesPopup = $ionicPopup.show({
+                            cssClass: 'popup-actions tile-actions-view',
+                            template: choiceTemplate,
+                            title: '',
+                            scope: $scope,
+                            buttons: [{
+                                text: 'Close'
+                            }]
+                        });
+
+        }
+
+        $scope.actionTileFunction = function(type){
+            
+            var orderData = $scope.actionTilesDataContent;
+            $scope.actionTilesPopup.close();
+
+            if(type == "OPEN"){
+                $scope.openOrderToEdit(orderData);
+                return '';
+            }
+        }
+
+
         //Open order to edit
         $scope.openOrderToEdit = function(editOrder){
 
@@ -524,7 +580,7 @@ angular.module('pos.controllers', ['ionic'])
         
                 if(hasUnsavedChanges){
                     var confirmPopup = $ionicPopup.confirm({
-                        cssClass: 'popup-outer confirm-alert-alternate',
+                        cssClass: 'popup-clear confirm-alert-alternate',
                         title: 'There are unsaved changes in the cart. Are you sure want to start a new order?'
                     });
 
@@ -585,7 +641,7 @@ angular.module('pos.controllers', ['ionic'])
                 else if(seat.status == 1){ //running order table
                     
                     var confirmPopup = $ionicPopup.confirm({
-                        cssClass: 'popup-outer confirm-alert-alternate',
+                        cssClass: 'popup-clear confirm-alert-alternate',
                         title: 'There are unsaved changes in the cart. Are you sure want to start a new order?'
                     });
 
@@ -769,12 +825,15 @@ angular.module('pos.controllers', ['ionic'])
                     })
                     .success(function(response) {
                         $scope.allProfileData = response.value;
+                        
 
                         //Render Template
                         var i = 0;
                         var choiceTemplate = '<div style="margin-top: 5px">';
                         while (i < $scope.allProfileData.length) {
-                            choiceTemplate = choiceTemplate + '<button class="button button-full" style="text-align: left; color: #c52031; margin-bottom: 8px; font-size: 18px; height: 54px; font-weight: 500; " ng-click="selectProfileFromWindow(\'' + $scope.allProfileData[i].name + '\', ' + $scope.allProfileData[i].code + ', \''+$scope.allProfileData[i].role+'\')">' + $scope.allProfileData[i].name + ' </button>';
+                            if($scope.allProfileData[i].role == "STEWARD" || $scope.allProfileData[i].role == "ADMIN"){
+                                choiceTemplate = choiceTemplate + '<button class="button button-full" style="text-align: left; color: #c52031; margin-bottom: 8px; font-size: 18px; height: 54px; font-weight: 500; " ng-click="selectProfileFromWindow(\'' + $scope.allProfileData[i].name + '\', ' + $scope.allProfileData[i].code + ', \''+$scope.allProfileData[i].role+'\')">' + $scope.allProfileData[i].name + ' </button>';
+                            }
                             i++;
                         }
                         choiceTemplate = choiceTemplate + '</div>';
@@ -1015,11 +1074,7 @@ angular.module('pos.controllers', ['ionic'])
 
     $scope.$on('guest_updated', function(event, guest_object) {
         $scope.guestData = guest_object;
-        console.log($scope.guestData)
     });
-
-
-
 
 
 
@@ -1035,10 +1090,10 @@ angular.module('pos.controllers', ['ionic'])
         scope: $scope,
         animation: 'slide-in-up'
       }).then(function(modal) {
-        $scope.help_modal = modal;
+        $scope.add_item_modal = modal;
       });
 
-      $scope.openItemDetails = function(itemData){
+      $scope.openItemDetails = function(itemData, flag){
 
       	if(!itemData.isAvailable){
       		$ionicLoading.show({ template: "<b>"+itemData.name+"</b> is out of stock", duration: 1000 });
@@ -1049,7 +1104,11 @@ angular.module('pos.controllers', ['ionic'])
         
         $scope.myItem.qty = 1;
 
-        $scope.help_modal.show();
+        if(flag == 'SEARCHING'){
+            $scope.search_item_modal.hide();
+        }
+
+        $scope.add_item_modal.show();
       };
 
 
@@ -1130,7 +1189,7 @@ angular.module('pos.controllers', ['ionic'])
         }
 
         ShoppingCartService.addProduct(processed_item);
-        $scope.help_modal.hide();
+        $scope.add_item_modal.hide();
 
         $scope.search.query = '';
 
@@ -1294,7 +1353,10 @@ angular.module('pos.controllers', ['ionic'])
                 }
 
                 if(n == $scope.menu.length - 1){
-                    //No results
+                    $ionicLoading.show({
+                        template: "There are no items in <b>"+target+"</b>",
+                        duration: 3000
+                    });
                 }
             }
 
@@ -1340,7 +1402,14 @@ angular.module('pos.controllers', ['ionic'])
                                   return newArr;
                                 }
 
-                                $scope.subMenuList = chunk(short_listed, 2);
+                                var number_of_categories = short_listed.length;
+                                if(number_of_categories % 2 == 1){
+                                    number_of_categories++;
+                                }
+
+                                var chunk_length = number_of_categories/2;
+
+                                $scope.subMenuList = chunk(short_listed, chunk_length);
                             }
 
                             n++;
@@ -1563,7 +1632,7 @@ angular.module('pos.controllers', ['ionic'])
         
                 if(hasUnsavedChanges){
                     var confirmPopup = $ionicPopup.confirm({
-                        cssClass: 'popup-outer confirm-alert-alternate',
+                        cssClass: 'popup-clear confirm-alert-alternate',
                         title: 'There are unsaved changes in the cart. Are you sure want to start a new order?'
                     });
 
@@ -1615,7 +1684,7 @@ angular.module('pos.controllers', ['ionic'])
                 else if(seat.status == 1){ //running order table
                     
                     var confirmPopup = $ionicPopup.confirm({
-                        cssClass: 'popup-outer confirm-alert-alternate',
+                        cssClass: 'popup-clear confirm-alert-alternate',
                         title: 'There are unsaved changes in the cart. Are you sure want to start a new order?'
                     });
 
@@ -1726,12 +1795,14 @@ angular.module('pos.controllers', ['ionic'])
 
             setTimeout(function(){
                 document.getElementById("menu_search_input").focus();
-            }, 1000);
+            }, 2000);
     }
 
     $scope.resetSearch = function(){
         $scope.search.query = "";
-        document.getElementById("menu_search_input").focus();
+        setTimeout(function(){
+            document.getElementById("menu_search_input").focus();
+        }, 1000);
     }
 
 
@@ -2354,6 +2425,7 @@ angular.module('pos.controllers', ['ionic'])
     //Clear all info after placing order
     $scope.orderPostClearData = function(){
         ShoppingCartService.clearCartToEmpty();
+        currentGuestData.clearGuest();
         $state.go('main.app.punch');
         window.localStorage.current_table_selection = '';
     }

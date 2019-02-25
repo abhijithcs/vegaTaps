@@ -9,12 +9,12 @@
             </button>
 
 
-            <button class="button button-clear" style="text-align: left; margin-left: 5px; font-weight: 400; color: #FFF; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; font-size: 18px;" ng-click="openSeatPlanView()">
-              <tag class="reservationAddButton" style="float: right; background: rgb(255, 255, 255); width: 120px; border-radius: 4px; color: #e84a37; font-style: italic;" ng-if="selectedTable == ''">
-                <i class="fa fa-th"></i> Select
+            <button class="button button-clear" style="min-width: 160px; text-align: center; margin-left: 5px; font-weight: 400; color: #FFF; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 18px; height: 38px; margin-top: -2px;" ng-click="openSeatPlanView()">
+              <tag class="reservationAddButton" style="float: right; background: rgb(255, 255, 255); width: 100%; border-radius: 4px; color: rgb(232, 74, 55); font-style: italic; height: 36px; font-size: 16px; line-height: 2.3;" ng-if="selectedTable == ''">
+                <i class="fa fa-th"></i>  Select Table
               </tag>
-              <tag class="reservationAddButton" style="float: right; background: #55bf5a; width: 120px; border-radius: 4px; font-weight: bold;" ng-if="selectedTable != ''">
-                Table #{{selectedTable}}
+              <tag class="reservationAddButton" style="float: right; background: rgb(85, 191, 90); width: 100%; border-radius: 4px; font-weight: 400; height: 36px; font-size: 20px; line-height: 1.7;" ng-if="selectedTable != ''">
+                Table <b>#{{selectedTable}}</b>
               </tag>
             </button>  
 
@@ -28,7 +28,7 @@
 
 
             <!-- filter by date -->
-            <button class="button button-clear clearSearchFilterButton" style="position: absolute; top: 0px; right: 0px;" ng-click="startSearching()">
+            <button class="button button-clear clearSearchFilterButton" style="position: absolute; top: -4px; right: 0px; height: 44px;" ng-click="startSearching()">
               <i class="icon ion-android-search"></i> 
             </button>  
 
@@ -80,13 +80,13 @@
         <div class="col col-50">
           <span class="mainTypeButton" ng-class="{'active' : shortlistMainMenu == 'ARABIAN'}" ng-click="openCorresponsingMainMenu('ARABIAN')">
             <span class="mainTypeText">Arabian</span>
-            <img src="img/common/category_arabian.png" style="float: right; height: 42px; margin-right: 5px;">
+            <img src="img/common/category_arabian.png" style="float: right; height: 42px; position: absolute; right: 0;">
           </span>
         </div>
         <div class="col col-50">
           <span class="mainTypeButton" ng-class="{'active' : shortlistMainMenu == 'CHINESE'}" ng-click="openCorresponsingMainMenu('CHINESE')">
             <span class="mainTypeText">Chinese</span>
-            <img src="img/common/category_chinese.png" style="float: right; height: 42px; margin-right: 5px;">
+            <img src="img/common/category_chinese.png" style="float: right; height: 42px; position: absolute; right: 0;">
           </span>
         </div>
       </div>
@@ -94,13 +94,13 @@
         <div class="col col-50">
           <span class="mainTypeButton" ng-class="{'active' : shortlistMainMenu == 'INDIAN'}" ng-click="openCorresponsingMainMenu('INDIAN')">
             <span class="mainTypeText">Indian</span>
-            <img src="img/common/category_indian.png" style="float: right; height: 42px; margin-right: 5px;">
+            <img src="img/common/category_indian.png" style="float: right; height: 42px; position: absolute; right: 0;">
           </span>
         </div>
         <div class="col col-50">
           <span class="mainTypeButton" ng-class="{'active' : shortlistMainMenu == 'DESSERTS'}" ng-click="openCorresponsingMainMenu('DESSERTS')">
             <span class="mainTypeText">Desserts</span>
-            <img src="img/common/category_desserts.png" style="float: right; height: 42px; margin-right: 5px;">
+            <img src="img/common/category_desserts.png" style="float: right; height: 42px; position: absolute; right: 0;">
           </span>
         </div>
       </div>
@@ -108,9 +108,9 @@
 
 
     <div class="posHolderSub">
-      <div class="row info-row" ng-repeat="rows in subMenuList track by $index">
-        <div class="col col-50" ng-repeat="subCat in rows track by $index">
-          <span class="posSubButton" ng-click="openSubMenu(subCat)">
+      <div class="row info-row">
+        <div class="col col-50" ng-repeat="columns in subMenuList track by $index">
+          <span class="posSubButton" ng-click="openSubMenu(subCat)" ng-repeat="subCat in columns track by $index">
             <span class="posSubText">{{subCat}}</span>
           </span>
         </div>

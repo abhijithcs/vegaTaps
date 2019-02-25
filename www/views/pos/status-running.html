@@ -32,12 +32,12 @@
 
 <div ng-show="isRenderOrderLoaded && !renderOrderFailed">
 
-      <div class="card order-item" ng-repeat="order in orders_list">
-        <div class="item item-divider order-header" style="background: #4a5a6b; padding-right: 10px; padding-left: 10px;" ng-click="openOrderToEdit(order)">
+      <div class="card order-item" ng-repeat="order in orders_list" ng-click="viewOrderOptions(order)">
+        <div class="item item-divider order-header" style="background: #4a5a6b; padding-right: 10px; padding-left: 10px;">
           <span class="header-title"><span style="font-size: 120%; font-weight: 900; background: #758ba5; color: #FFF; border-radius: 4px; padding: 0 5px;">{{order.table}}</span> <tag style="font-size: 80%"><tag style="font-weight: 400">{{order.stewardName}}</tag> at {{filterTime(order)}}</tag><jafry style="color:white; float:right">#{{order.KOTNumber}}</jafry></span>
         </div>
         <div class="item item-text-wrap order-content">
-          <div class="row order-product" ng-repeat="product in order.cart track by $index" style="height: 32px;" ng-click="openCommentsIfAdded(product)">
+          <div class="row order-product" ng-repeat="product in order.cart track by $index" style="height: 32px;">
             <div class="col col-75 col-center">
               <span class="product-name">
                 <tag style="font-weight: 500; color: #2a323c;">{{product.name}}</tag>
