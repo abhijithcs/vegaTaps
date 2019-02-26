@@ -111,7 +111,7 @@ angular.module('feedback.controllers', [])
             $state.go('main.app.feedbacklanding');
         }   
 
-        $scope.counter = 10;
+        $scope.counter = 15;
         $scope.Timer = $interval(function() {
             $scope.counter--;
             if($scope.counter == 0){
