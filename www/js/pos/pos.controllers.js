@@ -3,55 +3,7 @@ angular.module('pos.controllers', ['ionic'])
 
 
 
-    .controller('loginCtrl', function(changeSlotService, $scope, $ionicPopup, ionicTimePicker, ionicDatePicker, $state, $http, $ionicPopover, $ionicLoading, $timeout, mappingService, currentBooking) {
-
-
-        //Already Logged in case
-        if (!_.isUndefined(window.localStorage.admin) && window.localStorage.admin != '') {
-  
-        }
-        else{
-          $state.go('main.app.login');
-        }
-
-        $scope.loginError = "";
-        $scope.mydata = {};
-        $scope.mydata.mobile = "";
-        $scope.mydata.password = "";
-        $scope.doLogin = function() {
-
-            $ionicLoading.show({
-                template: '<ion-spinner></ion-spinner>'
-            });
-            $http({
-                    method: 'POST',
-                    url: 'https://www.zaitoon.online/services/adminlogin.php',
-                    data: $scope.mydata,
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    timeout: 10000
-                })
-                .success(function(response) {
-                    $ionicLoading.hide();
-                    if (response.status) {
-                        window.localStorage.admin = response.response;
-                        $state.go('main.app.landing');
-                    } else {
-                        $scope.loginError = response.error;
-                    }
-
-                })
-                .error(function(data) {
-                    $ionicLoading.hide();
-                    $ionicLoading.show({
-                        template: "Not responding. Check your connection.",
-                        duration: 3000
-                    });
-                });
-        }
-
-    })
+ 
 
 
 
@@ -62,28 +14,6 @@ angular.module('pos.controllers', ['ionic'])
     .controller('StatusCtrl', function($ionicLoading, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate, ShoppingCartService) {
         
     })
-
-    .controller('SettingsCtrl', function($ionicLoading, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate, ShoppingCartService) {
-     
-        $scope.navToggled = false;
-
-        $scope.showOptionsMenu = function() {
-            $ionicSideMenuDelegate.toggleLeft();
-            $scope.navToggled = !$scope.navToggled;
-        };
-
-        $scope.defaultServer = {};
-        $scope.defaultServer.ip_address = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@192.168.1.3:5984/';
-        $scope.defaultServer.license_branch = window.localStorage.accelerate_licence_branch && window.localStorage.accelerate_licence_branch != '' ? window.localStorage.accelerate_licence_branch : 'NAVALUR';
-
-
-        $scope.saveServerAddress = function(){
-            window.localStorage.defaultServerIPAddress = $scope.defaultServer.ip_address;
-            window.localStorage.accelerate_licence_branch = $scope.defaultServer.license_branch;
-        }
-
-    })
-
     
 
     .controller('StatusRunningCtrl', function($ionicLoading, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate, ShoppingCartService) {

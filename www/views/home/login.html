@@ -1,24 +1,26 @@
-<ion-view class="login-view auth-view" style="background: none !important" cache-view="false">
-  <ion-content has-bouncing="false" style="background-image: url(../img/common/pattern.png) !important; background-repeat: repeat !important;">
-    <div class="row form-row" style="padding-top: 20px">
+<ion-view class="login-view auth-view" style="background: #EB3349; /* fallback for old browsers */ background: -webkit-linear-gradient(to top, #F45C43, #EB3349); /* Chrome 10-25, Safari 5.1-6 */ background: linear-gradient(to top, #F45C43, #EB3349); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */" cache-view="false">
+  <ion-content has-bouncing="false" style="bottom: 80px;">
+
+    <!-- Login -->
+    <div class="row form-row" style="padding-top: 20px" ng-if="isApplicationActivated">
       <div class="col">
-        <form name="login_form" class="form-container" novalidate>
-          <center><img src="./img/common/white_logo.png" width="70%"></center>
-          <p style="color: #fff; text-align: center; font-size: 16px; padding: 8px 3px; background: rgba(170, 48, 43, 0.8); border-radius: 3px; font-weight: bold; letter-spacing: 2px; margin: 20px 0 0 0">
-            MANAGER LOGIN
+        <form class="form-container" novalidate>
+          
+          <p style="color: #fff; text-align: center; font-size: 32px; margin: 40px 0 0 0; font-family: 'Raleway', sans-serif; padding: 20px 0">
+            Login to Account
           </p>
 
-          <div class="input-list list list-inset">
-            <label  class="item item-input" style="margin-top: 15px">
-              <input type="text" style="font-size: 16px" placeholder="Username" name="" ng-model="mydata.mobile" required maxlength="10">
+          <div class="input-list list list-inset" style="margin-top: 20px">
+            <label class="item item-input" style="margin-top: 15px">
+              <input class="loginCredentials" type="tel" style="font-size: 21px; font-weight: bold; letter-spacing: 2px;" placeholder="Username" name="" ng-model="mydata.mobile" required maxlength="10">
             </label>
-            <label  class="item item-input" style="margin-top: 10px">
-              <input type="password" style="font-size: 16px" placeholder="Password" name="" ng-model="mydata.password">
+            <label class="item item-input" style="margin-top: 20px">
+              <input class="loginCredentials" type="password" style="font-size: 21px; font-weight: bold;" placeholder="Password" name="" ng-model="mydata.password">
             </label>
 
           </div>
           <p ng-if="loginError" class="message error">{{loginError}}</p><br>
-          <button type="submit" class="button button-block auth-action-button" ng-click="doLogin(mydata)">
+          <button type="submit" class="button button-block" style="background: rgba(0, 0, 0, .3); color: #FFF; font-size: 14px; letter-spacing: 0;" ng-click="doLogin(mydata)">
             LOGIN
           </button>
 
@@ -26,5 +28,48 @@
 
       </div>
     </div>
+
+
+
+
+    <!-- Login -->
+    <div class="row form-row" style="padding-top: 20px" ng-if="!isApplicationActivated">
+      <div class="col">
+        <form class="form-container" novalidate>
+          
+          <p style="color: #fff; text-align: center; font-size: 32px; margin: 40px 0 0 0; font-family: 'Raleway', sans-serif; padding: 20px 0">
+            Register Device
+          </p>
+
+          <div class="input-list list list-inset" style="margin-top: 20px">
+
+            <label class="item item-input" style="margin-top: 15px; margin-bottom: 3px">
+              <input class="loginCredentials" type="tel" style="font-size: 21px; font-weight: bold; letter-spacing: 4px;" placeholder="Code" ng-model="myactivation.code">
+            </label>
+
+            <p style="font-size: 12px; color: #FFC107; margin: 0; text-align: center; font-weight: bold;">ENTER ACTIVATION CODE</p>
+
+          </div>
+          <p ng-if="loginError" class="message error">{{activationError}}</p><br>
+          <button type="submit" class="button button-block" style="background: rgba(0, 0, 0, .3); color: #FFF; font-size: 14px; letter-spacing: 0;" ng-click="doActivation(mydata)">
+            ACTIVATE
+          </button>
+
+        </form>
+
+      </div>
+    </div>
+
+
+
   </ion-content>
+
+  <ion-footer-bar style="background: none; height: 80px; padding: 0; border: none">
+    <div style="background: none; height: 80px; padding: 10px 0; position: absolute; width: 100%; bottom: 0;">
+      <div style="position: relative; text-align: center; opacity: 0.3;">
+        <img style="height: 60px" src="./img/common/white_logo.png">
+      </div>
+    </div>
+  </ion-footer-bar>
+
 </ion-view>

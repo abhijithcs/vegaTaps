@@ -10,6 +10,7 @@ angular.module('zaitoonFirst', [
   'zaitoonFirst.views',
   'common.directives',
   'common.controllers',
+  'common.services',
 
   'feedback.controllers',
   'feedback.services',
@@ -291,8 +292,8 @@ angular.module('zaitoonFirst', [
                 url: '/settings',
                 nativeTransitions: { type: "fade" },
                 views: {
-                    'app-punch@main.app': {
-                        templateUrl: 'views/pos/pos-settings.html',
+                    'main-view@main': {
+                        templateUrl: 'views/home/settings.html',
                         controller: 'SettingsCtrl'
                     }
                 }

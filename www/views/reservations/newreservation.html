@@ -1,9 +1,13 @@
 <ion-view class="login-view auth-view" cache-view="false" style="background: #FF5F6D; background: -webkit-linear-gradient(to top, #272726, #FF5F6D); background: linear-gradient(to top, #272726, #FF5F6D);">
-  <ion-content has-bouncing="false">
+  <ion-content has-bouncing="false" style="bottom: 80px">
     <div class="row form-row" style="padding-top: 20px">
       <div class="col">
         <form name="login_form" class="form-container" novalidate>
-          <center><img src="./img/common/white_logo.png" width="70%"></center>
+
+          <p style="color: #fff; text-align: center; font-size: 32px; margin: 0; font-family: 'Raleway', sans-serif; padding: 20px 0 15px 0;">
+            New Reservation
+          </p>
+          
           <div class="button-bar padding">
             <a grouped-radio="'walkin'" ng-click="setMode('reservation')" ng-model="walkin.bookingType">Walk In</a>
             <a grouped-radio="'reservation'" ng-click="setMode('walkin')" ng-model="walkin.bookingType">Reserve</a>
@@ -67,4 +71,13 @@
       </div>
     </div>
   </ion-content>
+
+  <ion-footer-bar style="background: none; height: 80px; padding: 0; border: none">
+    <div style="background: none; height: 80px; padding: 10px 0; position: absolute; width: 100%; bottom: 0;">
+      <div style="position: relative; text-align: center; opacity: 0.3;">
+        <img style="height: 60px" src="./img/common/white_logo.png">
+      </div>
+    </div>
+  </ion-footer-bar>
+
 </ion-view>

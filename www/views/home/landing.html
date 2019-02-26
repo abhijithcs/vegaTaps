@@ -1,5 +1,5 @@
 <ion-view class="login-view auth-view" cache-view="false">
-  <ion-content has-bouncing="false" style="background: #e74c3c; background-image: url(../img/common/pattern.png) !important; background-repeat: repeat;">
+  <ion-content has-bouncing="false" style="background: #EB3349; /* fallback for old browsers */ background: -webkit-linear-gradient(to top, #F45C43, #EB3349); /* Chrome 10-25, Safari 5.1-6 */ background: linear-gradient(to top, #F45C43, #EB3349); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */">
     <div class="row form-row" style="padding-top: 20px">
       <div class="col">
         <form name="login_form" class="form-container" style="margin: 15px" novalidate>
@@ -46,14 +46,23 @@
 
         </form>
 
+      <div style="padding: 0 5px; margin-top: 30px">
+       <div style="display: block; width: 100%; position: relative; padding: 0; margin-top: 10px;">
+       
+        <button class="button button-clear" style="width: 50%; float: left; margin: 0; border-radius: 0; border-top-left-radius: 4px; border-bottom-left-radius: 4px; color: rgba(255, 255, 255, 0.5); font-size: 12px; text-align: right; padding-right: 25px;" ng-click="goToSettings()">Settings</button>
 
-          <div class="row">
-            <button class="button button-small button-clear" style="font-size: 13px; margin-top: 10px; width: 100%; color: #ff968d; height: 50px;" ng-click="logoutNow()">Logout</button>  
-          </div>
+        <button ng-click="logoutNow()" class="button button-clear" style="width: 50%; position: absolute; display: inline-block; border-radius: 0; float: right; margin: 0; background: none; border-top-right-radius: 4px; border-bottom-right-radius: 4px; color: rgba(255, 255, 255, 0.5); font-size: 12px; text-align: left; padding-left: 25px;">Logout</button>
+
+       </div> 
+      </div>
+
 
 
       </div>
     </div>
+
+
+
   </ion-content>
 
 </ion-view>

@@ -1,4 +1,4 @@
-angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-datepicker']) //'moment-picker'
+angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-datepicker', 'moment-picker']) //'moment-picker'
 
     .config(function(ionicTimePickerProvider) {
         var timePickerObj = {
@@ -146,36 +146,9 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
         //Default list of Channels
 		$scope.channels = [{ name: "Direct Call", code: "DIRECT" }, { name: "Direct Email", code: "EMAIL" }];
 		
-		$scope.refreshModesList = function(){
-                var data = {};
-                data.token = window.localStorage.admin;
-				
-                $ionicLoading.show({
-                    template: '<ion-spinner></ion-spinner><br>Refreshing List'
-                });
-				
-				
-					$http({
-                        method: 'POST',
-                        url: 'https://www.zaitoon.online/services/deskreservationchannels.php',
-                        data: data,
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded'
-                        },
-						timeout : 10000
-                    })
-                    .success(function(data) {
-						$ionicLoading.hide();
-						if(data.status){
-							window.localStorage.modeList = JSON.stringify(data.response);
-							$scope.channels = data.response;
-							$scope.selectedChannelCode = $scope.channels[1].code;
-						}
-                    });					
-		}
 		
 		if(_.isUndefined(window.localStorage.modeList) || window.localStorage.modeList == ''){
-			//$scope.refreshModesList();
+			
 		}
 		else{
 			$scope.channels = JSON.parse(window.localStorage.modeList);
@@ -963,15 +936,6 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
         }
 
 
-        $scope.Timer = $interval(function() {
-            $scope.fetchData();
-        }, 60000);
-        
-        $scope.$on('$destroy', function () {$interval.cancel($scope.Timer);});
-
-
-
-
         $scope.newBook = function() {
             $state.go('main.app.walkin');
         }
@@ -1686,15 +1650,6 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
         }
 
 
-        $scope.Timer = $interval(function() {
-            $scope.fetchData();
-        }, 60000);
-        
-        $scope.$on('$destroy', function () {$interval.cancel($scope.Timer);});
-
-
-
-
         $scope.newBook = function() {
             $state.go('main.app.walkin');
         }
@@ -2407,14 +2362,6 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
             }
 
         }
-
-
-        $scope.Timer = $interval(function() {
-            $scope.fetchData();
-        }, 60000);
-		
-		$scope.$on('$destroy', function () {$interval.cancel($scope.Timer);});
-
 
 
 
