@@ -38,8 +38,6 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
             $state.go('main.app.login');
         }
 
-
-
         //Default values
         $scope.mydata = changeSlotService.getValues();
         $scope.bookingDate = $scope.mydata.date;
@@ -87,10 +85,13 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
             $state.go('main.reservationsapp.upcoming');
         }
 
-        $scope.chosenTime = $scope.mydata.time;
+        $scope.chosenTime = moment($scope.mydata.time, 'h:mm a').format('HHmm');
         $scope.mytime = {};
-        $scope.mytime.time = "";
+        $scope.mytime.time = $scope.chosenTime;
 
+        $scope.formatMyTime = function(time){
+            return moment(time, "hhmm").format('hh:mm a');
+        }
 
 
         $scope.editBook = function(resObj) {
@@ -100,8 +101,11 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
             temp_data.time = (moment($scope.mytime.time).format("HHmm"));
             temp_data.date = $scope.normalDate;
 
+
+            $scope.editReservationError = "";
+
             if (temp_data.count == "" || temp_data.count == 0) {
-                $scope.editReservationError = "Invalid Person Count";
+                $scope.editReservationError = "Invalid Guest Count";
             } else if (temp_data.date == "" || temp_data.time == "") {
                 $scope.editReservationError = "Add Date and Time";
             } else {
