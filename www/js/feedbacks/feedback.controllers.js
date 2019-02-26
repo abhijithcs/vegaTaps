@@ -6,6 +6,8 @@ angular.module('feedback.controllers', [])
         $scope.user.name = "";
         $scope.user.mobile = "";
         $scope.user.email = "";
+
+
         
         $scope.searchCounter = 0;
         
@@ -53,6 +55,10 @@ angular.module('feedback.controllers', [])
                     $state.go('main.app.feedback');
         };
 
+
+        $scope.goBackToMain = function(){
+            $state.go('main.app.landing');
+        }
 
 
         //To set the background

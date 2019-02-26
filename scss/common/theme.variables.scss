@@ -1,4 +1,40 @@
+
 /* Changes for POS */
+
+
+@-webkit-keyframes zoomIn {
+  from {
+    opacity: 0;
+    -webkit-transform: scale3d(0.3, 0.3, 0.3);
+    transform: scale3d(0.3, 0.3, 0.3);
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    -webkit-transform: scale3d(0.3, 0.3, 0.3);
+    transform: scale3d(0.3, 0.3, 0.3);
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+
+.thankYouText{
+  font-family: 'Great Vibes', cursive;
+  color: #FFF;
+  margin-top: 30px !important;
+  font-size: 48px;
+
+  animation: zoomIn 1.5s ease-out; 
+}
 
 .feedbackBGRed{
   background: #FF5F6D !important;
@@ -30,6 +66,8 @@
 .feedbackComments:-moz-placeholder { /* Firefox 18- */
   color: #FFF;
 }
+
+
 
 .floralContainer {
   height: 100px;
