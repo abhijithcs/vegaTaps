@@ -26,22 +26,22 @@
 
           <div style="margin-top: 5px; position: relative">
             <span style="text-align: center; color: #FFF; -ms-transform: rotate(20deg); /* -webkit-transform: rotate(20deg); */ transform: rotate(270deg); display: inline-block; position: absolute; top: 22px; left: -11px; font-weight: bold; font-size: 12px;">MOBILE</span>
-            <input type="tel" ng-model="walkin.mobile" class="guestMobileInput" style="font-size: 24px; font-weight: bold; height: 64px; padding: 0px; width: 100%; text-align: center; background: none; color: rgb(255, 255, 255); border-width: 1px 1px 1px 26px !important; border-style: solid !important; border-color: rgba(0, 0, 0, 0.3) !important; border-image: initial !important; border-top-right-radius: 6px !important; border-bottom-right-radius: 4px !important;" placeholder="MOBILE">
+            <input type="tel" ng-model="walkin.mobile" class="guestMobileInput" style="font-size: 24px; font-weight: bold; height: 64px; padding: 0px; width: 100%; text-align: center; background: none; color: rgb(255, 255, 255); border-width: 1px 1px 1px 26px !important; border-style: solid !important; border-color: rgba(0, 0, 0, 0.3) !important; border-image: initial !important; border-top-right-radius: 6px !important; border-bottom-right-radius: 4px !important;" placeholder="Contact Number">
           </div>
 
           <div style="margin-top: 5px; position: relative">
             <span style="text-align: center; color: #FFF; -ms-transform: rotate(20deg); /* -webkit-transform: rotate(20deg); */ transform: rotate(270deg); display: inline-block; position: absolute; top: 22px; left: -5px; font-weight: bold; font-size: 12px;">NAME</span>
-            <input type="text" ng-model="walkin.name" class="guestMobileInput" style="font-size: 24px; font-weight: bold; height: 64px; padding: 0px; width: 100%; text-align: center; background: none; color: rgb(255, 255, 255); border-width: 1px 1px 1px 26px !important; border-style: solid !important; border-color: rgba(0, 0, 0, 0.3) !important; border-image: initial !important; border-top-right-radius: 6px !important; border-bottom-right-radius: 4px !important; text-transform: uppercase" placeholder="NAME">
+            <input type="text" ng-model="walkin.name" class="guestMobileInput" style="font-size: 24px; font-weight: bold; height: 64px; padding: 0px; width: 100%; text-align: center; background: none; color: rgb(255, 255, 255); border-width: 1px 1px 1px 26px !important; border-style: solid !important; border-color: rgba(0, 0, 0, 0.3) !important; border-image: initial !important; border-top-right-radius: 6px !important; border-bottom-right-radius: 4px !important; text-transform: uppercase" placeholder="Name of the Guest">
           </div>
 
           <div style="margin-top: 5px; position: relative">
             <span style="text-align: center; color: #FFF; -ms-transform: rotate(20deg); /* -webkit-transform: rotate(20deg); */ transform: rotate(270deg); display: inline-block; position: absolute; top: 22px; left: -9px; font-weight: bold; font-size: 12px;">COUNT</span>
-            <input type="tel" ng-model="walkin.count" class="guestMobileInput" style="font-size: 24px; font-weight: bold; height: 64px; padding: 0px; width: 100%; text-align: center; background: none; color: rgb(255, 255, 255); border-width: 1px 1px 1px 26px !important; border-style: solid !important; border-color: rgba(0, 0, 0, 0.3) !important; border-image: initial !important; border-top-right-radius: 6px !important; border-bottom-right-radius: 4px !important;" placeholder="COUNT">
+            <input type="tel" ng-model="walkin.count" class="guestMobileInput" style="font-size: 24px; font-weight: bold; height: 64px; padding: 0px; width: 100%; text-align: center; background: none; color: rgb(255, 255, 255); border-width: 1px 1px 1px 26px !important; border-style: solid !important; border-color: rgba(0, 0, 0, 0.3) !important; border-image: initial !important; border-top-right-radius: 6px !important; border-bottom-right-radius: 4px !important;" placeholder="Number of Guests">
           </div>
 
 
           <div style="margin-top: 5px; position: relative" ng-if="walkin.bookingType == 'reservation'">
-            <span style="text-align: center; color: #FFF; -ms-transform: rotate(20deg); /* -webkit-transform: rotate(20deg); */ transform: rotate(270deg); display: inline-block; position: absolute; top: 22px; left: -13px; font-weight: bold; font-size: 12px;">SOURCE</span>
+            <span style="text-align: center; color: #FFF; -ms-transform: rotate(20deg); /* -webkit-transform: rotate(20deg); */ transform: rotate(270deg); display: inline-block; position: absolute; top: 22px; left: -12px; font-weight: bold; font-size: 12px;">SOURCE</span>
             <div style="height: 64px; padding: 0px; width: 100%; text-align: center; background: none; color: rgb(255, 255, 255); border-width: 1px 1px 1px 26px !important; border-style: solid !important; border-color: rgba(0, 0, 0, 0.3) !important; border-image: initial !important; border-top-right-radius: 6px !important; border-bottom-right-radius: 4px !important;">
 
               <button class="button button-default" style="border: none; color: #FFF; margin: 0; border-radius: 0; display: block; text-transform: capitalize; font-size: 24px; font-weight: 400; height: 64px; padding: 0px; width: 100%; text-align: center; background: none;" ng-click="selectChannel()">
@@ -56,7 +56,7 @@
             </label>
 
 
-        <div style="width: 100%; display: block">  
+        <div style="width: 100%; display: block; margin-top: 25px;">  
             <button type="submit" class="button button-royal" style="text-transform: capitalize; font-weight: 400; width: 70%; border: none; border-radius: 0; float: right; margin: 0; display: block; border-bottom-right-radius: 4px; border-top-right-radius: 4px;" ng-click="addBook(walkin)">
               Add {{walkin.bookingType}}
             </button>

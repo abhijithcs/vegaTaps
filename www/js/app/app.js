@@ -394,5 +394,5 @@ angular.module('zaitoonFirst', [
   ;
 
   // if none of the above states are matched, use this as the fallback
-  $urlRouterProvider.otherwise('/main/app/landing');
+  $urlRouterProvider.otherwise('/main/app/login');
 });

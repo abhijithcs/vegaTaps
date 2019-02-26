@@ -76,6 +76,8 @@
     <plugin name="cordova-plugin-transport-security" spec="^0.1.1" />
     <plugin name="cordova-plugin-whitelist" spec="^1.2.1" />
     <plugin name="ionic-plugin-keyboard" spec="^2.0.1" />
+    <allow-navigation href="http://172.20.10.2:8100" />
+    <allow-navigation href="http://172.20.10.2:8101" />
     <engine name="android" spec="^6.4.0" />
     <engine name="ios" spec="^3.8.0" />
 </widget>
