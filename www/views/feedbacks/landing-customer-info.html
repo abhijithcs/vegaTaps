@@ -1,27 +1,26 @@
-<ion-view class="login-view auth-view" cache-view="false">
+<ion-view class="login-view auth-view" ng-class="getMainBackground()" cache-view="false">
   <ion-content has-bouncing="false">
 
     <div class="row form-row" style="padding-top: 20px">
       <div class="col">
         <form name="signup_form" class="form-container" novalidate>
           <center><img src="./img/common/white_logo.png" width="70%"></center>
-          <div class="input-list list list-inset">
+          <div class="input-list list list-inset" style="padding-bottom: 80px;">
             <h1 style="text-align: center; color: #FFF; font-weight: 200; font-size: 28px;">Give us feedback on our service and help us serve you better.</h1>
+
             <div style="padding-top: 50px">
-              <label class="item item-input" style="margin-bottom: 0; padding-top: 40px">
-                <input style="font-size: 26px; font-weight: 300" type="tel" placeholder="Mobile Number" ng-keyup="searchUser()" name="mobile" ng-model="user.mobile" maxlength="10">
+              <label class="item item-input" style="margin: 0; padding: 0;">
+                <input style="font-size: 26px; font-weight: 300; height: 45px;" type="tel" placeholder="Mobile Number" ng-keyup="searchUser()" name="mobile" ng-model="user.mobile" maxlength="10">
               </label>	
-			  <p style="color: grey; text-align: center; font-size: 14px; margin: 0; padding-top: 5px;">(optional)</p>
-              <label class="item item-input" style="margin-bottom: 0; padding-top: 40px">
-                <input type="text" style="font-size: 26px; font-weight: 300" placeholder="Your Name" name="name" ng-model="user.name">
+			  <p style="color: rgba(255, 255, 255, 0.5); text-align: center; font-size: 14px; margin: 0; padding-top: 2px;">(optional)</p>
+              <label class="item item-input" style="margin: 20px 0 0 0; padding: 0;">
+                <input type="text" style="font-size: 26px; font-weight: 300; height: 45px;" placeholder="Your Name" name="name" ng-model="user.name">
               </label>
-			  <p style="color: grey; text-align: center; font-size: 14px; margin: 0; padding-top: 5px;">(optional)</p>
-              <label class="item item-input" style="margin-bottom: 0; padding-top: 40px">
-                <input type="tel" style="font-size: 26px; font-weight: 300" placeholder="Email" name="mobile" ng-model="user.email">
+			  <p style="color: rgba(255, 255, 255, 0.5); text-align: center; font-size: 14px; margin: 0; padding-top: 2px;">(optional)</p>
+              <label class="item item-input" style="margin: 20px 0 0 0; padding: 0;">
+                <input type="text" style="font-size: 26px; font-weight: 300; height: 45px;" placeholder="Email" name="mobile" ng-model="user.email">
               </label>			
-			  <p style="color: grey; text-align: center; font-size: 14px; margin: 0; padding-top: 5px;">(optional)</p>			  
-              <p style="margin-top: 10px; margin-bottom: 0px; color: rgb(78, 98, 119); text-align: center; font-size: 14px;">The personal information you enter here will neither be shared with any third party nor be used for any promotional purposes.</p>
-            </div>
+			  <p style="color: rgba(255, 255, 255, 0.5); text-align: center; font-size: 14px; margin: 0; padding-top: 2px;">(optional)</p>	
         </div>
           <p ng-show="error" class="message error-signup" style="color: #e74c3c">{{error}}</p>
 
@@ -30,9 +29,15 @@
     </div>
   </ion-content>
   
-          <button type="submit" style="margin-top: 40px; position: fixed; bottom: 0;" class="button button-block auth-action-button-signup" ng-click="goReview()">
+
+
+	<ion-footer-bar style="background: none; height: 60px; padding: 0; border: 0;">
+          <p style="color: #FFF !important; text-align: center; font-size: 12px; font-weight: 300; line-height: initial; position: absolute; top: -45px; padding: 0 20px;">Disclaimer: The personal information you enter here will <b>neither</b> be shared with any third party nor be used for any promotional purposes.</p>
+
+          <button type="submit" class="button button-block auth-action-button-signup" ng-click="goReview()" style="width: 100%; display: block; margin: 0; border-radius: 0; font-size: 15px; letter-spacing: 1px; background: rgba(0, 0, 0, .4);">
             Proceed
           </button>
 
-		  
+  </ion-footer-bar>
+
 </ion-view>

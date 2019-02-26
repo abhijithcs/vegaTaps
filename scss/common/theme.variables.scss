@@ -1,5 +1,36 @@
 /* Changes for POS */
 
+.feedbackBGRed{
+  background: #FF5F6D !important;
+  background: -webkit-linear-gradient(to bottom, #FFC371, #FF5F6D) !important;
+  background: linear-gradient(to bottom, #FFC371, #FF5F6D) !important;
+}
+
+.feedbackBGGreen{
+  background: #11998e !important;
+  background: -webkit-linear-gradient(to bottom, #38ef7d, #11998e) !important;
+  background: linear-gradient(to bottom, #38ef7d, #11998e) !important;
+}
+
+.feedbackBGBlue{
+  background: #36D1DC !important;
+  background: -webkit-linear-gradient(to top, #5B86E5, #36D1DC) !important;
+  background: linear-gradient(to top, #5B86E5, #36D1DC) !important;
+}
+
+.feedbackComments::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+  color: #FFF;
+}
+.feedbackComments::-moz-placeholder { /* Firefox 19+ */
+  color: #FFF;
+}
+.feedbackComments:-ms-input-placeholder { /* IE 10+ */
+  color: #FFF;
+}
+.feedbackComments:-moz-placeholder { /* Firefox 18- */
+  color: #FFF;
+}
+
 .floralContainer {
   height: 100px;
   width: 100px;
@@ -25,17 +56,48 @@
   opacity: 0;
 }
 
-.redPinkFlower .droplet{
+/* RED */
+
+.feedbackBGRed .droplet{
   border-color: #82383c !important;
 }
 
-.pinkPetal{
+.feedbackBGRed .oddPetal{
   background: #fb4f64;
 }
 
-.redPetal{
+.feedbackBGRed .evenPetal{
   background: #ff5d5d;
 }
+
+/* GREEN */
+
+.feedbackBGGreen .droplet{
+  border-color: #2f6557 !important;
+}
+
+.feedbackBGGreen .oddPetal{
+  background: #57ad83;
+}
+
+.feedbackBGGreen .evenPetal{
+  background: #80c376;
+}
+
+/* BLUE */
+
+.feedbackBGBlue .droplet{
+  border-color: #3b7094 !important;
+}
+
+.feedbackBGBlue .oddPetal{
+  background: #50b4cc;
+}
+
+.feedbackBGBlue .evenPetal{
+  background: #7fc3e0;
+}
+
 
 #no1{
   animation: spin1 5s ease-out infinite;

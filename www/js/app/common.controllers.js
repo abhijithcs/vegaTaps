@@ -70,7 +70,7 @@ angular.module('common.controllers', [])
         };
         
         $scope.goToFeedback = function() {
-            $state.go('main.app.feedback');
+            $state.go('main.app.feedbacklanding');
         }
 
 

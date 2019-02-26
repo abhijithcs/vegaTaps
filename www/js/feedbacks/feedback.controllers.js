@@ -53,6 +53,31 @@ angular.module('feedback.controllers', [])
                     $state.go('main.app.feedback');
         };
 
+
+
+        //To set the background
+
+        $scope.feedbackCount = 1;
+
+        if (_.isUndefined(window.localStorage.feedbacksCounter) || window.localStorage.feedbacksCounter == '') {
+            window.localStorage.feedbacksCounter = 1;
+        }
+        else{
+            $scope.feedbackCount = window.localStorage.feedbacksCounter;
+        }
+
+        $scope.getMainBackground = function(){
+            if($scope.feedbackCount % 3 == 0){
+                return "feedbackBGRed";
+            }
+            else if($scope.feedbackCount % 3 == 1){
+                return "feedbackBGGreen";
+            }
+            else if($scope.feedbackCount % 3 == 2){
+                return "feedbackBGBlue";
+            }
+        }
+
     })
 
 
@@ -74,6 +99,14 @@ angular.module('feedback.controllers', [])
         
         
         $scope.new = function() {
+
+            if (_.isUndefined(window.localStorage.feedbacksCounter) || window.localStorage.feedbacksCounter == '') {
+                window.localStorage.feedbacksCounter = 1;
+            }
+            else{
+                window.localStorage.feedbacksCounter = window.localStorage.feedbacksCounter + 1;
+            }
+
             feedbackService.clearAll();
             $state.go('main.app.feedbacklanding');
         }   
@@ -88,7 +121,29 @@ angular.module('feedback.controllers', [])
         
         $scope.$on('$destroy', function () {$interval.cancel($scope.Timer);});
 
-        
+
+        //To set the background
+
+        $scope.feedbackCount = 1;
+
+        if (_.isUndefined(window.localStorage.feedbacksCounter) || window.localStorage.feedbacksCounter == '') {
+            window.localStorage.feedbacksCounter = 1;
+        }
+        else{
+            $scope.feedbackCount = window.localStorage.feedbacksCounter;
+        }
+
+        $scope.getMainBackground = function(){
+            if($scope.feedbackCount % 3 == 0){
+                return "feedbackBGRed";
+            }
+            else if($scope.feedbackCount % 3 == 1){
+                return "feedbackBGGreen";
+            }
+            else if($scope.feedbackCount % 3 == 2){
+                return "feedbackBGBlue";
+            }
+        }        
     
     })
 
@@ -159,6 +214,36 @@ angular.module('feedback.controllers', [])
         //Characters Left in the comments
         document.getElementById('commentsBox').onkeyup = function() {
             document.getElementById('characterCount').innerHTML = (150 - (this.value.length)) + ' characters left.';
+        }
+
+        $scope.getSmiley = function(){
+            switch($scope.tag){
+                case "Terrible":
+                    {
+                        return "./img/ratings/1_stars.png";
+                        break;
+                    }
+                case "Bad":
+                    {
+                        return "./img/ratings/2_stars.png";
+                        break;
+                    }
+                case "OK":
+                    {
+                        return "./img/ratings/3_stars.png";
+                        break;
+                    }
+                case "Good":
+                    {
+                        return "./img/ratings/4_stars.png";
+                        break;
+                    }
+                case "Awesome":
+                    {
+                        return "./img/ratings/5_stars.png";
+                        break;
+                    }
+            }
         }
 
 
@@ -263,5 +348,30 @@ angular.module('feedback.controllers', [])
 
             }
         };
+
+
+
+        //To set the background
+
+        $scope.feedbackCount = 1;
+
+        if (_.isUndefined(window.localStorage.feedbacksCounter) || window.localStorage.feedbacksCounter == '') {
+            window.localStorage.feedbacksCounter = 1;
+        }
+        else{
+            $scope.feedbackCount = window.localStorage.feedbacksCounter;
+        }
+
+        $scope.getMainBackground = function(){
+            if($scope.feedbackCount % 3 == 0){
+                return "feedbackBGRed";
+            }
+            else if($scope.feedbackCount % 3 == 1){
+                return "feedbackBGGreen";
+            }
+            else if($scope.feedbackCount % 3 == 2){
+                return "feedbackBGBlue";
+            }
+        }
 
     });
