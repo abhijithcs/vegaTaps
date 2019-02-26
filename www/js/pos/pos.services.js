@@ -435,7 +435,8 @@ angular.module('pos.services', [])
 
     $http({
       method  : 'GET',
-      url     : COMMON_IP_ADDRESS + 'accelerate_settings/ACCELERATE_BILLING_MODES'
+      url     : COMMON_IP_ADDRESS + 'accelerate_settings/ACCELERATE_BILLING_MODES',
+      timeout : 3000
      })
     .success(function(response) {
       dfd.resolve(response.value);
@@ -453,7 +454,8 @@ angular.module('pos.services', [])
 
     $http({
       method  : 'GET',
-      url     : COMMON_IP_ADDRESS + 'accelerate_settings/ACCELERATE_BILLING_PARAMETERS'
+      url     : COMMON_IP_ADDRESS + 'accelerate_settings/ACCELERATE_BILLING_PARAMETERS',
+      timeout : 3000
      })
     .success(function(response) {
       dfd.resolve(response.value);
@@ -471,7 +473,8 @@ angular.module('pos.services', [])
 
     $http({
       method  : 'GET',
-      url     : COMMON_IP_ADDRESS + 'accelerate_settings/ACCELERATE_SAVED_COMMENTS'
+      url     : COMMON_IP_ADDRESS + 'accelerate_settings/ACCELERATE_SAVED_COMMENTS',
+      timeout : 3000
      })
     .success(function(response) {
       var my_data = response.value;

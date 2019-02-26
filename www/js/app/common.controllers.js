@@ -217,7 +217,8 @@ angular.module('common.controllers', [])
         }
         
         $scope.goToPunchOrder = function(){
-            $state.go('main.app.punch')
+            $ionicLoading.show({ template: '<ion-spinner></ion-spinner>' });
+            $state.go('main.app.punch');
         }
 
         $scope.fetchReservations = function() {

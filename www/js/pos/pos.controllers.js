@@ -21,6 +21,9 @@ angular.module('pos.controllers', ['ionic'])
 
         var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@192.168.1.3:5984/';
 
+        $ionicLoading.hide();
+
+
 
         $scope.isRenderOrderLoaded = false;
     
@@ -741,12 +744,17 @@ angular.module('pos.controllers', ['ionic'])
 
                     $scope.allProfileData = [];
 
+                    $ionicLoading.show({ template: '<ion-spinner></ion-spinner>' });
+
                     $http({
                         method: 'GET',
                         url: COMMON_IP_ADDRESS+'accelerate_settings/ACCELERATE_STAFF_PROFILES',
                         timeout: 10000
                     })
                     .success(function(response) {
+
+                        $ionicLoading.hide();
+
                         $scope.allProfileData = response.value;
                         
 
@@ -878,6 +886,7 @@ angular.module('pos.controllers', ['ionic'])
 
                     })
                     .error(function(data) {
+                        $ionicLoading.hide();
                         $ionicLoading.show({
                             template: "Not responding. Check your connection.",
                             duration: 3000
