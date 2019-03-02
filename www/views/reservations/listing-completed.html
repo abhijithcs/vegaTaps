@@ -98,7 +98,7 @@
 
                     <tag ng-if="reservation.comments != '-' && reservation.statusCode == 0" ng-click="quickView(reservation)" style="display: block; height: 25px; width: 120px; color: #3498db; font-size: 12px; position: absolute; z-index: 100;" class="">  <i class="icon ion-android-hangout" style="font-size: 14px"></i> Comments</tag>
 
-                    <span class="reservationTileOptions" ng-click="openOptions('OPTIONS', reservation)"><i class="ion-more"></i></span>
+                    <span class="reservationTileOptions" ng-click="openOptions(reservation, 'OPTIONS')"><i class="ion-more"></i></span>
                   </div>
 
                   <div class="reservationTileBody" style="text-align: right">
@@ -113,7 +113,7 @@
             </div>
 
             <!-- No results -->
-             <div ng-if="reservationsFilteredList.length == 0">
+             <div ng-if="reservationsFilteredList.length == 0 && !renderFailed">
               <p style="padding: 40px 20px; text-align: center; font-size: 21px; font-weight: 300; color: #7b7b7b;">There are no Completed Reservations</p>
              </div>
 

@@ -18,7 +18,7 @@
               <button class="button button-block" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: rgba(115, 65, 69, 0.5); color: #FFF !important" ng-click="changeDate()"><strong style="color: #FFF">{{bookingDate}} </strong></button>
             </div>
             <div class="col col-50">
-              <span moment-picker="chosenTime" ng-model="mytime.slot" format="HH:mm A" show-header="false" class="button button-block" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: rgba(115, 65, 69, 0.5);"><strong style="color: #FFF"> {{formatMyTime(chosenTime) || 'Set Time Slot' }} </strong></span>
+              <span moment-picker="chosenTime" ng-model="mytime.slot" format="HH:mm a" show-header="false" class="button button-block" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: rgba(115, 65, 69, 0.5);"><strong style="color: #FFF"> {{formatMyTime(chosenTime) || 'Set Time Slot' }} </strong></span>
             </div>
           </div>
 

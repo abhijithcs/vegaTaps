@@ -12,7 +12,7 @@
               {{isGeneralView ? 'Current Seating Status' : 'Seat '+guestInfo.user+(guestInfo.count > 1 ? ' and '+(guestInfo.count-1)+' others': '') }}
             </button>  
 
-            <button class="button button-balanced apply-button" ng-if="holdList.length > 0 && !isGeneralView" style="position: absolute; top: 0px; right: 0px; font-size: 16px; font-weight: bold; text-transform: uppercase;" ng-click="allocateSeats(guestInfo.user, guestInfo.id, holdList)"><i class="icon ion-checkmark-circled"></i> Seat</button>
+            <button class="button button-balanced apply-button" ng-if="holdList.length > 0 && !isGeneralView" style="position: absolute; top: 0px; right: 0px; font-size: 16px; font-weight: bold; text-transform: uppercase;" ng-click="allocateSeats(guestInfo, holdList)"><i class="icon ion-checkmark-circled"></i> Seat</button>
 
          </div>
 
@@ -29,10 +29,10 @@
 										<h2 ng-if="section.tables.length > 0" class="legal-title ng-binding" style="margin: 15px 0 5px 0; font-size: 14px; font-weight: 400; color: #444; text-transform: uppercase; letter-spacing: 2px;">{{section.sectionName}}</h2>
 
 
-										<button class="button" ng-attr-id="{{'seat_'+seat.name}}" ng-repeat="seat in section.tables" ng-class="getMyClass(seat)" ng-click="seatOptions(seat);" style="line-height: initial; width: 110px; max-width: 32%; height: 60px; margin: 3px; padding: 2px">
+										<button class="button" ng-attr-id="{{'seat_'+seat.table}}" ng-repeat="seat in section.tables" ng-class="getMyClass(seat)" ng-click="seatOptions(seat);" style="line-height: initial; width: 110px; max-width: 32%; height: 60px; margin: 3px; padding: 2px">
 										
 											
-											<tag class="seatName" style="color: #FFF" ng-init="checkDeallot(seat.occupantData.reservationID, guestInfo.id, seat.name)">{{seat.name}}</tag>
+											<tag class="seatName" style="color: #FFF">{{seat.table}}</tag>
 											
 											<!-- Seater Count or Occuppied Guest Name -->
 											<tag ng-if="seat.status == 0" class="seatCapacity">{{seat.capacity}} Seater</tag>
@@ -41,13 +41,16 @@
 
 											<tag ng-if="seat.status == 2" class="seatTime blink_me" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Billed</tag>
 
-											<tag ng-if="seat.status == 5" class="seatCapacity">Reserved</tag>
+											<tag ng-if="seat.status == 5 && seat.assigned == 'Hold Order'" class="seatCapacity"><i class="fa fa-cloud-download"></i></tag>
+											<tag ng-if="seat.status == 5 && seat.assigned != 'Hold Order'" class="seatCapacity">For {{seat.guestName != "" ? seat.guestName : 'Guests'}}</tag>
 											
 											
 											
 											<!-- Free or Occuppied Time -->
-											<tag ng-if="seat.status == 0" class="seatStatus" ng-attr-id="{{'seatTag_'+seat.name}}">Free</tag>														
+											<tag ng-if="seat.status == 0" class="seatStatus" ng-attr-id="{{'seatTag_'+seat.table}}">Free</tag>														
 											<tag ng-if="seat.status == 1" class="seatTime" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{getTimeAgo(seat.lastUpdate)}}</tag>
+
+											<tag ng-if="seat.status == 5" class="seatTime" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{getReservationTag(seat)}}</tag>
 											
 											
 											

@@ -47,7 +47,7 @@ angular.module('reservations.services', [])
     var currentBook = "";
 
     this.setBooking = function (bookObj){
-		currentBook = bookObj;
+		  currentBook = bookObj;
     }
 
     this.getBooking = function(){
