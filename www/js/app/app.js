@@ -3,11 +3,12 @@ angular.module('underscore', [])
   return window._; // assumes underscore has already been loaded on the page
 });
 
-angular.module('zaitoonFirst', [
+angular.module('accelerateVegaTaps', [
   'ngCordova',
 
   'ionic',
-  'zaitoonFirst.views',
+  'accelerateVegaTaps.views',
+
   'common.directives',
   'common.controllers',
   'common.services',
@@ -325,35 +326,6 @@ angular.module('zaitoonFirst', [
                 }
             })
 
-
-
-/*
-
-            .state('main.app.feed', {
-                url: '/feed',
-                nativeTransitions: { type: "fade" },
-                views: {
-                    'app-feed@main.app': {
-                        templateUrl: 'views/pos/main-feed.html',
-                        controller: 'FeedCtrl'
-                    }
-                }
-            })
-
-
-
-
-            .state('main.app.feed.arabian', {
-                url: '/arabian',
-                nativeTransitions: { type: "fade" },
-                views: {
-                    'category-feed@main.app.feed': {
-                        templateUrl: 'views/pos/menu.html',
-                        controller: 'MainMenuCtrl'
-                    }
-                }
-            })
-*/
 
 
             .state('main.app.status', {

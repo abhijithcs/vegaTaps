@@ -1,7 +1,7 @@
 {
-    "name": "bazaar",
-    "version": "1.0.2",
-    "description": "bazaar: An Ionic Multi App Template",
+    "name": "accelerateVegaTaps",
+    "version": "1.0.0",
+    "description": "Mobile POS Application and Table Manager",
     "dependencies": {
         "angular-chart.js": "^1.1.1",
         "angular-moment-picker": "^0.10.2",

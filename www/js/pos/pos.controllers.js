@@ -1,21 +1,6 @@
 angular.module('pos.controllers', ['ionic'])
 
 
-
-
- 
-
-
-
-
-
-
-
-    .controller('StatusCtrl', function($ionicLoading, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate, ShoppingCartService) {
-        
-    })
-    
-
     .controller('StatusRunningCtrl', function($ionicLoading, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate, ShoppingCartService) {
       
 
@@ -653,7 +638,7 @@ angular.module('pos.controllers', ['ionic'])
 
 
     	var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@192.168.1.3:5984/';
-
+        $ionicLoading.hide();
 
     	if(window.localStorage.serverURL == '' || !window.localStorage.serverURL){
     		
@@ -1750,106 +1735,6 @@ angular.module('pos.controllers', ['ionic'])
 
 
 })
-
-
-
-    .controller('FeedCtrl', function(outletService, menuService, locationChangeRouteTrackerService, $ionicLoading, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate, ShoppingCartService) {
-    
-
-        $scope.getProductsInCart = function() {
-            return ShoppingCartService.getProducts().length;
-        };
-
-        if (!_.isUndefined(window.localStorage.user)) {
-            $scope.isEnrolledFlag = JSON.parse(window.localStorage.user).isRewardEnabled;
-        } else {
-            $scope.isEnrolledFlag = false;
-        }
-
-
-        $scope.selectedOutlet = outletService.getInfo();
-
-
-        $scope.navToggled = false;
-
-        $scope.showOptionsMenu = function() {
-            $ionicSideMenuDelegate.toggleLeft();
-            $scope.navToggled = !$scope.navToggled;
-        };
-
-
-        $scope.outletSelection = outletService.getInfo();
-        if ($scope.outletSelection.outlet == "") {
-            $myOutlet = "VELACHERY";
-        } else {
-            $myOutlet = $scope.outletSelection.outlet;
-        }
-
-        $scope.callSearch = function() {
-
-                //Check if already cached
-                var isCached = menuService.getIsLoadedFlag('SEARCH');
-                if(isCached){
-                            
-                            $scope.searchMenuData = JSON.parse(window.localStorage.menuSearchCache);
-                    
-                            if ($scope.searchMenuData.length == 0) {
-                                $scope.isEmpty = true;
-                            } else {
-                                $scope.isEmpty = false;
-                            }
-
-                            $rootScope.$broadcast('search_called', true);
-                            $rootScope.$emit('search_called', true);
-                }
-                else{
-
-                    $ionicLoading.show();
-
-                    //Fetch Data for Search
-                    $http({
-                            method: 'GET',
-                            url: 'https://www.zaitoon.online/services/fetchmenuallmob.php?outlet='+$myOutlet,
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded'
-                            },
-                            timeout: 10000
-                        })
-                        .success(function(response) {
-
-                            $ionicLoading.hide();
-
-                            $scope.searchMenuData = response;
-                            if ($scope.searchMenuData.length == 0) {
-                                $scope.isEmpty = true;
-                            } else {
-                                $scope.isEmpty = false;
-                            }
-
-                            $rootScope.$broadcast('search_called', true);
-                            $rootScope.$emit('search_called', true);
-
-                            window.localStorage.menuSearchCache = JSON.stringify($scope.searchMenuData);
-                            menuService.setLoadFlag('SEARCH', true);
-
-                        })
-                        .error(function(data) {
-                            $ionicLoading.hide();
-                            $ionicLoading.show({
-                                template: "Not responding. Check your connection.",
-                                duration: 3000
-                            });                            
-                        });
-                }
-        }
-
-
-
-
-
-    })
-
-
 
 
  .controller('ShoppingCartCtrl', function(products, currentGuestData, billing_modes, billing_parameters, $http, $scope, $ionicLoading, $ionicModal, $state, $rootScope, $ionicActionSheet, ShoppingCartService) {
@@ -3139,7 +3024,6 @@ angular.module('pos.controllers', ['ionic'])
 
 
 })
-
 
 
 ;

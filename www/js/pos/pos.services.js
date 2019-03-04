@@ -341,16 +341,16 @@ angular.module('pos.services', [])
   };
 
   this.saveUserSelectedCard = function(card){
-    window.localStorage.zaitoonFirst_selected_card = JSON.stringify(card);
+    window.localStorage.accelerateVegaTaps_selected_card = JSON.stringify(card);
   }
   this.saveUserSelectedAddress = function(address){
-    window.localStorage.zaitoonFirst_selected_address = JSON.stringify(address);
+    window.localStorage.accelerateVegaTaps_selected_address = JSON.stringify(address);
   }
   this.getUserSelectedCard = function(){
-    return JSON.parse(window.localStorage.zaitoonFirst_selected_card || '[]');
+    return JSON.parse(window.localStorage.accelerateVegaTaps_selected_card || '[]');
   };
   this.getUserSelectedAddress = function(){
-    return JSON.parse(window.localStorage.zaitoonFirst_selected_address || '[]');
+    return JSON.parse(window.localStorage.accelerateVegaTaps_selected_address || '[]');
   };
 })
 

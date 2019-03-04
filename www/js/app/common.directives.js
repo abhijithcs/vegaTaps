@@ -1,7 +1,6 @@
 angular.module('common.directives', [])
 
 
-
 .factory('ConnectivityMonitor', function($rootScope, $cordovaNetwork){
 
   return {

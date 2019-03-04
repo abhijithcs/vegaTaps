@@ -35,9 +35,17 @@ angular.module('reservations.services', [])
 
     return data;
   }
+})
 
 
+.service('sessionsListService', function ($http, $q){
 
+  var listOfSessions = ["Lunch", "Dinner"];
+
+  this.getList = function(){
+    return listOfSessions;
+  }
+  
 })
 
 

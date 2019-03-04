@@ -104,7 +104,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
             $scope.editReservationError = "";
 
-            if (temp_data.count == "" || temp_data.count == 0) {
+            if (temp_data.count == "" || temp_data.count < 1) {
                 $scope.editReservationError = "Invalid Guest Count";
             } else if (temp_data.date == "" || temp_data.time == "") {
                 $scope.editReservationError = "Add Date and Time";
@@ -339,7 +339,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                             duration: 2000
                         });
 						
-            } else if ($scope.walkin.count == "") {
+            } else if ($scope.walkin.count == "" || $scope.walkin.count < 1) {
                         $ionicLoading.show({
                             template: "Add Number of Guests",
                             duration: 2000
@@ -381,7 +381,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
     })
 
 
-.controller('completedReservationsCtrl', function(changeSlotService, currentFilterService, $ionicSideMenuDelegate, $ionicLoading, ionicDatePicker, $scope, $interval, $ionicPopup, $state, $http, $ionicPopover, $ionicLoading, $timeout, mappingService, currentBooking) {
+.controller('completedReservationsCtrl', function(sessionsListService, changeSlotService, currentFilterService, $ionicSideMenuDelegate, $ionicLoading, ionicDatePicker, $scope, $interval, $ionicPopup, $state, $http, $ionicPopover, $ionicLoading, $timeout, mappingService, currentBooking) {
 
         if (_.isUndefined(window.localStorage.admin) || window.localStorage.admin == '') {
             $state.go('main.app.login');
@@ -512,7 +512,9 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
   //Fetch Data
 
   //Number of Sessions by Default = 0
-      $scope.numberOfSessions = 0;
+      
+      $scope.list_of_sessions = sessionsListService.getList();
+      $scope.numberOfSessions = $scope.list_of_sessions.length;
       $scope.sessionSummary = [];
 
       $scope.fetchData = function(){
@@ -559,7 +561,6 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                         $scope.reservationsList_length = 0;
 
                         $scope.sessionSummary = [];
-                        $scope.numberOfSessions = 0;
                         
                         $scope.isRenderLoaded = true;
 
@@ -636,14 +637,44 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
             currentFilterService.setSession($scope.timeFilterFlag);
         }
 
-        $scope.list_of_sessions = ["Dinner", "Lunch"];
-        $scope.numberOfSessions = $scope.list_of_sessions.length;
+
 
         $scope.changeTimeFilter = function() {
 
             if($scope.numberOfSessions == 0){
                 return '';
             }
+
+
+            //incase of No results (pre check)
+            if($scope.sessionSummary.length == 0){
+
+                var list = sessionsListService.getList();
+
+                if($scope.timeFilterFlag == 'All'){
+                    $scope.timeFilterFlag = list[0];
+                    window.localStorage.timeFilter = $scope.timeFilterFlag;
+                }
+                else{
+                    if($scope.timeFilterFlag == list[list.length - 1]){
+                        $scope.timeFilterFlag = 'All';
+                        window.localStorage.timeFilter = $scope.timeFilterFlag;
+                    }
+                    else{
+                        for(var i = 0; i < list.length; i++){
+                            if($scope.timeFilterFlag == list[i]){
+                                $scope.timeFilterFlag = list[i+1];
+                                window.localStorage.timeFilter = $scope.timeFilterFlag;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return '';
+            }
+
+
 
             //Showing All --> first in the session list
             if($scope.timeFilterFlag == 'All'){
@@ -680,6 +711,12 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
             if($scope.numberOfSessions == 0){
                 return -1;
+            }
+
+
+            //incase of No results (pre check)
+            if($scope.sessionSummary.length == 0){
+                return 0;
             }
 
             if($scope.timeFilterFlag == 'All'){ //Show all
@@ -1143,7 +1180,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
     })
 
  
-.controller('seatedReservationsCtrl', function(changeSlotService, currentFilterService, $ionicSideMenuDelegate, $ionicLoading, ionicDatePicker, $scope, $interval, $ionicPopup, $state, $http, $ionicPopover, $ionicLoading, $timeout, mappingService, currentBooking) {
+.controller('seatedReservationsCtrl', function(sessionsListService, changeSlotService, currentFilterService, $ionicSideMenuDelegate, $ionicLoading, ionicDatePicker, $scope, $interval, $ionicPopup, $state, $http, $ionicPopover, $ionicLoading, $timeout, mappingService, currentBooking) {
 
         if (_.isUndefined(window.localStorage.admin) || window.localStorage.admin == '') {
             $state.go('main.app.login');
@@ -1274,7 +1311,8 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
     //Fetch Data
 
     //Number of Sessions by Default = 0
-      $scope.numberOfSessions = 0;
+      $scope.list_of_sessions = sessionsListService.getList();
+      $scope.numberOfSessions = $scope.list_of_sessions.length;
       $scope.sessionSummary = [];
 
       $scope.fetchData = function(){
@@ -1320,7 +1358,6 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                         $scope.reservationsList_length = 0;
 
                         $scope.sessionSummary = [];
-                        $scope.numberOfSessions = 0;
                         
                         $scope.isRenderLoaded = true;    
 
@@ -1396,14 +1433,42 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
             currentFilterService.setSession($scope.timeFilterFlag);
         }
 
-        $scope.list_of_sessions = ["Dinner", "Lunch"];
-        $scope.numberOfSessions = $scope.list_of_sessions.length;
-
         $scope.changeTimeFilter = function() {
 
             if($scope.numberOfSessions == 0){
                 return '';
             }
+
+
+            //incase of No results (pre check)
+            if($scope.sessionSummary.length == 0){
+
+                var list = sessionsListService.getList();
+
+                if($scope.timeFilterFlag == 'All'){
+                    $scope.timeFilterFlag = list[0];
+                    window.localStorage.timeFilter = $scope.timeFilterFlag;
+                }
+                else{
+                    if($scope.timeFilterFlag == list[list.length - 1]){
+                        $scope.timeFilterFlag = 'All';
+                        window.localStorage.timeFilter = $scope.timeFilterFlag;
+                    }
+                    else{
+                        for(var i = 0; i < list.length; i++){
+                            if($scope.timeFilterFlag == list[i]){
+                                $scope.timeFilterFlag = list[i+1];
+                                window.localStorage.timeFilter = $scope.timeFilterFlag;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return '';
+            }
+
+
 
             //Showing All --> first in the session list
             if($scope.timeFilterFlag == 'All'){
@@ -1440,6 +1505,12 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
             if($scope.numberOfSessions == 0){
                 return -1;
+            }
+
+
+            //incase of No results (pre check)
+            if($scope.sessionSummary.length == 0){
+                return 0;
             }
 
             if($scope.timeFilterFlag == 'All'){ //Show all
@@ -1866,7 +1937,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
     })
 
-.controller('upcomingReservationsCtrl', function(changeSlotService, currentFilterService, $ionicSideMenuDelegate, $ionicLoading, ionicDatePicker, $scope, $interval, $ionicPopup, $state, $http, $ionicPopover, $ionicLoading, $timeout, mappingService, currentBooking) {
+.controller('upcomingReservationsCtrl', function(sessionsListService, changeSlotService, currentFilterService, $ionicSideMenuDelegate, $ionicLoading, ionicDatePicker, $scope, $interval, $ionicPopup, $state, $http, $ionicPopover, $ionicLoading, $timeout, mappingService, currentBooking) {
 
 
 
@@ -1999,7 +2070,8 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
     //Fetch Data
 
     //Number of Sessions by Default = 0
-      $scope.numberOfSessions = 0;
+      $scope.list_of_sessions = sessionsListService.getList();
+      $scope.numberOfSessions = $scope.list_of_sessions.length;
       $scope.sessionSummary = [];
 
       $scope.fetchData = function(){
@@ -2046,7 +2118,6 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                         $scope.reservationsList_length = 0;
 
                         $scope.sessionSummary = [];
-                        $scope.numberOfSessions = 0;
                         
                         $scope.isRenderLoaded = true;
 
@@ -2076,6 +2147,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
       }
 
       $scope.fetchData();
+
 
       $scope.doRefresh = function(){
         $scope.fetchData();
@@ -2123,14 +2195,43 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
             currentFilterService.setSession($scope.timeFilterFlag);
         }
 
-        $scope.list_of_sessions = ["Dinner", "Lunch"];
-        $scope.numberOfSessions = $scope.list_of_sessions.length;
 
         $scope.changeTimeFilter = function() {
 
             if($scope.numberOfSessions == 0){
                 return '';
             }
+
+            //incase of No results (pre check)
+            if($scope.sessionSummary.length == 0){
+
+                var list = sessionsListService.getList();
+
+                if($scope.timeFilterFlag == 'All'){
+                    $scope.timeFilterFlag = list[0];
+                    window.localStorage.timeFilter = $scope.timeFilterFlag;
+                }
+                else{
+                    if($scope.timeFilterFlag == list[list.length - 1]){
+                        $scope.timeFilterFlag = 'All';
+                        window.localStorage.timeFilter = $scope.timeFilterFlag;
+                    }
+                    else{
+                        for(var i = 0; i < list.length; i++){
+                            if($scope.timeFilterFlag == list[i]){
+                                $scope.timeFilterFlag = list[i+1];
+                                window.localStorage.timeFilter = $scope.timeFilterFlag;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return '';
+            }
+
+
+
 
             //Showing All --> first in the session list
             if($scope.timeFilterFlag == 'All'){
@@ -2170,6 +2271,13 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
             if($scope.numberOfSessions == 0){
                 return -1;
             }
+
+
+            //incase of No results (pre check)
+            if($scope.sessionSummary.length == 0){
+                return 0;
+            }
+
 
             if($scope.timeFilterFlag == 'All'){ //Show all
 
@@ -2212,6 +2320,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
             return -1;
         }
+
 
         $scope.quickSummary = function() {
 
@@ -2268,6 +2377,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                 myPopup = $ionicPopup.show({
                     cssClass: 'popup-actions tile-actions-view tile-actions-view-list',
                     template: '<button class="button icon-left ion-android-checkbox-outline button-block noBorderListButton shadeGreenDarkgreen" ng-click="initAssignTable(\''+encodeURI(JSON.stringify(reservation))+'\')">Allot Seat</button>' +
+                        '<button class="button icon-left ion-android-done button-block noBorderListButton shadeYellowOrange" ng-click="initCompleteReservation()">Mark as Completed</button>' +
                         '<button class="button icon-left ion-edit button-block noBorderListButton shadeBlueViolet" ng-click="initModifyReservation()">Edit Reservation</button>'+
                         '<button class="button icon-left ion-android-cancel button-block noBorderListButton shadeRedPink" ng-click="initCancelReservation()">Cancel Reservation</button>' +
                         '<button class="button icon-left ion-trash-a button-block noBorderListButton shadeRedPink" ng-click="initDeleteReservation()">Mark Spam and Delete</button>',
@@ -2995,9 +3105,13 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                                                     });
 
                                                     $scope.allocateTablesOnlineUpdate(guestData.id);
+                                                    
+                                                    $scope.isGeneralView = true;
+                                                    $scope.holdList = [];
 
                                                     $scope.initSeatPlan();
-                                                    $state.go('main.reservationsapp.upcoming');
+
+                                                    //$state.go('main.reservationsapp.upcoming'); (not refreshing reservations list -- that's why)
                                                 }
                                               }
                                               else{

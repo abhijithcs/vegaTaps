@@ -312,6 +312,14 @@ angular.module('common.controllers', [])
         $scope.usedLicense = deviceLicenseService.getLicense();
 
 
+        $scope.resetDevice = function(){
+            window.localStorage.admin = "";
+            window.localStorage.deviceRegistrationData = "";
+
+            $state.go('main.app.login')
+        }
+
+
         $scope.refreshModesList = function(){
                 var data = {};
                 data.token = window.localStorage.admin;
@@ -344,7 +352,7 @@ angular.module('common.controllers', [])
                         }
                         else{
                             $ionicLoading.show({
-                                template: "Update Failed",
+                                template: "Update Failed"+(data.error != "" ? ": "+data.error : ""),
                                 duration: 3000
                             });
                         }
