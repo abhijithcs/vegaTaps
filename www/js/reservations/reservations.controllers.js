@@ -90,7 +90,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
         $scope.mytime.time = $scope.chosenTime;
 
         $scope.formatMyTime = function(time){
-            return moment(time, "hhmm").format('hh:mm a');
+            return moment(time, "HHmm").format('hh:mm a');
         }
 
 
@@ -159,7 +159,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 		}
 
         $scope.formatMyTime = function(time){
-            return moment(time, "hhmm").format('hh:mm a');
+            return moment(time, "HHmm").format('hh:mm a');
         }
 		        
 
@@ -2830,7 +2830,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
 
         $scope.getTimeAgo = function(time){
-            var tempTime = moment(time, 'hhmm').fromNow(true);
+            var tempTime = moment(time, 'HHmm').fromNow(true);
             tempTime = tempTime.replace("seconds", "s");
             tempTime = tempTime.replace("a few s", "seconds");
             tempTime = tempTime.replace("a minute", "1m");

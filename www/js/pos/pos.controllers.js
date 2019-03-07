@@ -1,7 +1,7 @@
 angular.module('pos.controllers', ['ionic'])
 
 
-    .controller('StatusRunningCtrl', function($ionicLoading, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate, ShoppingCartService) {
+    .controller('StatusRunningCtrl', function($ionicLoading, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate, ShoppingCartService, deviceLicenseService) {
       
 
         var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@192.168.1.3:5984/';
@@ -88,10 +88,10 @@ angular.module('pos.controllers', ['ionic'])
 
         $scope.filterTime = function(obj){
             if(obj.timeKOT != ''){
-                return moment(obj.timeKOT, "hhmm").format('h:mm a');
+                return moment(obj.timeKOT, "HHmm").format('h:mm a');
             }
             else{
-                return moment(obj.timePunch, "hhmm").format('h:mm a');
+                return moment(obj.timePunch, "HHmm").format('h:mm a');
             }
         }
 
@@ -138,7 +138,7 @@ angular.module('pos.controllers', ['ionic'])
                                                     '<div class="col col-50">'+
                                                         '<div class="actionTile" ng-click="actionTileFunction(\'PRINT_KOT\')">'+
                                                             '<div class="actionTileIcon shadeRedPink">K</div>'+
-                                                            '<div class="actionTileText" style="color: #de6066">Dupliate KOT</div>'+
+                                                            '<div class="actionTileText" style="color: #de6066">Duplicate KOT</div>'+
                                                         '</div>'+
                                                     '</div>'+
                                                     '<div class="col col-50">'+
@@ -167,9 +167,125 @@ angular.module('pos.controllers', ['ionic'])
             var orderData = $scope.actionTilesDataContent;
             $scope.actionTilesPopup.close();
 
-            if(type == "OPEN"){
-                $scope.openOrderToEdit(orderData);
-                return '';
+
+            switch(type){
+                case "OPEN":{
+                    $scope.openOrderToEdit(orderData);
+                    return '';
+                }
+                case "PRINT_VIEW":{
+
+                    var success_text = '<b style="color: #5ada5f">Successful!</b><br><b>Items View</b> to be printed shortly.';
+                    var duplicate_error_text = '<b style="color: #ef3d74">Failed!</b><br>There is already a pending Print View request. Please try later.';
+
+                    var actionObject = {
+                        "_id": "PRINT_VIEW_"+orderData._id,
+                        "KOT": orderData._id,
+                        "action": "PRINT_VIEW",
+                        "table": orderData.table,
+                        "staffName": window.localStorage.loggedInUser_name && window.localStorage.loggedInUser_name != "" ? window.localStorage.loggedInUser_name : "Unknown",
+                        "staffCode": window.localStorage.loggedInUser_mobile && window.localStorage.loggedInUser_mobile != "" ? window.localStorage.loggedInUser_mobile : "Unknown",
+                        "machine": deviceLicenseService.getDeviceName(),
+                        "time": moment().format('HHmm'),
+                        "date": moment().format('DD-MM-YYYY')
+                    }
+
+                    postActionRequest(actionObject, success_text, duplicate_error_text);
+                    break;
+                }
+                case "PRINT_KOT":{
+
+                    var success_text = '<b style="color: #5ada5f">Successful!</b><br><b>Duplicate KOT</b> to be printed shortly.';
+                    var duplicate_error_text = '<b style="color: #ef3d74">Failed!</b><br>There is already a pending Print KOT request. Please try later.';
+
+                    var actionObject = {
+                        "_id": "PRINT_KOT_"+orderData._id,
+                        "KOT": orderData._id,
+                        "action": "PRINT_KOT",
+                        "table": orderData.table,
+                        "staffName": window.localStorage.loggedInUser_name && window.localStorage.loggedInUser_name != "" ? window.localStorage.loggedInUser_name : "Unknown",
+                        "staffCode": window.localStorage.loggedInUser_mobile && window.localStorage.loggedInUser_mobile != "" ? window.localStorage.loggedInUser_mobile : "Unknown",
+                        "machine": deviceLicenseService.getDeviceName(),
+                        "time": moment().format('HHmm'),
+                        "date": moment().format('DD-MM-YYYY')
+                    }
+
+                    postActionRequest(actionObject, success_text, duplicate_error_text);
+                    break;
+                }
+                case "PRINT_BILL":{
+
+                    var success_text = '<b style="color: #5ada5f">Successful!</b><br><b>Bill</b> to be printed shortly.';
+                    var duplicate_error_text = '<b style="color: #ef3d74">Failed!</b><br>Already requested to print the Bill.';
+
+                    var actionObject = {
+                        "_id": "PRINT_BILL_"+orderData._id,
+                        "KOT": orderData._id,
+                        "action": "PRINT_BILL",
+                        "table": orderData.table,
+                        "staffName": window.localStorage.loggedInUser_name && window.localStorage.loggedInUser_name != "" ? window.localStorage.loggedInUser_name : "Unknown",
+                        "staffCode": window.localStorage.loggedInUser_mobile && window.localStorage.loggedInUser_mobile != "" ? window.localStorage.loggedInUser_mobile : "Unknown",
+                        "machine": deviceLicenseService.getDeviceName(),
+                        "time": moment().format('HHmm'),
+                        "date": moment().format('DD-MM-YYYY')
+                    }
+
+                    postActionRequest(actionObject, success_text, duplicate_error_text);
+                    break;
+                }
+            }
+
+            function postActionRequest(actionObject, success_text, duplicate_error_text){
+
+                          var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@192.168.1.3:5984/';
+                                
+                          //LOADING
+                          $ionicLoading.show({
+                            template:  '<ion-spinner></ion-spinner>'
+                          });
+
+                                  //Post to local Server
+                                  $http({
+                                        method  : 'POST',
+                                        url     : COMMON_IP_ADDRESS+'accelerate_action_requests/',
+                                        data    : actionObject,
+                                        headers : {'Content-Type': 'application/json'},
+                                        timeout : 10000
+                                    })
+                                    .success(function(response) { 
+                                      if(response.ok){
+                                        $ionicLoading.hide();
+                                        $ionicLoading.show({
+                                            template: success_text,
+                                            duration: 2000
+                                        });
+
+                                        $scope.orderPostClearData();
+                                      }
+                                      else{
+                                        $ionicLoading.hide();
+                                        $ionicLoading.show({
+                                            template: "Not responding. Check your connection.",
+                                            duration: 3000
+                                        });
+                                      }
+
+                                    })
+                                    .error(function(data) {
+                                        $ionicLoading.hide();
+                                        if(data.error == "conflict"){
+                                            $ionicLoading.show({
+                                                template: duplicate_error_text,
+                                                duration: 3000
+                                            });
+                                        }
+                                        else{
+                                            $ionicLoading.show({
+                                                template: "Not responding. Check your connection.",
+                                                duration: 3000
+                                            });
+                                        }
+                                    });
             }
         }
 
@@ -179,12 +295,12 @@ angular.module('pos.controllers', ['ionic'])
 
 
                 //Set _id from Branch mentioned in Licence
-                var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : 'NAVALUR'; 
+                var accelerate_licencee_branch = deviceLicenseService.getBranchCode();
                 if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
                   var alertPopup = $ionicPopup.alert({
-                                            cssClass: 'popup-outer confirm-alert-view',
+                                            cssClass: 'popup-clear confirm-alert-alternate',
                                             title: 'Invalid Licence Error',
-                                            template: '<p style="padding: 20px 0px; color: #444; margin: 0; font-size: 15px; font-weight: 400;">KOT can not be opened. Please contact Accelerate Support if problem persists.</p>'
+                                            template: '<p style="padding: 0 10px 10px 10px; color: #E91E63; margin: 0; font-size: 15px; font-weight: 400;">KOT can not be opened. Please contact Accelerate Support if problem persists.</p>'
                                         });
                   return '';
                 }
@@ -221,9 +337,9 @@ angular.module('pos.controllers', ['ionic'])
                                     if(window.localStorage.hasUnsavedChangesFlag && window.localStorage.hasUnsavedChangesFlag == 1){
                                         
                                            var alertPopup = $ionicPopup.alert({
-                                            cssClass: 'popup-outer confirm-alert-view',
+                                            cssClass: 'popup-clear confirm-alert-alternate',
                                             title: 'Warning',
-                                            template: '<p style="padding: 20px 0px; color: #444; margin: 0; font-size: 15px; font-weight: 400;">There is already an active order being modified. Please complete it to continue.</p>'
+                                            template: '<p style="padding: 0 10px 10px 10px; color: #E91E63; margin: 0; font-size: 15px; font-weight: 400;">There is already an active order being modified. Please complete it to continue.</p>'
                                            });
 
                                            return '';
@@ -238,9 +354,9 @@ angular.module('pos.controllers', ['ionic'])
                                 $ionicLoading.hide();
 
                                     var alertPopup = $ionicPopup.alert({
-                                            cssClass: 'popup-outer confirm-alert-view',
+                                            cssClass: 'popup-clear confirm-alert-alternate',
                                             title: 'Not Found Error',
-                                            template: '<p style="padding: 20px 0px; color: #444; margin: 0; font-size: 15px; font-weight: 400;">#'+kotID+' not found on Server. Please contact Accelerate Support.</p>'
+                                            template: '<p style="padding: 0 10px 10px 10px; color: #E91E63; margin: 0; font-size: 15px; font-weight: 400;">#'+kotID+' not found on Server. Please contact Accelerate Support.</p>'
                                         });
                         }
                     })
@@ -318,7 +434,7 @@ angular.module('pos.controllers', ['ionic'])
 
     })
 
-    .controller('StatusTablesCtrl', function($ionicLoading, ShoppingCartService, currentGuestData, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate) {
+    .controller('StatusTablesCtrl', function($ionicLoading, ShoppingCartService, currentGuestData, deviceLicenseService, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate) {
         
 
         var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@192.168.1.3:5984/';
@@ -576,18 +692,19 @@ angular.module('pos.controllers', ['ionic'])
                 window.localStorage.hasUnsavedChangesFlag = 0;
             
                 //Set _id from Branch mentioned in Licence
-                var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : 'NAVALUR'; 
+                var accelerate_licencee_branch = deviceLicenseService.getBranchCode();
                 if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
                   var alertPopup = $ionicPopup.alert({
-                                            cssClass: 'popup-outer confirm-alert-view',
+                                            cssClass: 'popup-clear confirm-alert-alternate',
                                             title: 'Invalid Licence Error',
-                                            template: '<p style="padding: 20px 0px; color: #444; margin: 0; font-size: 15px; font-weight: 400;">KOT can not be opened. Please contact Accelerate Support if problem persists.</p>'
+                                            template: '<p style="padding: 0 10px 10px 10px; color: #E91E63; margin: 0; font-size: 15px; font-weight: 400;">KOT can not be opened. Please contact Accelerate Support if problem persists.</p>'
                                         });
                   return '';
                 }
 
 
                     var kot_request_data = accelerate_licencee_branch +"_KOT_"+ seat.KOT;
+                    var kotID = seat.KOT;
 
                     //PRELOAD TABLE MAPPING
                     $http({
@@ -610,9 +727,9 @@ angular.module('pos.controllers', ['ionic'])
                         }
                         else{
                                 var alertPopup = $ionicPopup.alert({
-                                    cssClass: 'popup-outer confirm-alert-view',
+                                    cssClass: 'popup-clear confirm-alert-alternate',
                                     title: 'Not Found Error',
-                                    template: '<p style="padding: 20px 0px; color: #444; margin: 0; font-size: 15px; font-weight: 400;">#'+kotID+' not found on Server. Please contact Accelerate Support.</p>'
+                                    template: '<p style="padding: 0 10px 10px 10px; color: #E91E63; margin: 0; font-size: 15px; font-weight: 400;">KOT #'+kotID+' not found on Server.</p>'
                                 });
                         }
                     })
@@ -620,10 +737,19 @@ angular.module('pos.controllers', ['ionic'])
 
                         $ionicLoading.hide();
 
-                        $ionicLoading.show({
-                            template: "Not responding. Check your connection.",
-                            duration: 3000
-                        });
+                        if(data.error == "not_found"){
+                            var alertPopup = $ionicPopup.alert({
+                                cssClass: 'popup-clear confirm-alert-alternate',
+                                title: 'Not Found Error',
+                                template: '<p style="padding: 0 10px 10px 10px; color: #E91E63; margin: 0; font-size: 15px; font-weight: 400;">KOT #'+kotID+' not found on Server.</p>'
+                            });
+                        }
+                        else{
+                            $ionicLoading.show({
+                                template: "Not responding. Check your connection.",
+                                duration: 3000
+                            });
+                        }
                     });
 
             }
@@ -634,7 +760,7 @@ angular.module('pos.controllers', ['ionic'])
 
     })
 
-    .controller('PunchCtrl', function(ShoppingCartService, menuContentService, currentGuestData, kitchen_comments, $timeout, $ionicLoading, $ionicPopup, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicPopover, $ionicSideMenuDelegate) {
+    .controller('PunchCtrl', function(ShoppingCartService, menuContentService, currentGuestData, kitchen_comments, deviceLicenseService, $timeout, $ionicLoading, $ionicPopup, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicPopover, $ionicSideMenuDelegate) {
 
 
     	var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@192.168.1.3:5984/';
@@ -1625,18 +1751,19 @@ angular.module('pos.controllers', ['ionic'])
                 window.localStorage.hasUnsavedChangesFlag = 0;
             
                 //Set _id from Branch mentioned in Licence
-                var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : 'NAVALUR'; 
+                var accelerate_licencee_branch = deviceLicenseService.getBranchCode();
                 if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
                   var alertPopup = $ionicPopup.alert({
-                                            cssClass: 'popup-outer confirm-alert-view',
+                                            cssClass: 'popup-clear confirm-alert-alternate',
                                             title: 'Invalid Licence Error',
-                                            template: '<p style="padding: 20px 0px; color: #444; margin: 0; font-size: 15px; font-weight: 400;">KOT can not be opened. Please contact Accelerate Support if problem persists.</p>'
+                                            template: '<p style="padding: 0 10px 10px 10px; color: #E91E63; margin: 0; font-size: 15px; font-weight: 400;">KOT can not be opened. Please contact Accelerate Support if problem persists.</p>'
                                         });
                   return '';
                 }
 
 
                     var kot_request_data = accelerate_licencee_branch +"_KOT_"+ seat.KOT;
+                    var kotID = seat.KOT;
 
                     //PRELOAD TABLE MAPPING
                     $http({
@@ -1658,9 +1785,9 @@ angular.module('pos.controllers', ['ionic'])
                         }
                         else{
                                 var alertPopup = $ionicPopup.alert({
-                                    cssClass: 'popup-outer confirm-alert-view',
+                                    cssClass: 'popup-clear confirm-alert-alternate',
                                     title: 'Not Found Error',
-                                    template: '<p style="padding: 20px 0px; color: #444; margin: 0; font-size: 15px; font-weight: 400;">#'+kotID+' not found on Server. Please contact Accelerate Support.</p>'
+                                    template: '<p style="padding: 0 10px 10px 10px; color: #E91E63; margin: 0; font-size: 15px; font-weight: 400;">KOT #'+kotID+' not found on Server.</p>'
                                 });
                         }
                     })
@@ -1668,10 +1795,19 @@ angular.module('pos.controllers', ['ionic'])
 
                         $ionicLoading.hide();
 
-                        $ionicLoading.show({
-                            template: "Not responding. Check your connection.",
-                            duration: 3000
-                        });
+                        if(data.error == "not_found"){
+                            var alertPopup = $ionicPopup.alert({
+                                cssClass: 'popup-clear confirm-alert-alternate',
+                                title: 'Not Found Error',
+                                template: '<p style="padding: 0 10px 10px 10px; color: #E91E63; margin: 0; font-size: 15px; font-weight: 400;">KOT #'+kotID+' not found on Server.</p>'
+                            });
+                        }
+                        else{
+                            $ionicLoading.show({
+                                template: "Not responding. Check your connection.",
+                                duration: 3000
+                            });
+                        }
                     });
 
             }
@@ -1737,7 +1873,7 @@ angular.module('pos.controllers', ['ionic'])
 })
 
 
- .controller('ShoppingCartCtrl', function(products, currentGuestData, billing_modes, billing_parameters, $http, $scope, $ionicLoading, $ionicModal, $state, $rootScope, $ionicActionSheet, ShoppingCartService) {
+ .controller('ShoppingCartCtrl', function(products, currentGuestData, billing_modes, billing_parameters, $http, $scope, $ionicLoading, $ionicModal, $state, $rootScope, $ionicActionSheet, $ionicSideMenuDelegate, ShoppingCartService, deviceLicenseService) {
 
 
     var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@192.168.1.3:5984/';
@@ -2286,9 +2422,9 @@ angular.module('pos.controllers', ['ionic'])
                         }
                         else{
                                 var alertPopup = $ionicPopup.alert({
-                                    cssClass: 'popup-outer confirm-alert-view',
+                                    cssClass: 'popup-clear confirm-alert-alternate',
                                     title: 'Not Found Error',
-                                    template: '<p style="padding: 20px 0px; color: #444; margin: 0; font-size: 15px; font-weight: 400;">Billing Parameters not found on Server. Please contact Accelerate Support.</p>'
+                                    template: '<p style="padding: 0 10px 10px 10px; color: #E91E63; margin: 0; font-size: 15px; font-weight: 400;">Billing Parameters not found on Server. Please contact Accelerate Support.</p>'
                                 });
                         }
                     })
@@ -2324,7 +2460,7 @@ angular.module('pos.controllers', ['ionic'])
 
 
                           var today = moment().format('DD-MM-YYYY');
-                          var time = moment().format('hhmm');
+                          var time = moment().format('HHmm');
 
                           var specialRemarksInfo = window.localStorage.specialRequests_comments ? window.localStorage.specialRequests_comments : '';
                           var allergyData = window.localStorage.allergicIngredientsData ? JSON.parse(window.localStorage.allergicIngredientsData) : [];
@@ -2539,12 +2675,12 @@ angular.module('pos.controllers', ['ionic'])
 
 
                 //Set _id from Branch mentioned in Licence
-                var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : 'NAVALUR'; 
+                var accelerate_licencee_branch = deviceLicenseService.getBranchCode();
                 if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
                   var alertPopup = $ionicPopup.alert({
-                                            cssClass: 'popup-outer confirm-alert-view',
-                                            title: 'Invalid Licence Error',
-                                            template: '<p style="padding: 20px 0px; color: #444; margin: 0; font-size: 15px; font-weight: 400;">KOT can not be opened. Please contact Accelerate Support if problem persists.</p>'
+                                            cssClass: 'popup-clear confirm-alert-alternate',
+                                            title: 'Invalid Licence error',
+                                            template: '<p style="padding: 0 10px 10px 10px; color: #E91E63; margin: 0; font-size: 15px; font-weight: 400;">KOT can not be opened. Please contact Accelerate Support if problem persists.</p>'
                                         });
                   return '';
                 }    
@@ -2612,9 +2748,9 @@ angular.module('pos.controllers', ['ionic'])
                                 }
                                 else{
                                         var alertPopup = $ionicPopup.alert({
-                                            cssClass: 'popup-outer confirm-alert-view',
+                                            cssClass: 'popup-clear confirm-alert-alternate',
                                             title: 'Not Found Error',
-                                            template: '<p style="padding: 20px 0px; color: #444; margin: 0; font-size: 15px; font-weight: 400;">Billing Parameters not found on Server. Please contact Accelerate Support.</p>'
+                                            template: '<p style="padding: 0 10px 10px 10px; color: #E91E63; margin: 0; font-size: 15px; font-weight: 400;">Billing Parameters not found on Server. Please contact Accelerate Support.</p>'
                                         });
                                 }
                             })
@@ -2631,9 +2767,9 @@ angular.module('pos.controllers', ['ionic'])
                         }
                         else{
                                 var alertPopup = $ionicPopup.alert({
-                                    cssClass: 'popup-outer confirm-alert-view',
+                                    cssClass: 'popup-clear confirm-alert-alternate',
                                     title: 'Not Found Error',
-                                    template: '<p style="padding: 20px 0px; color: #444; margin: 0; font-size: 15px; font-weight: 400;">#'+kotID+' not found on Server. Please contact Accelerate Support.</p>'
+                                    template: '<p style="padding: 0 10px 10px 10px; color: #E91E63; margin: 0; font-size: 15px; font-weight: 400;">#'+kotID+' not found on Server. Please contact Accelerate Support.</p>'
                                 });
                         }
                     })
@@ -2653,7 +2789,7 @@ angular.module('pos.controllers', ['ionic'])
                       var new_updated_cart = !_.isUndefined(window.localStorage.accelerate_cart) ? JSON.parse(window.localStorage.accelerate_cart) : [];
 
 
-                      originalKOT.timeKOT = moment().format('hhmm');
+                      originalKOT.timeKOT = moment().format('HHmm');
                       originalKOT.guestCount = originalKOT.guestCount && originalKOT.guestCount != null && originalKOT.guestCount != '' ? parseInt(originalKOT.guestCount) : 0;
                       originalKOT.cart = new_updated_cart;
 
@@ -2796,7 +2932,7 @@ angular.module('pos.controllers', ['ionic'])
 
 
 
-.controller('FiltersCtrl', function($scope, $state, $rootScope, $ionicSlideBoxDelegate) {
+.controller('FiltersCtrl', function($scope, $state, $rootScope, $ionicSlideBoxDelegate, $ionicSideMenuDelegate) {
 
     //For Non Veg Content
     $rootScope.nonvegUser = true;
@@ -3021,8 +3157,7 @@ angular.module('pos.controllers', ['ionic'])
 
 
 .controller('AppCtrl', function(changeSlotService, $ionicSideMenuDelegate, $scope, $ionicPopup, ionicTimePicker, ionicDatePicker, $state, $http, $ionicPopover, $ionicLoading, $timeout, mappingService, currentBooking) {
-
-
+    
 })
 
 
