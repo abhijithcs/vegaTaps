@@ -154,7 +154,16 @@ angular.module('pos.services', [])
             var items_listed = [];
 
             for(var n = 0; n < menuData.length; n++){
-                items_listed = items_listed.concat(menuData[n].items);
+
+                var sub_list_of_items = menuData[n].items;
+                
+                var q = 0;
+                while(sub_list_of_items[q]){
+                  sub_list_of_items[q].category = menuData[n].category;
+                  q++;
+                }
+
+                items_listed = items_listed.concat(sub_list_of_items);
             } 
 
             items_listed.sort(function(itemOne, itemTwo) {
@@ -166,7 +175,7 @@ angular.module('pos.services', [])
   }
 
   this.getMenu = function(){
-    return menuData;
+    return menu;
   }  
 
   this.getMenuItems = function(){

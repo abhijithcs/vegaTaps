@@ -259,8 +259,6 @@ angular.module('pos.controllers', ['ionic'])
                                             template: success_text,
                                             duration: 2000
                                         });
-
-                                        $scope.orderPostClearData();
                                       }
                                       else{
                                         $ionicLoading.hide();
@@ -1185,12 +1183,12 @@ angular.module('pos.controllers', ['ionic'])
       }
 
 
-      $scope.addItemProcess = function(){
+      $scope.addItemProcess = function(optionalSource){
 
         var processed_item = {
         	"code" : $scope.myItem.code,
         	"name" : $scope.myItem.name,
-        	"category" : $scope.renderingSubMenu,
+        	"category" : optionalSource == 'SEARCH_AND_ADD' ? $scope.myItem.category : $scope.renderingSubMenu,
         	"isCustom" : $scope.myItem.isCustom,
         	"comments" : $scope.myItem.comment,
         	"qty" : $scope.myItem.qty
