@@ -1871,7 +1871,7 @@ angular.module('pos.controllers', ['ionic'])
 })
 
 
- .controller('ShoppingCartCtrl', function(products, currentGuestData, billing_modes, billing_parameters, $http, $scope, $ionicLoading, $ionicModal, $state, $rootScope, $ionicActionSheet, $ionicSideMenuDelegate, ShoppingCartService, deviceLicenseService) {
+ .controller('ShoppingCartCtrl', function(products, currentGuestData, billing_modes, billing_parameters, $ionicPopup, $http, $scope, $ionicLoading, $ionicModal, $state, $rootScope, $ionicActionSheet, $ionicSideMenuDelegate, ShoppingCartService, deviceLicenseService) {
 
 
     var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@192.168.1.3:5984/';
@@ -2699,6 +2699,32 @@ angular.module('pos.controllers', ['ionic'])
                             var kot = data;
                             delete kot._rev;
 
+                            var originalDataCached = JSON.parse(window.localStorage.edit_KOT_originalCopy);
+
+                            var cart_latest = JSON.stringify(kot.cart);
+                            var cart_cached = JSON.stringify(originalDataCached.cart);
+                            
+                            if(cart_latest == cart_cached){
+                                
+                            }
+                            else{
+                                var confirmPopup = $ionicPopup.confirm({
+                                    cssClass: 'popup-clear confirm-alert-alternate',
+                                    title: 'Someone has modified this KOT while you were editing the order. Do you want to open the latest KOT and make your changes again?'
+                                });
+
+                                confirmPopup.then(function(res) {
+                                    if(res){
+                                        reopenOrderFromKOTNumber(kot.KOTNumber);
+                                    }
+                                    else{
+                                        $scope.orderPostClearData();
+                                    }
+                                });                                    
+
+                                return ''
+                            }
+
 
                             //fetch billing parameters
                             $http({
@@ -2780,6 +2806,75 @@ angular.module('pos.controllers', ['ionic'])
                             duration: 3000
                         });
                     });
+
+
+                
+
+                function reopenOrderFromKOTNumber(kotID){//re-open the order
+
+                    $scope.hasUnsavedChanges = false;
+                    window.localStorage.hasUnsavedChangesFlag = 0;
+                
+                    //Set _id from Branch mentioned in Licence
+                    var accelerate_licencee_branch = deviceLicenseService.getBranchCode();
+                    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+                      var alertPopup = $ionicPopup.alert({
+                                                cssClass: 'popup-clear confirm-alert-alternate',
+                                                title: 'Invalid Licence Error',
+                                                template: '<p style="padding: 0 10px 10px 10px; color: #E91E63; margin: 0; font-size: 15px; font-weight: 400;">KOT can not be opened. Please contact Accelerate Support if problem persists.</p>'
+                                            });
+                      return '';
+                    }
+
+                    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotID;
+
+                    $http({
+                        method: 'GET',
+                        url: COMMON_IP_ADDRESS+'/accelerate_kot/'+kot_request_data,
+                        timeout: 10000
+                    })
+                    .success(function(data) {
+                        if(data._id != ""){
+
+                            var kot = data;
+
+                            window.localStorage.edit_KOT_originalCopy = JSON.stringify(kot);
+                            window.localStorage.accelerate_cart = JSON.stringify(kot.cart);
+
+                            //Update Guest details
+                            currentGuestData.setGuest(kot.customerName, kot.customerMobile ? parseInt(kot.customerMobile) : '', kot.guestCount ? parseInt(kot.guestCount) : '');
+
+                            $state.go('main.app.punch');
+                        }
+                        else{
+                                var alertPopup = $ionicPopup.alert({
+                                    cssClass: 'popup-clear confirm-alert-alternate',
+                                    title: 'Not Found Error',
+                                    template: '<p style="padding: 0 10px 10px 10px; color: #E91E63; margin: 0; font-size: 15px; font-weight: 400;">KOT #'+kotID+' not found on Server.</p>'
+                                });
+                        }
+                    })
+                    .error(function(data) {
+
+                        $ionicLoading.hide();
+
+                        if(data.error == "not_found"){
+                            var alertPopup = $ionicPopup.alert({
+                                cssClass: 'popup-clear confirm-alert-alternate',
+                                title: 'Not Found Error',
+                                template: '<p style="padding: 0 10px 10px 10px; color: #E91E63; margin: 0; font-size: 15px; font-weight: 400;">KOT #'+kotID+' not found on Server.</p>'
+                            });
+                        }
+                        else{
+                            $ionicLoading.show({
+                                template: "Not responding. Check your connection.",
+                                duration: 3000
+                            });
+                        }
+                    });
+
+                }
+
 
 
                 function sendAppendedKOT(originalKOT, selectedModeExtras){
