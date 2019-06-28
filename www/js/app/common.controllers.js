@@ -58,8 +58,8 @@ angular.module('common.controllers', [])
                             var sampleObj = {
                               "device_name" : "",
                               "device_license_code" : "ACCELERATE_TAPS_201",
-                              "branch_code" : "IITMADRAS",
-                              "branch_name" : "IIT Madras",
+                              "branch_code" : "JPNAGAR",
+                              "branch_name" : "JP Nagar",
                               "activation_date" : "27-02-2019",
                               "expiry_date" : "26-02-2020"
                             }
@@ -303,7 +303,7 @@ angular.module('common.controllers', [])
         };
 
         $scope.defaultServer = {};
-        $scope.defaultServer.ip_address = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@192.168.1.3:5984/';
+        $scope.defaultServer.ip_address = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@localhost:5984/';
 
         $scope.saveServerAddress = function(){
             window.localStorage.defaultServerIPAddress = $scope.defaultServer.ip_address;

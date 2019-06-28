@@ -1,3 +1,131 @@
+.quickPunchKey{
+    background: white;
+    width: 8%;
+    height: 32px;
+    text-align: center;
+    display: inline-block;
+    margin: 0 1px;
+    max-width: 42px;
+    border-radius: 4px;
+    font-size: 21px;
+    min-width: 24px;
+    line-height: 32px;
+    color: #888;
+    font-weight: bold;
+    box-shadow: #dcdcdc 0px 2px;
+}
+
+
+.quickPunchKey:active{
+    background: #d4d4d4;
+    box-shadow: #a2a2a2 0px 2px;
+}
+
+
+.quickPunchEraseKey{
+      background: white;
+    height: 32px;
+    text-align: center;
+    display: inline-block;
+    margin: 0 1px;
+    border-radius: 4px;
+    font-size: 21px;
+    line-height: 32px;
+    color: #f5b3b3;
+    font-weight: bold;
+    box-shadow: #dcdcdc 0px 2px;
+    position: absolute;
+    margin-left: 12px;
+    width: 42px;
+}
+
+.quickPunchEraseKey:active{
+    background: #fff2f2;
+    box-shadow: #d69790 0px 2px;
+    color: #ec5858;
+}
+
+.quickPunchRow{
+  height: 40px; display: block;
+      text-align: center;
+    padding: 0 0 3px 0;
+}
+
+.quickPunchHolder{
+    background: #f7f7f7;
+    padding: 5px 0 0 1px;
+    height: 170px;
+    border: none;
+    border-top: 1px solid #ddd;
+}
+
+.quickPunchSearchWordBlue{
+    padding: 10px;
+    font-size: 21px;
+    font-weight: bold;
+    text-align: center;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    border-top: 2px solid #00b5ff;
+    color: #00b5ff;
+    background: #effbfe;
+    border-bottom: none;
+    margin: 0;
+}
+
+.quickPunchSearchWordRed{
+    padding: 10px;
+    font-size: 21px;
+    font-weight: bold;
+    text-align: center;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    border-top: 2px solid #d06666;
+    color: #d06666;
+    background: #feefef;
+    border-bottom: none;
+    margin: 0;  
+}
+
+
+@-webkit-keyframes cursor_flash {
+  from,
+  50%,
+  to {
+    opacity: 1;
+  }
+
+  25%,
+  75% {
+    opacity: 0;
+  }
+}
+
+@keyframes cursor_flash {
+  from,
+  50%,
+  to {
+    opacity: 1;
+  }
+
+  25%,
+  75% {
+    opacity: 0;
+  }
+}
+
+.cursor_flasher{
+  -webkit-animation-name: flash;
+  animation: cursor_flash 1s ease-out infinite;
+
+    margin-left: 5px;
+    position: relative;
+    top: -3px;
+}
+
+
+
+
 
 /* Changes for POS */
 .pinkText{
@@ -1067,7 +1195,7 @@ $text_white_dull: #dce1ec;
  font-size: 15px !important; 
  border: none !important; 
  padding: 0 8px !important;
- min-width: 85px !important;
+ min-width: 45px !important;
  text-align: right;
 }
 

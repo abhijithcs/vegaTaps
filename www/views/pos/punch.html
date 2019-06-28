@@ -21,16 +21,25 @@
             <!-- Captains details -->
             <div style="position: relative; top: 3px; left: 6px; display: block; width: 180px;">
               <tag style="color: #FFF; font-size: 17px; font-weight: 300; position: absolute;">{{currentTimeDisplay}}</tag>
-              <tag style="color: #FFF; font-size: 10px; font-weight: bold; position: absolute; top: 12px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; width: 100%; display: block; text-transform: uppercase" ng-if="isProfileSelected" ng-click="chooseUserProfile()">{{selectedUserProfile}}</tag>
-              <tag style="color: #FFC107; font-size: 12px; font-weight: bold; position: absolute; top: 12px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; width: 100%; display: block; font-style: italic" ng-if="!isProfileSelected" ng-click="chooseUserProfile()">Select User</tag>
+              <tag style="color: #FFF; font-size: 10px; font-weight: bold; position: absolute; top: 14px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; width: 100%; display: block; text-transform: uppercase" ng-if="isProfileSelected" ng-click="chooseUserProfile()">{{selectedUserProfile}}</tag>
+              <tag style="color: #FFC107; font-size: 12px; font-weight: bold; position: absolute; top: 14px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; width: 100%; display: block; font-style: italic" ng-if="!isProfileSelected" ng-click="chooseUserProfile()">Select User</tag>
             </div>
             
 
+            
 
-            <!-- filter by date -->
-            <button class="button button-clear clearSearchFilterButton" style="position: absolute; top: -4px; right: 0px; height: 44px;" ng-click="startSearching()">
+
+            <button class="button button-clear clearSearchFilterButton" style="position: absolute; top: -4px; right: 55px; height: 44px;" ng-click="startSearching()" ng-if="!isQuickPunching">
               <i class="icon ion-android-search"></i> 
             </button>  
+
+            <button class="button button-clear clearSearchFilterButton" style="position: absolute; top: -4px; right: 0px; height: 44px;" ng-click="enableQuickSearch()">
+              <i ng-if="!isQuickPunching" class="icon ion-qr-scanner"></i> 
+              <i ng-if="isQuickPunching" class="icon ion-arrow-return-left"></i> 
+            </button>  
+
+
+
 
          </div>
       </ion-header-bar>
@@ -54,8 +63,10 @@
           on-refresh="doMenuRefresh()">
         </ion-refresher>
 
-<!-- Showing Items -->
-<div class="feed-view" ng-if="isRenderingItems">
+
+<!-- NORMAL PUNCHING : Showing Items -->
+<div class="feed-view" ng-if="isRenderingItems && !isQuickPunching">
+
       <div class="posMyItem" ng-class="{'unavail': !item.isAvailable}" ng-repeat="item in allItemsList track by $index" ng-click="openItemDetails(item)">
         <div class="row">
           <div class="col vegFlagPOS">
@@ -69,12 +80,66 @@
           </div>
         </div>
       </div>
+
 </div>  
+
+ <!-- QUICK PUNCHING : Showing Filtered Items -->
+<div class="feed-view" ng-if="isQuickPunching" style="padding-top: 45px;">
+
+  <!-- Not searching -->
+  <div ng-if="quickPunchSearchKey == ''">
+
+      <div class="posMyItem" ng-class="{'unavail': !item.isAvailable}" ng-repeat="item in favoritesList | limitTo:10 track by $index" ng-click="openItemDetails(item)">
+        <div class="row">
+          <div class="col vegFlagPOS">
+            <span class="icon ion-android-radio-button-on nveg"></span>
+          </div>
+          <div class="col col-75">
+            <span class="menuPOSItemText">{{item.name}}</span>
+          </div>
+          <div class="col">
+            <span class="menuPOSItemPrice"><i class="fa fa-inr" style="font-size: 80%"></i><b>{{item.price}}</b></span>
+          </div>
+        </div>
+      </div>
+
+      
+      <p ng-if="favoritesList.length == 0" style="margin: 50px 0; text-align: center; font-size: 16px; font-weight: 400; color: #77bbe4;">Start searching by <b>Name</b> or unique <b>Item Code</b></p>
+
+  </div>
+
+
+  <!-- Searching -->
+  <div ng-if="quickPunchSearchKey != ''">
+      <div class="posMyItem" ng-class="{'unavail': !item.isAvailable}" ng-repeat="item in shortlistedQuick | limitTo:10 track by $index" ng-click="openItemDetails(item, 'QUICK_PUNCH')">
+        <div class="row">
+          <div class="col vegFlagPOS">
+            <span class="icon ion-android-radio-button-on nveg"></span>
+          </div>
+          <div class="col col-75">
+            <span class="menuPOSItemText">{{item.name}}</span>
+          </div>
+          <div class="col">
+            <span class="menuPOSItemPrice"><i class="fa fa-inr" style="font-size: 80%"></i><b>{{item.price}}</b></span>
+          </div>
+        </div>
+      </div>
+
+      <p ng-if="shortlistedQuick.length == 0" style="margin: 50px 0; text-align: center; font-size: 16px; font-weight: 400; color: #db8b8c;">There are no matches found.</p>
+  </div>
+
+</div>  
+
+
 
 
 <!-- Select Main Category -->
 <div ng-if="!isRenderingItems && (isRenderLoaded && !renderFailed)" style="padding-top: 45px;">
   
+
+  <!-- NORMAL PUNCHING-->
+  <div ng-if="!isQuickPunching">
+
     <div class="posHolderMain">
       <div class="row info-row">
         <div class="col col-50">
@@ -106,7 +171,6 @@
       </div>
     </div>
 
-
     <div class="posHolderSub">
       <div class="row info-row">
         <div class="col col-50" ng-repeat="columns in subMenuList track by $index">
@@ -116,6 +180,15 @@
         </div>
       </div>
     </div>
+
+  </div>
+
+
+  <!-- QUICK PUNCHING-->
+  <div ng-if="isQuickPunching">
+    
+  </div>
+
 
 </div>
 
@@ -150,6 +223,12 @@
          </ion-content>
 
 
+
+<!-- **************
+  BOTTOM BANNERS
+**************** -->
+
+         <!-- Selected Table Details -->
          <div class="reservationBottomFilterHolder" ng-show="selectedTable != ''">
 
             <tag class="customItemAddButton" style="float: left; background: #a9adad" ng-click="notAvailable('Custom Item feature is not available in this version')"><i class="ion-plus"></i></tag>
@@ -167,6 +246,69 @@
             </tag>
 
          </div>
+
+
+
+         <!-- Quick Search Keyboard -->
+          <div style="padding-top: 45px; position: absolute; width: 100%;" ng-show="isQuickPunching" ng-style="getQuickPunchBottomPadding()">
+            <p ng-class="getQuickTypingStyle()">{{quickPunchSearchKey}}<tag class="cursor_flasher">|</tag></p>
+
+            <div class="quickPunchHolder">
+                <div class="quickPunchRow">
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('1')">1</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('2')">2</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('3')">3</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('4')">4</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('5')">5</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('6')">6</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('7')">7</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('8')">8</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('9')">9</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('0')">0</div>
+                </div>
+                <div class="quickPunchRow">
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('Q')">Q</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('W')">W</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('E')">E</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('R')">R</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('T')">T</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('Y')">Y</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('U')">U</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('I')">I</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('O')">O</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('P')">P</div>
+                </div>
+                <div class="quickPunchRow">
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('A')">A</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('S')">S</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('D')">D</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('F')">F</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('G')">G</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('H')">H</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('J')">J</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('K')">K</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('L')">L</div>
+                </div>
+                <div class="quickPunchRow">
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('Z')">Z</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('X')">X</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('C')">C</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('V')">V</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('B')">B</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('N')">N</div>
+                  <div class="quickPunchKey" ng-click="appendToQuickPunch('M')">M</div>
+                  <div class="quickPunchEraseKey" ng-click="quickPunchErase()"><i class="fa fa-angle-double-left"></i></div>
+                </div>
+
+            </div>
+
+          </div>
+
+
+
+
+
+
 
 
     </ion-nav-view>

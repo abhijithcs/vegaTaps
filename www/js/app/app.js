@@ -7,7 +7,7 @@ angular.module('accelerateVegaTaps', [
   'ngCordova',
 
   'ionic',
-  'accelerateVegaTaps.views',
+//  'accelerateVegaTaps.views',
 
   'common.directives',
   'common.controllers',

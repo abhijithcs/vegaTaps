@@ -4,7 +4,7 @@ angular.module('pos.controllers', ['ionic'])
     .controller('StatusRunningCtrl', function($ionicLoading, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate, ShoppingCartService, deviceLicenseService) {
       
 
-        var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@192.168.1.3:5984/';
+        var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@localhost:5984/';
 
         $ionicLoading.hide();
 
@@ -237,7 +237,7 @@ angular.module('pos.controllers', ['ionic'])
 
             function postActionRequest(actionObject, success_text, duplicate_error_text){
 
-                          var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@192.168.1.3:5984/';
+                          var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@localhost:5984/';
                                 
                           //LOADING
                           $ionicLoading.show({
@@ -435,7 +435,7 @@ angular.module('pos.controllers', ['ionic'])
     .controller('StatusTablesCtrl', function($ionicLoading, ShoppingCartService, currentGuestData, deviceLicenseService, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate) {
         
 
-        var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@192.168.1.3:5984/';
+        var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@localhost:5984/';
 
 
         $scope.isRenderTableLoaded = false;
@@ -761,7 +761,7 @@ angular.module('pos.controllers', ['ionic'])
     .controller('PunchCtrl', function(ShoppingCartService, menuContentService, currentGuestData, kitchen_comments, deviceLicenseService, $timeout, $ionicLoading, $ionicPopup, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicPopover, $ionicSideMenuDelegate) {
 
 
-    	var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@192.168.1.3:5984/';
+    	var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@localhost:5984/';
         $ionicLoading.hide();
 
     	if(window.localStorage.serverURL == '' || !window.localStorage.serverURL){
@@ -1136,10 +1136,15 @@ angular.module('pos.controllers', ['ionic'])
 
       $scope.openItemDetails = function(itemData, flag){
 
+
       	if(!itemData.isAvailable){
       		$ionicLoading.show({ template: "<b>"+itemData.name+"</b> is out of stock", duration: 1000 });
       		return "";
       	}
+
+        if(flag == 'QUICK_PUNCH'){
+            $scope.quickPunchSearchKey = '';
+        }
 
         $scope.myItem = itemData;
         
@@ -1297,6 +1302,113 @@ angular.module('pos.controllers', ['ionic'])
 
 
 
+      /*
+        
+        QUICK PUNCH 
+
+      */
+
+
+      $scope.quickPunchSearchKey = '';
+      $scope.isQuickPunching = false;
+
+
+      $scope.appendToQuickPunch = function(key) {
+        $scope.quickPunchSearchKey = $scope.quickPunchSearchKey.concat(key)
+        $scope.tryQuickSearch();
+      }
+
+      $scope.quickPunchErase = function(){
+        $scope.quickPunchSearchKey = $scope.quickPunchSearchKey.substring(0, $scope.quickPunchSearchKey.length - 1);
+        $scope.tryQuickSearch();
+      }
+
+
+      $scope.enableQuickSearch = function(){
+        if($scope.isQuickPunching){
+            $scope.isQuickPunching = false;
+        }
+        else{
+            $scope.quickPunchSearchKey = '';
+            $scope.isQuickPunching = true;
+            $scope.quickSearchResults = menuContentService.getMenuItems();
+        }
+      }
+
+
+      //styling purpose
+      $scope.getQuickPunchBottomPadding = function(){
+        if($scope.selectedTable != ''){
+            return {'bottom': '107px'};
+        }
+        else{
+            return {'bottom': '49px'};
+        }
+      }
+
+      $scope.getQuickTypingStyle = function(){
+        if($scope.quickPunchSearchKey != '' && $scope.shortlistedQuick.length == 0){
+            return 'quickPunchSearchWordRed';
+        }
+        else{
+            return 'quickPunchSearchWordBlue';
+        }
+      }
+
+
+      $scope.favoritesList = [];
+      $scope.shortlistedQuick = [];
+
+      $scope.tryQuickSearch = function(){
+
+            if($scope.quickPunchSearchKey == ''){
+                $scope.shortlistedQuick = [];
+                return '';
+            }
+
+                        
+                        var regex = new RegExp($scope.quickPunchSearchKey, "i");
+                        var name_regex = new RegExp("^" + $scope.quickPunchSearchKey, "i");
+
+                        $scope.shortlistedQuick = [];
+                        var sub_list = [];
+
+                        angular.forEach($scope.quickSearchResults, function (items, key) {
+
+                                if(!items.shortCode){
+                                    items.shortCode = '';
+                                }
+
+                                if(!items.shortNumber){
+                                    items.shortNumber = '';
+                                }
+
+                                items.itemCode = items.shortNumber.toString();
+
+                                if(items.itemCode.search(name_regex) != -1){
+                                    $scope.shortlistedQuick.push(items);
+                                }
+                                else if(items.shortCode.search(name_regex) != -1){
+                                    $scope.shortlistedQuick.push(items);
+                                }
+                                else{
+
+                                        var item_name = items.name;
+
+                                        if(item_name.search(name_regex) != -1){
+                                            $scope.shortlistedQuick.push(items);
+                                        }
+                                        else if(item_name.search(regex) != -1){
+                                            sub_list.push(items);
+                                        }
+                                }
+                        });
+
+                        $scope.shortlistedQuick = $scope.shortlistedQuick.concat(sub_list);
+      }
+      
+
+
 
 
 
@@ -1304,7 +1416,7 @@ angular.module('pos.controllers', ['ionic'])
         $scope.navToggled = false;
 
         $scope.showOptionsMenu = function() {
-            console.log('toggle sidemenu...', $scope.navToggled)
+            //console.log('toggle sidemenu...', $scope.navToggled)
             $ionicSideMenuDelegate.toggleLeft();
             $scope.navToggled = !$scope.navToggled;
         };
@@ -1874,7 +1986,7 @@ angular.module('pos.controllers', ['ionic'])
  .controller('ShoppingCartCtrl', function(products, currentGuestData, billing_modes, billing_parameters, $ionicPopup, $http, $scope, $ionicLoading, $ionicModal, $state, $rootScope, $ionicActionSheet, $ionicSideMenuDelegate, ShoppingCartService, deviceLicenseService) {
 
 
-    var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@192.168.1.3:5984/';
+    var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@localhost:5984/';
 
 
  	$scope.products = products;
@@ -2569,7 +2681,7 @@ angular.module('pos.controllers', ['ionic'])
                           obj.customExtras = {};
 
 
-                          var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@192.168.1.3:5984/';
+                          var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@localhost:5984/';
                                 
                           //LOADING
                           $ionicLoading.show({

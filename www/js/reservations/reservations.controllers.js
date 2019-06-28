@@ -2715,7 +2715,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
             $state.go('main.app.login');
         }
 
-        var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@192.168.1.3:5984/';
+        var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@localhost:5984/';
 
 
         /**** ACTUAL BEGINNING ***/

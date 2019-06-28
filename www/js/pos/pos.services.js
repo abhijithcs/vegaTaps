@@ -152,7 +152,7 @@ angular.module('pos.services', [])
   this.setMenu = function(menuData){
 
             var items_listed = [];
-
+            
             for(var n = 0; n < menuData.length; n++){
 
                 var sub_list_of_items = menuData[n].items;
@@ -436,7 +436,7 @@ angular.module('pos.services', [])
 
 .service('ShoppingCartService', function ($http, $q, $rootScope){
 
-  var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@192.168.1.3:5984/';
+  var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@localhost:5984/';
 
   //Billing Modes
   this.getBillingModes = function(){
@@ -486,8 +486,9 @@ angular.module('pos.services', [])
       timeout : 3000
      })
     .success(function(response) {
+      
       var my_data = response.value;
-      my_data.sort();
+      //my_data.sort();
       
       dfd.resolve(my_data);
     })

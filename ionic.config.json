@@ -1,6 +1,7 @@
 {
   "name": "accelerateVegaTaps",
-  "app_id": "",
+  "integrations": {},
+  "type": "ionic1",
   "gulpStartupTasks": [
     "default",
     "sass",
@@ -10,7 +11,5 @@
     "www/**/*",
     "!www/lib/**/*"
   ],
-  "documentRoot": "www",
-  "integrations": {},
-  "type": "ionic1"
+  "documentRoot": "www"
 }
