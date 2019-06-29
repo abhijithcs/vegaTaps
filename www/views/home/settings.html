@@ -17,24 +17,55 @@
 
 
 <!-- Search Results -->
-<div class="feed-view">
+<div class="feed-view" style="padding-bottom: 40px">
       
     <p style="color: #9c3f34; text-align: center; font-size: 24px; margin: 20px 0 0 0; font-family: 'Raleway', sans-serif; padding: 5px">Server Settings</p>
     <div style="display: block; width: 100%; padding: 10px 20px 0 20px">
-      <label style="border-bottom: 1px solid #f5f5f5; font-size: 12px; letter-spacing: 1px; color: #969696; display: block">SERVER IP ADDRESS</label>
+      <label style="border-bottom: 1px solid #f5f5f5; font-size: 12px; letter-spacing: 1px; color: #969696; display: block">IP ADDRESS</label>
       <input type="text" ng-model="defaultServer.ip_address" style="width: 100%; text-align: left; font-size: 15px; font-weight: bold; padding: 0px; color: #2196f3;" ng-change="saveServerAddress()">
+
+      <label style="border-bottom: 1px solid #f5f5f5; margin-top: 10px; font-size: 12px; letter-spacing: 1px; color: #969696; display: block">PORT</label>
+      <input type="text" ng-model="defaultServer.port" style="width: 100%; text-align: left; font-size: 15px; font-weight: bold; padding: 0px; color: #2196f3;" ng-change="saveServerAddress()">
+
+      <label style="border-bottom: 1px solid #f5f5f5; margin-top: 10px; font-size: 12px; letter-spacing: 1px; color: #969696; display: block">USERNAME</label>
+      <input type="text" ng-model="defaultServer.username" style="width: 100%; text-align: left; font-size: 15px; font-weight: bold; padding: 0px; color: #2196f3;" ng-change="saveServerAddress()">
+
+      <label style="border-bottom: 1px solid #f5f5f5; margin-top: 10px; font-size: 12px; letter-spacing: 1px; color: #969696; display: block">PASSWORD</label>
+      <input type="password" ng-model="defaultServer.password" style="width: 100%; text-align: left; font-size: 15px; font-weight: bold; padding: 0px; color: #2196f3;" ng-change="saveServerAddress()">
+
     </div>
 
     <p style="color: #9c3f34; text-align: center; font-size: 24px; margin: 20px 0 0 0; font-family: 'Raleway', sans-serif; padding: 5px">Registration Details</p>
     <div style="display: block; width: 100%; padding: 10px 20px 0 20px">
-      <label style="border-bottom: 1px solid #f5f5f5; font-size: 12px; letter-spacing: 1px; color: #969696; display: block">BRANCH NAME</label>
+      <label style="border-bottom: 1px solid #f5f5f5; font-size: 12px; letter-spacing: 1px; color: #969696; display: block">DEVICE ID</label>
+      <input type="text" ng-model="usedLicense.deviceUID" style="width: 100%; text-align: left; font-size: 15px; font-weight: bold; padding: 0px; color: #2196f3; background: none" disabled>
+
+      <label style="border-bottom: 1px solid #f5f5f5; font-size: 12px; letter-spacing: 1px; color: #969696; margin-top: 10px; display: block">DEVICE NAME</label>
+      <input type="text" ng-model="current_value.device_name" style="width: 100%; text-align: left; font-size: 15px; font-weight: bold; padding: 0px; color: #2196f3; background: none" placeholder="Enter a Name">
+        <p ng-if="!current_value.device_name || current_value.device_name == ''" style="margin: 0 0 20px 0; font-size: 12px; color: #444; margin-bottom"><b>Note:</b> Name this device so that you can refer it easily later, while configuring the printers to this device.</p>
+
+        <button ng-if="current_value.device_name != '' && usedLicense.device_name != current_value.device_name" class="button button-small button-balanced" style="margin: 10px 0 0 0; padding: 1px 6px; line-height: 0; min-height: 21px !important; text-transform: uppercase; font-weight: bold;" ng-click="submitDeviceNameChange()"><i class="fa fa-check"></i> Save</button>
+
+
+
+
+      <label style="border-bottom: 1px solid #f5f5f5; font-size: 12px; letter-spacing: 1px; color: #969696; margin-top: 10px; display: block">BRANCH NAME</label>
       <input type="text" ng-model="usedLicense.branch_name" style="width: 100%; text-align: left; font-size: 15px; font-weight: bold; padding: 0px; color: #2196f3; background: none" disabled>
+
 
       <label style="border-bottom: 1px solid #f5f5f5; font-size: 12px; letter-spacing: 1px; color: #969696; margin-top: 10px; display: block">DATE OF REGISTRATION</label>
       <input type="text" ng-model="usedLicense.activation_date" style="width: 100%; text-align: left; font-size: 15px; font-weight: bold; padding: 0px; color: #2196f3; background: none" disabled>
 
       <label style="border-bottom: 1px solid #f5f5f5; font-size: 12px; letter-spacing: 1px; color: #969696; margin-top: 10px; display: block">DATE OF EXPIRY</label>
       <input type="text" ng-model="usedLicense.expiry_date" style="width: 100%; text-align: left; font-size: 15px; font-weight: bold; padding: 0px; color: #2196f3; background: none" disabled>
+
+
+      <label style="border-bottom: 1px solid #f5f5f5; font-size: 12px; letter-spacing: 1px; color: #969696; margin-top: 10px; display: block">LOCAL SERVER MAPPING</label>
+      
+      <p ng-if="isLicenseMappedToLocalServer" style="margin: 5px 0; font-size: 14px; color: #444;">This device has been already <b>mapped</b> to the local server.</p>
+
+      <button ng-if="!isLicenseMappedToLocalServer" class="button button-small button-balanced" style="margin: 10px 0 0 0; padding: 1px 6px; line-height: 0; min-height: 21px !important; text-transform: uppercase; font-weight: bold;" ng-click="tryLocalServerRegistration()"><i class="fa fa-server"></i> Map to Server</button>
+
     </div>
 
 
@@ -44,8 +75,8 @@
       <p style="margin: 5px 0; font-size: 14px; color: #444;">To update the list of various <b>Sources</b> (in New Reservation page) from which the reservations are received.</p>
       <button class="button button-small button-balanced" style="margin: 0; padding: 1px 6px; line-height: 0; min-height: 21px !important; text-transform: uppercase; font-weight: bold;" ng-click="refreshModesList()"><i class="fa fa-refresh"></i> Update</button>
     </div>
-    <div style="display: block; width: 100%; padding: 10px 20px 0 20px">
-      <label style="border-bottom: 1px solid #f5f5f5; font-size: 12px; letter-spacing: 1px; color: #969696; display: block">Reset Device</label>
+    <div style="display: block; width: 100%; padding: 10px 20px 0 20px; margin-top: 20px">
+      <label style="border-bottom: 1px solid #f5f5f5; font-size: 12px; letter-spacing: 1px; color: #969696; display: block">RESET DEVICE</label>
       <p style="margin: 5px 0; font-size: 14px; color: #444;">Resetting the device will clear all the data and the license.</p>
       <button class="button button-small button-energized" style="margin: 0; padding: 1px 6px; line-height: 0; min-height: 21px !important; text-transform: uppercase; font-weight: bold;" ng-click="resetDevice()"><i class="fa fa-warning"></i> Reset</button>
     </div>

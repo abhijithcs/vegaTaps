@@ -772,6 +772,7 @@ angular.module('pos.controllers', ['ionic'])
     	}	
 
         $scope.kitchenComments = kitchen_comments;
+        $scope.kitchenComments.sort();
 
         //Check if already cached
         var isCached = false;
@@ -1136,6 +1137,16 @@ angular.module('pos.controllers', ['ionic'])
 
       $scope.openItemDetails = function(itemData, flag){
 
+        if(!window.localStorage.current_table_selection || window.localStorage.current_table_selection == ''){ //No table selected
+            $ionicLoading.show({
+                template: "Table <b>not</b> selected",
+                duration: 1500
+            });            
+            return '';
+        }
+
+
+        $scope.myLastWordInComment = '';
 
       	if(!itemData.isAvailable){
       		$ionicLoading.show({ template: "<b>"+itemData.name+"</b> is out of stock", duration: 1000 });
@@ -1189,6 +1200,7 @@ angular.module('pos.controllers', ['ionic'])
 
 
       $scope.addItemProcess = function(optionalSource){
+
 
         var processed_item = {
         	"code" : $scope.myItem.code,
@@ -1278,6 +1290,7 @@ angular.module('pos.controllers', ['ionic'])
             $scope.myItem.comment += ', '+commentNew;            
             
         }
+
       }
 
       $scope.isCommentAdded = function(comment){
@@ -1331,6 +1344,7 @@ angular.module('pos.controllers', ['ionic'])
         else{
             $scope.quickPunchSearchKey = '';
             $scope.isQuickPunching = true;
+
             $scope.quickSearchResults = menuContentService.getMenuItems();
         }
       }
@@ -2583,7 +2597,10 @@ angular.module('pos.controllers', ['ionic'])
                           obj.customerName = guestData.name;
                           obj.customerMobile = guestData.mobile; 
                           obj.guestCount = guestData.count && guestData.count != null ? parseInt(guestData.count) : 0;
-                          obj.machineName = window.localStorage.accelerate_licence_machine_id && window.localStorage.accelerate_licence_machine_id != '' ? window.localStorage.accelerate_licence_machine_id : 'TAPS_APP';
+                          
+                          var licenceData = window.localStorage.deviceRegistrationData && window.localStorage.deviceRegistrationData != '' ? JSON.parse(window.localStorage.deviceRegistrationData) : {};
+
+                          obj.machineName = licenceData.deviceUID;
                           
                           var sessionInfo = window.localStorage.setSessionData ? JSON.parse(window.localStorage.setSessionData) : {};
                           obj.sessionName = sessionInfo.name ? sessionInfo.name : '';

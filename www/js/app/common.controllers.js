@@ -42,7 +42,7 @@ angular.module('common.controllers', [])
 
             $http({
                     method: 'POST',
-                    url: 'https://www.accelerateengine.app/apis/posactivateapplication.php',
+                    url: 'https://www.accelerateengine.app/apis/posactivatedevice.php',
                     data: JSON.stringify(admin_data),
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
@@ -50,25 +50,21 @@ angular.module('common.controllers', [])
                     timeout: 10000
                 })
                 .success(function(response) {
-                    $ionicLoading.hide();
-
+                    
+                      $ionicLoading.hide();
 
                       if(response.status){
 
-                            var sampleObj = {
-                              "device_name" : "",
-                              "device_license_code" : "ACCELERATE_TAPS_201",
-                              "branch_code" : "JPNAGAR",
-                              "branch_name" : "JP Nagar",
-                              "activation_date" : "27-02-2019",
-                              "expiry_date" : "26-02-2020"
-                            }
+                        var licenceObject = response.response;
+                        licenceObject.defaultPrinters = {
+                            "VIEW": "",
+                            "BILL": ""
+                        }
 
-
-
-                        window.localStorage.deviceRegistrationData = JSON.stringify(sampleObj);
-                        deviceLicenseService.setLicense(sampleObj);
+                        window.localStorage.deviceRegistrationData = JSON.stringify(licenceObject);
+                        deviceLicenseService.setLicense(licenceObject);
                         $scope.isApplicationActivated = true;   
+
                       }
                       else{
                         if(response.errorCode == 404){
@@ -294,8 +290,16 @@ angular.module('common.controllers', [])
 
 
     .controller('SettingsCtrl', function(deviceLicenseService, $ionicLoading, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate, ShoppingCartService) {
-     
+ 
+
+
+        var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@localhost:5984/';
+
+
+
         $scope.navToggled = false;
+
+
 
         $scope.showOptionsMenu = function() {
             $ionicSideMenuDelegate.toggleLeft();
@@ -303,13 +307,267 @@ angular.module('common.controllers', [])
         };
 
         $scope.defaultServer = {};
-        $scope.defaultServer.ip_address = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@localhost:5984/';
+        $scope.defaultServer.port = '5984';
+        $scope.defaultServer.username = 'admin';
+        $scope.defaultServer.password = 'admin';
+        $scope.defaultServer.ip_address = 'localhost';
+
 
         $scope.saveServerAddress = function(){
-            window.localStorage.defaultServerIPAddress = $scope.defaultServer.ip_address;
+ 
+            var configured_url = '';
+
+            if($scope.defaultServer.username != '' && $scope.defaultServer.username != ''){
+              configured_url = 'http://'+$scope.defaultServer.username+':'+$scope.defaultServer.username+'@'+$scope.defaultServer.ip_address+':'+$scope.defaultServer.port+'/';
+            }
+            else{
+              configured_url = 'http://'+$scope.defaultServer.ip_address+':'+$scope.defaultServer.port+'/';
+            }         
+
+            window.localStorage.defaultServerIPAddress = configured_url;
         }
 
         $scope.usedLicense = deviceLicenseService.getLicense();
+
+
+        //Device Name change
+        $scope.current_value = deviceLicenseService.getLicense();
+        
+        $scope.submitDeviceNameChange = function(){
+            
+            $scope.usedLicense.device_name = $scope.current_value.device_name;
+            deviceLicenseService.setDeviceName($scope.usedLicense.device_name);
+
+
+                            var requestData = {
+                              "selector"  :{ 
+                                            "identifierTag": "ACCELERATE_REGISTERED_DEVICES" 
+                                          },
+                              "fields"    : ["_rev", "identifierTag", "value"]
+                            }
+
+
+                          //LOADING
+                          $ionicLoading.show({
+                            template:  '<ion-spinner></ion-spinner>'
+                          });
+
+                                  //Post to local Server
+                                  $http({
+                                        method  : 'POST',
+                                        url     : COMMON_IP_ADDRESS+'/accelerate_settings/_find',
+                                        data    : JSON.stringify(requestData),
+                                        headers : {'Content-Type': 'application/json'},
+                                        timeout : 10000
+                                    })
+                                    .success(function(data) { 
+
+                                        if(data.docs.length > 0){
+                                          if(data.docs[0].identifierTag == 'ACCELERATE_REGISTERED_DEVICES'){
+
+                                             var machinesList = data.docs[0].value;
+
+                                             for (var i=0; i<machinesList.length; i++) {
+                                               if(machinesList[i].device_license_code == $scope.usedLicense.device_license_code){
+                                                  
+                                                  machinesList[i].device_name = $scope.current_value.device_name;
+
+                                                  break;
+                                               }
+                                             }
+
+
+                                              var remember_rev = data.docs[0]._rev;
+                                              
+                                              updateDetails();
+                                              
+                                              function updateDetails(){
+
+                                                        //Update configured machines
+                                                        var updateData = {
+                                                          "_rev": remember_rev,
+                                                          "identifierTag": "ACCELERATE_REGISTERED_DEVICES",
+                                                          "value": machinesList
+                                                        }
+
+                                                      $http({
+                                                            method  : 'PUT',
+                                                            url     : COMMON_IP_ADDRESS+'accelerate_settings/ACCELERATE_REGISTERED_DEVICES/',
+                                                            data    : JSON.stringify(updateData),
+                                                            headers : {'Content-Type': 'application/json'},
+                                                            timeout : 10000
+                                                        })
+                                                        .success(function(data) { 
+                                                                            
+                                                            $ionicLoading.hide();
+
+                                                            //Update local storage
+                                                            var myData = window.localStorage.deviceRegistrationData && window.localStorage.deviceRegistrationData != '' ? JSON.parse(window.localStorage.deviceRegistrationData) : {};
+                                                            myData.device_name = $scope.current_value.device_name;
+
+                                                            window.localStorage.deviceRegistrationData = JSON.stringify(myData);
+
+                                                        })
+                                                        .error(function(data) {
+                                                                $ionicLoading.hide();
+
+                                                                $ionicLoading.show({
+                                                                    template: "Not responding. Check your connection.",
+                                                                    duration: 3000
+                                                                });
+                                                            
+                                                        });
+                                                }
+
+
+                                          }
+                                          else{
+                                            $ionicLoading.hide();
+                                            $ionicLoading.show({ template: "Not responding. Check your connection.", duration: 3000 });
+                                          }
+                                        }
+                                        else{
+                                            $ionicLoading.hide();
+                                            $ionicLoading.show({ template: "Not responding. Check your connection.", duration: 3000 });
+                                        }
+
+                                    })
+                                    .error(function(data) {
+                                        $ionicLoading.hide();
+
+                                        $ionicLoading.show({
+                                                template: "Not responding. Check your connection.",
+                                                duration: 3000
+                                        });
+                                    
+                                    });
+
+        }   
+
+
+
+        $scope.isLicenseMappedToLocalServer = window.localStorage.licence_server_mapping_flag && window.localStorage.licence_server_mapping_flag != '' ? window.localStorage.licence_server_mapping_flag : false;
+
+
+        $scope.tryLocalServerRegistration = function(){
+            
+
+                        var device_licence = deviceLicenseService.getLicense();
+
+                        if(!device_licence.device_license_code || device_licence.device_license_code == ''){
+                            $ionicLoading.show({ template: "Something went wrong. Try again.", duration: 3000 });
+                            return '';
+                        }                          
+
+                            var requestData = {
+                              "selector"  :{ 
+                                            "identifierTag": "ACCELERATE_REGISTERED_DEVICES" 
+                                          },
+                              "fields"    : ["_rev", "identifierTag", "value"]
+                            }
+
+
+                          //LOADING
+                          $ionicLoading.show({
+                            template:  '<ion-spinner></ion-spinner>'
+                          });
+
+                                  //Post to local Server
+                                  $http({
+                                        method  : 'POST',
+                                        url     : COMMON_IP_ADDRESS+'/accelerate_settings/_find',
+                                        data    : JSON.stringify(requestData),
+                                        headers : {'Content-Type': 'application/json'},
+                                        timeout : 10000
+                                    })
+                                    .success(function(data) { 
+
+                                        if(data.docs.length > 0){
+                                          if(data.docs[0].identifierTag == 'ACCELERATE_REGISTERED_DEVICES'){
+
+                                             var machinesList = data.docs[0].value;
+
+                                             for (var i=0; i<machinesList.length; i++) {
+                                               if(machinesList[i].device_license_code == device_licence.device_license_code){
+                                                  $ionicLoading.show({ template: "Activation Error: Licence already used.", duration: 3000 });
+                                                  return '';
+                                               }
+                                             }
+
+                                              machinesList.push(device_licence);
+                                              var remember_rev = data.docs[0]._rev;
+                                              
+                                              updateDetails();
+                                              
+
+                                              function updateDetails(){
+
+                                                        //Update configured machines
+                                                        var updateData = {
+                                                          "_rev": remember_rev,
+                                                          "identifierTag": "ACCELERATE_REGISTERED_DEVICES",
+                                                          "value": machinesList
+                                                        }
+
+                                                      $http({
+                                                            method  : 'PUT',
+                                                            url     : COMMON_IP_ADDRESS+'accelerate_settings/ACCELERATE_REGISTERED_DEVICES/',
+                                                            data    : JSON.stringify(updateData),
+                                                            headers : {'Content-Type': 'application/json'},
+                                                            timeout : 10000
+                                                        })
+                                                        .success(function(data) { 
+                                                                            
+                                                            $ionicLoading.hide();
+
+                                                            $ionicLoading.show({
+                                                                template: "Activation Successful",
+                                                                duration: 3000
+                                                            });
+
+                                                            window.localStorage.licence_server_mapping_flag = true;
+                                                            $scope.isLicenseMappedToLocalServer = true;
+
+                                                        })
+                                                        .error(function(data) {
+                                                                $ionicLoading.hide();
+
+                                                                $ionicLoading.show({
+                                                                    template: "Not responding. Check your connection.",
+                                                                    duration: 3000
+                                                                });
+                                                            
+                                                        });
+                                                }
+
+
+                                          }
+                                          else{
+                                            $ionicLoading.hide();
+                                            $ionicLoading.show({ template: "Not responding. Check your connection.", duration: 3000 });
+                                          }
+                                        }
+                                        else{
+                                            $ionicLoading.hide();
+                                            $ionicLoading.show({ template: "Not responding. Check your connection.", duration: 3000 });
+                                        }
+
+                                    })
+                                    .error(function(data) {
+                                        $ionicLoading.hide();
+
+                                        $ionicLoading.show({
+                                                template: "Not responding. Check your connection.",
+                                                duration: 3000
+                                        });
+                                    
+                                    });
+
+
+        }
+
+
+
 
 
         $scope.resetDevice = function(){

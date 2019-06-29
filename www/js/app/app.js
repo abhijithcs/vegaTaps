@@ -338,17 +338,6 @@ angular.module('accelerateVegaTaps', [
                 }
             })
 
-            .state('main.app.status.tables', {
-                url: '/status-table',
-                nativeTransitions: { type: "fade" },
-                views: {
-                    'status-tables@main.app.status': {
-                        templateUrl: 'views/pos/status-tables.html',
-                        controller: 'StatusTablesCtrl'
-                    }
-                }
-            })
-
             .state('main.app.status.running', {
                 url: '/status-running',
                 nativeTransitions: { type: "fade" },
@@ -361,6 +350,16 @@ angular.module('accelerateVegaTaps', [
             })
 
 
+            .state('main.app.status.tables', {
+                url: '/status-table',
+                nativeTransitions: { type: "fade" },
+                views: {
+                    'status-tables@main.app.status': {
+                        templateUrl: 'views/pos/status-tables.html',
+                        controller: 'StatusTablesCtrl'
+                    }
+                }
+            })
 
 
   ;

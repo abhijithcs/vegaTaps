@@ -44,7 +44,7 @@
 
           <span style="text-align: center; display: block; color: #444; font-weight: bold; letter-spacing: 2px;">COMMENTS</span>
 
-          <textarea placeholder="Any Comments?" ng-model="myItem.comment" style="border-radius: 0px; resize: none; border: 1px solid #ebebeb; color: #3a3939; padding: 10px; width: 100%; font-size: 16px; line-height: 21px;" rows="3"></textarea>
+          <textarea placeholder="Any Comments?" ng-model="myItem.comment" style="border-radius: 0px; resize: none; border: 1px solid #ebebeb; color: #3a3939; padding: 10px; width: 100%; font-size: 16px; line-height: 21px;" rows="3" ng-trim="false"></textarea>
 
           <div style="margin-top: 10px;">
             <button ng-repeat="comm in kitchenComments track by $index" class="itemWiseComment" ng-class="{'itemWiseCommentActive' : isCommentAdded(comm)}" ng-click="addCommentToItem(comm)">{{comm}}</button>

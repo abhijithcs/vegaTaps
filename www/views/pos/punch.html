@@ -11,7 +11,7 @@
 
             <button class="button button-clear" style="min-width: 160px; text-align: center; margin-left: 5px; font-weight: 400; color: #FFF; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 18px; height: 38px; margin-top: -2px;" ng-click="openSeatPlanView()">
               <tag class="reservationAddButton" style="float: right; background: rgb(255, 255, 255); width: 100%; border-radius: 4px; color: rgb(232, 74, 55); font-style: italic; height: 36px; font-size: 16px; line-height: 2.3;" ng-if="selectedTable == ''">
-                <i class="fa fa-th"></i>  Select Table
+                <i class="fa fa-question-circle" style="font-size: 24px; position: absolute; left: 6px; top: 5px;"></i>  Select Table
               </tag>
               <tag class="reservationAddButton" style="float: right; background: rgb(85, 191, 90); width: 100%; border-radius: 4px; font-weight: 400; height: 36px; font-size: 20px; line-height: 1.7;" ng-if="selectedTable != ''">
                 Table <b>#{{selectedTable}}</b>
@@ -29,13 +29,13 @@
             
 
 
-            <button class="button button-clear clearSearchFilterButton" style="position: absolute; top: -4px; right: 55px; height: 44px;" ng-click="startSearching()" ng-if="!isQuickPunching">
+            <!-- <button class="button button-clear clearSearchFilterButton" style="position: absolute; top: -4px; right: 55px; height: 44px;" ng-click="startSearching()" ng-if="!isQuickPunching">
               <i class="icon ion-android-search"></i> 
-            </button>  
+            </button>   -->
 
             <button class="button button-clear clearSearchFilterButton" style="position: absolute; top: -4px; right: 0px; height: 44px;" ng-click="enableQuickSearch()">
               <i ng-if="!isQuickPunching" class="icon ion-qr-scanner"></i> 
-              <i ng-if="isQuickPunching" class="icon ion-arrow-return-left"></i> 
+              <i ng-if="isQuickPunching" class="icon ion-ios7-paper-outline"></i> 
             </button>  
 
 
