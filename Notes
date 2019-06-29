@@ -1,0 +1,13 @@
+/*
+	NOTES
+*/
+
+
+1. For Captains, cancellation requests to Admin
+2. At Kitchen, option to mark items unavailable
+3. Option to mark items already sent to restaurant
+4. For Admin, While cancelling items, ask for cancellation reason
+5. For Admin, Option to add custom item
+6. Auto Fetch customer details
+7. Send Notification from Kitchen when admin marks item status (Advanced Feature)
+8. Top selling items list (In Quick Punch feature)
