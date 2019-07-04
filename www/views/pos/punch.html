@@ -60,7 +60,7 @@
 
          <!-- Refresher -->
         <ion-refresher
-          on-refresh="doMenuRefresh()">
+          on-refresh="doMenuRefresh()" ng-if="!isQuickPunching">
         </ion-refresher>
 
 
@@ -84,7 +84,7 @@
 </div>  
 
  <!-- QUICK PUNCHING : Showing Filtered Items -->
-<div class="feed-view" ng-if="isQuickPunching" style="padding-top: 45px;">
+<div class="feed-view" ng-if="isQuickPunching" style="padding-top: 45px; overflow-y: scroll; padding-bottom: 200px">
 
   <!-- Not searching -->
   <div ng-if="quickPunchSearchKey == ''">
@@ -111,7 +111,7 @@
 
   <!-- Searching -->
   <div ng-if="quickPunchSearchKey != ''">
-      <div class="posMyItem" ng-class="{'unavail': !item.isAvailable}" ng-repeat="item in shortlistedQuick | limitTo:10 track by $index" ng-click="openItemDetails(item, 'QUICK_PUNCH')">
+      <div class="posMyItem" ng-class="{'unavail': !item.isAvailable}" ng-repeat="item in shortlistedQuick | limitTo:20 track by $index" ng-click="openItemDetails(item, 'QUICK_PUNCH')">
         <div class="row">
           <div class="col vegFlagPOS">
             <span class="icon ion-android-radio-button-on nveg"></span>
@@ -126,6 +126,9 @@
       </div>
 
       <p ng-if="shortlistedQuick.length == 0" style="margin: 50px 0; text-align: center; font-size: 16px; font-weight: 400; color: #db8b8c;">There are no matches found.</p>
+
+      <p ng-if="shortlistedQuick.length >= 20" style="margin: 10px 0 0 0; text-align: center; font-size: 12px; font-weight: 400; color: #49a9e2;"><i class="fa fa-circle-o"></i> Search more precisely for better results <i class="fa fa-circle-o"></i></p>
+
   </div>
 
 </div>  

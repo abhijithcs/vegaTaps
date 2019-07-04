@@ -19,10 +19,21 @@
   <ion-content class="shopping-cart-content" has-bouncing="false">
     <div class="row row-center empty-cart-row" ng-if="products.length == 0">
       <div class="col">
-        <center>
-          <img src="./img/feed/emptycart.png" width="30%"/>
-        </center>
-        <h3 class="no-products-title" style="margin-top: 30px; color: #c52031">Your cart is empty.</h3>
+
+        <div ng-if="!isEditingOrder">
+          <center>
+            <img src="./img/feed/emptycart.png" width="30%"/>
+          </center>
+          <h3 class="no-products-title" style="margin-top: 30px; color: #c52031">Your cart is empty.</h3>
+        </div>
+        
+        <div ng-if="isEditingOrder">
+          <p style="margin: 0; font-size: 64px; color: #dadada"><i class="fa fa-warning"></i></p>
+          <h3 class="no-products-title" style="margin: 30px 0 0 0; color: #8c8c8c">Removed all items.</h3>
+        
+           <button class="button button-clear checkout-button" style="text-transform: uppercase; font-size: 14px; letter-spacing: 1px; padding: 0; width: 100%; float: right; color: #FF9800;" ng-click="undoEditingOrder()">Undo Changes</button>
+
+        </div>
       </div>
     </div>
     <div ng-if="products.length > 0">
@@ -41,7 +52,7 @@
 
     <div class="shopping-cart-view">
     <ul class="list checkout-products">
-      <li class="item checkout-product" ng-repeat="product in products | reverse track by $index">
+      <li class="item checkout-product" ng-repeat="product in products | orderBy : 'priorityIndex' | reverse track by $index">
         <div class="row">
 
           <div class="col col-75 col-center">

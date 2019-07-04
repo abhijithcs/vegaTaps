@@ -50,40 +50,11 @@
             </div>
           </div>
         </div>
-        <div class="item item-divider order-footer" ng-if="order.status==0">
-          <span class="status-title" style="color:#d35400; float: left">Pending Confirmation</span>
-          <div class="button button-small button-outline button-primary" style="float: right; margin-top:5px; color: #33cd5f; border-color: #33cd5f" ng-click="trackMe(order.orderID)">TRACK ORDER</div>
-        </div>
-        <div class="item item-divider order-footer" ng-if="order.status==1">
-          <span class="status-title" style="color:#27ae60; float: left">Order Confirmed</span>
-          <div class="button button-small button-outline button-primary" style="float: right; margin-top:5px; color: #33cd5f; border-color: #33cd5f" ng-click="trackMe(order.orderID)">TRACK ORDER</div>
-        </div>
-        <div class="item item-divider order-footer" ng-if="order.status==2">
-          <span class="status-title" style="color:#2c3e50; float: left">
-			<tag ng-if="order.isTakeaway">Ready for Pickup</tag>
-			<tag ng-if="!order.isTakeaway">Dispatched</tag>
-		  </span>
-          <div class="button button-small button-outline button-primary" style="float: right; margin-top:5px; color: #33cd5f; border-color: #33cd5f" ng-click="trackMe(order.orderID)">TRACK ORDER</div>
-        </div>
-        <div class="item item-divider order-footer" ng-if="order.status==3">
-          <span class="status-title" style="color:#2c3e50; float: left">Delivered</span>
-        </div>
-        <div class="item item-divider order-footer" ng-if="order.status==5">
-          <span class="status-title" style="color:#e74c3c; float: left">Cancelled</span>
-        </div>
-      </div>
+
 </div>
 
 
     </div>
 
-    <i ng-if="left == 0"><center><img src=img/common/end.png></center></i>
-    
-    <ion-infinite-scroll
-      immediate-check="false"
-      ng-if="left"
-      on-infinite="loadMore()"
-      distance="1%">
-    </ion-infinite-scroll>
   </ion-content>
 </ion-view>

@@ -306,11 +306,14 @@ angular.module('common.controllers', [])
             $scope.navToggled = !$scope.navToggled;
         };
 
+
+        var server_config_data = window.localStorage.defaultServerDetails && window.localStorage.defaultServerDetails != '' ? JSON.parse(window.localStorage.defaultServerDetails) : {};
+
         $scope.defaultServer = {};
-        $scope.defaultServer.port = '5984';
-        $scope.defaultServer.username = 'admin';
-        $scope.defaultServer.password = 'admin';
-        $scope.defaultServer.ip_address = 'localhost';
+        $scope.defaultServer.port = server_config_data.port && server_config_data.port != '' ? server_config_data.port : '5984';
+        $scope.defaultServer.username = server_config_data.username && server_config_data.username != '' ? server_config_data.username : 'admin';
+        $scope.defaultServer.password = server_config_data.password && server_config_data.password != '' ? server_config_data.password : 'admin';
+        $scope.defaultServer.ip_address = server_config_data.ip_address && server_config_data.ip_address != '' ? server_config_data.ip_address : 'localhost';
 
 
         $scope.saveServerAddress = function(){
@@ -325,6 +328,14 @@ angular.module('common.controllers', [])
             }         
 
             window.localStorage.defaultServerIPAddress = configured_url;
+
+            var server_config_data = {};
+            server_config_data.port = $scope.defaultServer.port;
+            server_config_data.ip_address = $scope.defaultServer.ip_address;
+            server_config_data.password = $scope.defaultServer.password;
+            server_config_data.username = $scope.defaultServer.username;
+
+            window.localStorage.defaultServerDetails = JSON.stringify(server_config_data);
         }
 
         $scope.usedLicense = deviceLicenseService.getLicense();

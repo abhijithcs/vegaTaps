@@ -98,7 +98,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
             var temp_data = {};
             temp_data = resObj;
-            temp_data.time = (moment($scope.mytime.time).format("HHmm"));
+            temp_data.time = (moment($scope.mytime.time, 'hhmm').format("HHmm"));
             temp_data.date = $scope.normalDate;
 
 

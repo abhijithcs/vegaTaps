@@ -31,8 +31,14 @@ angular.module('pos.services', [])
       count = 0;
     }
 
+    var formatted_phone = Number(mobile);
+
+    if(formatted_phone == NaN){
+      formatted_phone = '';
+    }
+
     guestName = name;
-    guestMobile = mobile;
+    guestMobile = formatted_phone;
     guestCount = count;
 
     var guestObject = {
@@ -532,7 +538,9 @@ angular.module('pos.services', [])
     $rootScope.$broadcast('cart_updated', products);
   };
 
-  this.addProduct = function(productToAdd){
+  this.addProduct = function(productToAdd, priority_flag){
+
+    //If priority_flag is enabled, item will be pinned to top of the KOT
 
     var cart_products = !_.isUndefined(window.localStorage.accelerate_cart) ? JSON.parse(window.localStorage.accelerate_cart) : [];
 
@@ -548,9 +556,21 @@ angular.module('pos.services', [])
       }
     }
 
-    productToAdd.cartIndex = maxCartIndex + 1;
+      productToAdd.cartIndex = maxCartIndex + 1;
 
+      productToAdd.priorityIndex = priority_flag ? 1 : 0;
+
+      //Serve First comment if priority_flag enabled
+      if(priority_flag){
+        productToAdd.comments = productToAdd.comments ? productToAdd.comments + "- FIRST" : "FIRST";
+      }
+      
       cart_products.push(productToAdd);
+
+      cart_products.sort(function(item1, item2) {
+        return item2.priorityIndex - item1.priorityIndex; //Sorting based on Priority Index
+      });
+
       $rootScope.$broadcast('cart_updated', cart_products);
       $rootScope.$emit('cart_updated', cart_products);
 
@@ -560,6 +580,7 @@ angular.module('pos.services', [])
 
     //animateCartIcon();
   };
+
 
   this.lessProduct = function(cart_index){
 

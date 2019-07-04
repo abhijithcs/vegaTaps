@@ -1,7 +1,7 @@
 angular.module('pos.controllers', ['ionic'])
 
 
-    .controller('StatusRunningCtrl', function($ionicLoading, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate, ShoppingCartService, deviceLicenseService) {
+    .controller('StatusRunningCtrl', function($ionicLoading, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate, ShoppingCartService, deviceLicenseService, currentGuestData) {
       
 
         var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@localhost:5984/';
@@ -25,7 +25,7 @@ angular.module('pos.controllers', ['ionic'])
                     //Get all the live KOTs
                     $http({
                         method: 'GET',
-                        url: COMMON_IP_ADDRESS+'/accelerate_kot/_design/kot-fetch/_view/fetchbytype?startkey=["DINE"]&include_docs=true',
+                        url: COMMON_IP_ADDRESS+'/accelerate_kot/_design/kot-fetch/_view/fetchbytype?startkey=["DINE"]&endkey=["DINE"]&include_docs=true',
                         timeout: 10000
                     })
                     .success(function(data) {
@@ -423,8 +423,10 @@ angular.module('pos.controllers', ['ionic'])
 
             window.localStorage.maxCartIndex = maxCartIndex;
 
+            //Update Guest details
+            currentGuestData.setGuest(kot.customerName, kot.customerMobile, kot.guestCount ? parseInt(kot.guestCount) : '');
+            
             $state.go('main.app.punch');
-
 
         }
 
@@ -582,11 +584,13 @@ angular.module('pos.controllers', ['ionic'])
 
 
 
+    $scope.viewAvailableOptions = function(seat){
 
-    $scope.seatOptions = function(seat){
-
-
-        if(seat.status == 2){
+        if(seat.status == 0 || seat.status == 5){
+            $scope.openFreeSeat(seat)
+            return "";       
+        }
+        else if(seat.status == 2){
             //Billed Order
             $ionicLoading.show({
                 template: "This order has been already billed",
@@ -595,110 +599,75 @@ angular.module('pos.controllers', ['ionic'])
 
             return "";       
         }
-
-
-
-        //Already an order being edited
-        if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
-
-                var hasUnsavedChanges = !window.localStorage.hasUnsavedChangesFlag || window.localStorage.hasUnsavedChangesFlag == 0 ? false : true;
-        
-                if(hasUnsavedChanges){
-                    var confirmPopup = $ionicPopup.confirm({
-                        cssClass: 'popup-clear confirm-alert-alternate',
-                        title: 'There are unsaved changes in the cart. Are you sure want to start a new order?'
-                    });
-
-                    confirmPopup.then(function(res) {
-                        if(res){
-                            if(seat.status == 0){ //free table
-                                ShoppingCartService.clearCartToEmpty();
-                                currentGuestData.clearGuest();
-                                $scope.selectedTable = seat.table;
-                                window.localStorage.current_table_selection = seat.table;
-
-                                $state.go('main.app.punch');
-                            }
-                            else if(seat.status == 1){ //running order table
-                                copyKOTtoCart(seat);
-                            }
-                        }
-                    });            
-                }
-                else{
-                            if(seat.status == 0){ //free table
-                                ShoppingCartService.clearCartToEmpty();
-                                currentGuestData.clearGuest();
-                                $scope.selectedTable = seat.table;
-                                window.localStorage.current_table_selection = seat.table;
-
-                                $state.go('main.app.punch');
-                            }
-                            else if(seat.status == 1){ //running order table
-                                copyKOTtoCart(seat);
-                                $scope.selectedTable = seat.table;
-                                window.localStorage.current_table_selection = seat.table;
-                            }
-                }
-
-        }
         else{
-            var cart_products = !_.isUndefined(window.localStorage.accelerate_cart) ? JSON.parse(window.localStorage.accelerate_cart) : [];
 
-            if(cart_products.length == 0){ //cart is empty!
-                if(seat.status == 0){ //free table
-                    $scope.selectedTable = seat.table;
-                    window.localStorage.current_table_selection = seat.table;
+                        var choiceTemplate =    '<div class="row">'+
+                                                    '<div class="col col-50">'+
+                                                        '<div class="actionTile" ng-click="actionTileFunction(\'OPEN\')">'+
+                                                            '<div class="actionTileIcon shadeGreenYellow">O</div>'+
+                                                            '<div class="actionTileText" style="color: #88deba">Open Order</div>'+
+                                                        '</div>'+
+                                                    '</div>'+
+                                                    '<div class="col col-50">'+
+                                                        '<div class="actionTile" ng-click="actionTileFunction(\'PRINT_VIEW\')">'+
+                                                            '<div class="actionTileIcon shadeYellowOrange">V</div>'+
+                                                            '<div class="actionTileText" style="color: #e48345">Print View</div>'+
+                                                        '</div>'+
+                                                    '</div>'+
+                                                '</div>'+
+                                                '<div class="row" style="margin-top: 6px;">'+
+                                                    '<div class="col col-50">'+
+                                                        '<div class="actionTile" ng-click="actionTileFunction(\'PRINT_KOT\')">'+
+                                                            '<div class="actionTileIcon shadeRedPink">K</div>'+
+                                                            '<div class="actionTileText" style="color: #de6066">Duplicate KOT</div>'+
+                                                        '</div>'+
+                                                    '</div>'+
+                                                    '<div class="col col-50">'+
+                                                        '<div class="actionTile" ng-click="actionTileFunction(\'PRINT_BILL\')">'+
+                                                            '<div class="actionTileIcon shadeBlueViolet">B</div>'+
+                                                            '<div class="actionTileText" style="color: #5ca7dc">Print Bill</div>'+
+                                                        '</div>'+
+                                                    '</div>'+
+                                                '</div>';
 
-                    $state.go('main.app.punch');
-                }
-                else if(seat.status == 1){ //running order table
-                    copyKOTtoCart(seat);
-                }
-            }
-            else{ //The cart is not empty, fresh order being punched
-                if(seat.status == 0){ //free table
-                    $scope.selectedTable = seat.table;
-                    window.localStorage.current_table_selection = seat.table;
+                        $scope.actionTilesDataContent = seat; //orderData;
+                        $scope.actionTilesPopup = $ionicPopup.show({
+                            cssClass: 'popup-actions tile-actions-view',
+                            template: choiceTemplate,
+                            title: '',
+                            scope: $scope,
+                            buttons: [{
+                                text: 'Close'
+                            }]
+                        });
 
-                    $state.go('main.app.punch');
-                }
-                else if(seat.status == 1){ //running order table
-                    
-                    var confirmPopup = $ionicPopup.confirm({
-                        cssClass: 'popup-clear confirm-alert-alternate',
-                        title: 'There are unsaved changes in the cart. Are you sure want to start a new order?'
-                    });
-
-                    confirmPopup.then(function(res) {
-                        if(res){
-                            $scope.selectedTable = seat.table;
-                            window.localStorage.current_table_selection = seat.table;
-                            copyKOTtoCart(seat);
-                        }
-                    });         
-
-                }
-            }
         }
 
+    }
 
 
-            function copyKOTtoCart(seat){//Editing Order
 
-                $scope.hasUnsavedChanges = false;
-                window.localStorage.hasUnsavedChangesFlag = 0;
-            
-                //Set _id from Branch mentioned in Licence
-                var accelerate_licencee_branch = deviceLicenseService.getBranchCode();
-                if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
-                  var alertPopup = $ionicPopup.alert({
-                                            cssClass: 'popup-clear confirm-alert-alternate',
-                                            title: 'Invalid Licence Error',
-                                            template: '<p style="padding: 0 10px 10px 10px; color: #E91E63; margin: 0; font-size: 15px; font-weight: 400;">KOT can not be opened. Please contact Accelerate Support if problem persists.</p>'
-                                        });
-                  return '';
-                }
+        $scope.actionTileFunction = function(type){
+
+            var seatData = $scope.actionTilesDataContent;
+            $scope.actionTilesPopup.close();
+
+
+            loadOrderData(seatData);
+
+            //Load order data
+            function loadOrderData(seat){
+
+                    //Set _id from Branch mentioned in Licence
+                    var accelerate_licencee_branch = deviceLicenseService.getBranchCode();
+                    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+                      var alertPopup = $ionicPopup.alert({
+                                                cssClass: 'popup-clear confirm-alert-alternate',
+                                                title: 'Invalid Licence Error',
+                                                template: '<p style="padding: 0 10px 10px 10px; color: #E91E63; margin: 0; font-size: 15px; font-weight: 400;">KOT can not be opened. Please contact Accelerate Support if problem persists.</p>'
+                                            });
+                      return '';
+                    }
 
 
                     var kot_request_data = accelerate_licencee_branch +"_KOT_"+ seat.KOT;
@@ -713,15 +682,9 @@ angular.module('pos.controllers', ['ionic'])
                     .success(function(data) {
                         if(data._id != ""){
 
-                            var kot = data;
+                            var orderData = data;
+                            processOrderAction(orderData)
 
-                            window.localStorage.edit_KOT_originalCopy = JSON.stringify(kot);
-                            window.localStorage.accelerate_cart = JSON.stringify(kot.cart);
-
-                            //Update Guest details
-                            currentGuestData.setGuest(kot.customerName, kot.customerMobile ? parseInt(kot.customerMobile) : '', kot.guestCount ? parseInt(kot.guestCount) : '');
-
-                            $state.go('main.app.punch');
                         }
                         else{
                                 var alertPopup = $ionicPopup.alert({
@@ -749,14 +712,381 @@ angular.module('pos.controllers', ['ionic'])
                             });
                         }
                     });
-
             }
-        
+
+
+            function processOrderAction(orderData){
+
+                switch(type){
+                    case "OPEN":{
+                        $scope.openOrderToEdit(orderData);
+                        return '';
+                    }
+                    case "PRINT_VIEW":{
+
+                        var success_text = '<b style="color: #5ada5f">Successful!</b><br><b>Items View</b> to be printed shortly.';
+                        var duplicate_error_text = '<b style="color: #ef3d74">Failed!</b><br>There is already a pending Print View request. Please try later.';
+
+                        var actionObject = {
+                            "_id": "PRINT_VIEW_"+orderData._id,
+                            "KOT": orderData._id,
+                            "action": "PRINT_VIEW",
+                            "table": orderData.table,
+                            "staffName": window.localStorage.loggedInUser_name && window.localStorage.loggedInUser_name != "" ? window.localStorage.loggedInUser_name : "Unknown",
+                            "staffCode": window.localStorage.loggedInUser_mobile && window.localStorage.loggedInUser_mobile != "" ? window.localStorage.loggedInUser_mobile : "Unknown",
+                            "machine": deviceLicenseService.getDeviceName(),
+                            "time": moment().format('HHmm'),
+                            "date": moment().format('DD-MM-YYYY')
+                        }
+
+                        postActionRequest(actionObject, success_text, duplicate_error_text);
+                        break;
+                    }
+                    case "PRINT_KOT":{
+
+                        var success_text = '<b style="color: #5ada5f">Successful!</b><br><b>Duplicate KOT</b> to be printed shortly.';
+                        var duplicate_error_text = '<b style="color: #ef3d74">Failed!</b><br>There is already a pending Print KOT request. Please try later.';
+
+                        var actionObject = {
+                            "_id": "PRINT_KOT_"+orderData._id,
+                            "KOT": orderData._id,
+                            "action": "PRINT_KOT",
+                            "table": orderData.table,
+                            "staffName": window.localStorage.loggedInUser_name && window.localStorage.loggedInUser_name != "" ? window.localStorage.loggedInUser_name : "Unknown",
+                            "staffCode": window.localStorage.loggedInUser_mobile && window.localStorage.loggedInUser_mobile != "" ? window.localStorage.loggedInUser_mobile : "Unknown",
+                            "machine": deviceLicenseService.getDeviceName(),
+                            "time": moment().format('HHmm'),
+                            "date": moment().format('DD-MM-YYYY')
+                        }
+
+                        postActionRequest(actionObject, success_text, duplicate_error_text);
+                        break;
+                    }
+                    case "PRINT_BILL":{
+
+                        var success_text = '<b style="color: #5ada5f">Successful!</b><br><b>Bill</b> to be printed shortly.';
+                        var duplicate_error_text = '<b style="color: #ef3d74">Failed!</b><br>Already requested to print the Bill.';
+
+                        var actionObject = {
+                            "_id": "PRINT_BILL_"+orderData._id,
+                            "KOT": orderData._id,
+                            "action": "PRINT_BILL",
+                            "table": orderData.table,
+                            "staffName": window.localStorage.loggedInUser_name && window.localStorage.loggedInUser_name != "" ? window.localStorage.loggedInUser_name : "Unknown",
+                            "staffCode": window.localStorage.loggedInUser_mobile && window.localStorage.loggedInUser_mobile != "" ? window.localStorage.loggedInUser_mobile : "Unknown",
+                            "machine": deviceLicenseService.getDeviceName(),
+                            "time": moment().format('HHmm'),
+                            "date": moment().format('DD-MM-YYYY')
+                        }
+
+                        postActionRequest(actionObject, success_text, duplicate_error_text);
+                        break;
+                    }
+                }
+
+
+                function postActionRequest(actionObject, success_text, duplicate_error_text){
+
+                          var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@localhost:5984/';
+                                
+                          //LOADING
+                          $ionicLoading.show({
+                            template:  '<ion-spinner></ion-spinner>'
+                          });
+
+                                  //Post to local Server
+                                  $http({
+                                        method  : 'POST',
+                                        url     : COMMON_IP_ADDRESS+'accelerate_action_requests/',
+                                        data    : actionObject,
+                                        headers : {'Content-Type': 'application/json'},
+                                        timeout : 10000
+                                    })
+                                    .success(function(response) { 
+                                      if(response.ok){
+                                        $ionicLoading.hide();
+                                        $ionicLoading.show({
+                                            template: success_text,
+                                            duration: 2000
+                                        });
+                                      }
+                                      else{
+                                        $ionicLoading.hide();
+                                        $ionicLoading.show({
+                                            template: "Not responding. Check your connection.",
+                                            duration: 3000
+                                        });
+                                      }
+
+                                    })
+                                    .error(function(data) {
+                                        $ionicLoading.hide();
+                                        if(data.error == "conflict"){
+                                            $ionicLoading.show({
+                                                template: duplicate_error_text,
+                                                duration: 3000
+                                            });
+                                        }
+                                        else{
+                                            $ionicLoading.show({
+                                                template: "Not responding. Check your connection.",
+                                                duration: 3000
+                                            });
+                                        }
+                                    });
+                } //postActionRequest
+
+
+
+            } //processOrderAction
+
+
         }
 
 
 
-    })
+
+
+
+        //Open order to edit
+        $scope.openOrderToEdit = function(editOrder){
+
+
+                //Set _id from Branch mentioned in Licence
+                var accelerate_licencee_branch = deviceLicenseService.getBranchCode();
+                if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+                  var alertPopup = $ionicPopup.alert({
+                                            cssClass: 'popup-clear confirm-alert-alternate',
+                                            title: 'Invalid Licence Error',
+                                            template: '<p style="padding: 0 10px 10px 10px; color: #E91E63; margin: 0; font-size: 15px; font-weight: 400;">KOT can not be opened. Please contact Accelerate Support if problem persists.</p>'
+                                        });
+                  return '';
+                }
+
+                var kot_request_data = accelerate_licencee_branch +"_KOT_"+ editOrder.KOTNumber;
+
+
+                $ionicLoading.show({ template: '<ion-spinner></ion-spinner> Loading Tables...' });
+
+
+                    //PRELOAD TABLE MAPPING
+                    $http({
+                        method: 'GET',
+                        url: COMMON_IP_ADDRESS+'/accelerate_kot/'+kot_request_data,
+                        timeout: 10000
+                    })
+                    .success(function(data) {
+                        if(data._id != ""){
+
+                            var kot = data;
+                            $ionicLoading.hide();
+
+
+                            if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+
+                                var alreadyEditingKOT = JSON.parse(window.localStorage.edit_KOT_originalCopy);
+                                if(alreadyEditingKOT.KOTNumber == kot.KOTNumber)//if thats the same order, neglect.
+                                {
+                                    $state.go('main.app.punch');
+                                    return '';
+                                }
+                                else{
+                                    //Editing order has unsaved changes
+                                    if(window.localStorage.hasUnsavedChangesFlag && window.localStorage.hasUnsavedChangesFlag == 1){
+                                        
+                                           var alertPopup = $ionicPopup.alert({
+                                            cssClass: 'popup-clear confirm-alert-alternate',
+                                            title: 'Warning',
+                                            template: '<p style="padding: 0 10px 10px 10px; color: #E91E63; margin: 0; font-size: 15px; font-weight: 400;">There is already an active order being modified. Please complete it to continue.</p>'
+                                           });
+
+                                           return '';
+                                    }
+                                }
+                            }
+
+                            $scope.overWriteCurrentRunningOrder(kot);
+
+                        }
+                        else{
+                                $ionicLoading.hide();
+
+                                    var alertPopup = $ionicPopup.alert({
+                                            cssClass: 'popup-clear confirm-alert-alternate',
+                                            title: 'Not Found Error',
+                                            template: '<p style="padding: 0 10px 10px 10px; color: #E91E63; margin: 0; font-size: 15px; font-weight: 400;">#'+kotID+' not found on Server. Please contact Accelerate Support.</p>'
+                                        });
+                        }
+                    })
+                    .error(function(data) {
+
+                        $ionicLoading.hide();
+
+                        $ionicLoading.show({
+                            template: "Not responding. Check your connection.",
+                            duration: 3000
+                        });
+                    });
+          
+        }
+
+
+        $scope.overWriteCurrentRunningOrder = function(kot){
+
+            var customerInfo = {};
+            customerInfo.name = kot.customerName;
+            customerInfo.mobile = kot.customerMobile;
+            customerInfo.count = kot.guestCount && kot.guestCount != '' ? parseInt(kot.guestCount) : 0;
+            customerInfo.mappedAddress = kot.table;
+            customerInfo.mode = kot.orderDetails.mode;
+            customerInfo.modeType = kot.orderDetails.modeType;
+            customerInfo.reference = kot.orderDetails.reference;
+            customerInfo.isOnline = kot.orderDetails.isOnline;
+
+            window.localStorage.current_table_selection = kot.table;
+
+
+            if(kot.specialRemarks && kot.specialRemarks != ''){
+                window.localStorage.specialRequests_comments = kot.specialRemarks;
+            }
+            else{
+                window.localStorage.specialRequests_comments = '';
+            }
+
+            if(kot.allergyInfo && kot.allergyInfo != []){
+                window.localStorage.allergicIngredientsData = JSON.stringify(kot.allergyInfo);
+            }
+            else{
+                window.localStorage.allergicIngredientsData = '';
+            }
+
+
+            //Pending new order will be removed off the cart.
+            window.localStorage.accelerate_cart = JSON.stringify(kot.cart);
+            //window.localStorage.customerData = JSON.stringify(customerInfo);
+
+            //window.localStorage.edit_KOT_originalCopy = decodeURI(encodedKOT);
+            window.localStorage.edit_KOT_originalCopy = JSON.stringify(kot);
+
+
+            //record max cart index
+                var i = 0;
+                var maxCartIndex = 0;
+
+                while(i < kot.cart.length){
+                  if(maxCartIndex <= kot.cart[i].cartIndex){
+                        maxCartIndex = kot.cart[i].cartIndex;
+                  }
+
+                  i++;
+                }
+
+            window.localStorage.maxCartIndex = maxCartIndex;
+
+
+            //Update Guest details
+            currentGuestData.setGuest(kot.customerName, kot.customerMobile, kot.guestCount ? parseInt(kot.guestCount) : '');
+
+            $state.go('main.app.punch');
+        }
+
+
+
+
+
+    $scope.openFreeSeat = function(seat){
+
+        //Already an order being edited
+        if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
+
+                var hasUnsavedChanges = !window.localStorage.hasUnsavedChangesFlag || window.localStorage.hasUnsavedChangesFlag == 0 ? false : true;
+        
+                if(hasUnsavedChanges){
+                    var confirmPopup = $ionicPopup.confirm({
+                        cssClass: 'popup-clear confirm-alert-alternate',
+                        title: 'There are unsaved changes in the cart. Are you sure want to start a new order?'
+                    });
+
+                    confirmPopup.then(function(res) {
+                        if(res){
+                            if(seat.status == 0){ //free table
+                                ShoppingCartService.clearCartToEmpty();
+                                currentGuestData.clearGuest();
+                                $scope.selectedTable = seat.table;
+                                window.localStorage.current_table_selection = seat.table;
+
+                                $state.go('main.app.punch');
+                            }
+                            else if(seat.status == 5){  //reserved - add guest data
+                                ShoppingCartService.clearCartToEmpty();
+                                currentGuestData.setGuest(seat.guestName, seat.guestContact, seat.guestCount);
+                                $scope.selectedTable = seat.table;
+                                window.localStorage.current_table_selection = seat.table;
+
+                                $state.go('main.app.punch');
+                            }
+                        }
+                    });            
+                }
+                else{
+                            if(seat.status == 0){ //free table
+                                ShoppingCartService.clearCartToEmpty();
+                                currentGuestData.clearGuest();
+                                $scope.selectedTable = seat.table;
+                                window.localStorage.current_table_selection = seat.table;
+
+                                $state.go('main.app.punch');
+                            }
+                            else if(seat.status == 5){  //reserved - add guest data
+                                ShoppingCartService.clearCartToEmpty();
+                                currentGuestData.setGuest(seat.guestName, seat.guestContact, seat.guestCount);
+                                $scope.selectedTable = seat.table;
+                                window.localStorage.current_table_selection = seat.table;
+
+                                $state.go('main.app.punch');
+                            }
+                }
+
+        }
+        else{
+            var cart_products = !_.isUndefined(window.localStorage.accelerate_cart) ? JSON.parse(window.localStorage.accelerate_cart) : [];
+
+            if(cart_products.length == 0){ //cart is empty!
+                if(seat.status == 0){ //free table
+                    $scope.selectedTable = seat.table;
+                    window.localStorage.current_table_selection = seat.table;
+
+                    $state.go('main.app.punch');
+                }
+                else if(seat.status == 5){  //reserved - add guest data
+                    $scope.selectedTable = seat.table;
+                    window.localStorage.current_table_selection = seat.table;
+                    currentGuestData.setGuest(seat.guestName, seat.guestContact, seat.guestCount);
+
+                    $state.go('main.app.punch');
+                }
+            }
+            else{ //The cart is not empty, fresh order being punched
+                if(seat.status == 0){ //free table
+                    $scope.selectedTable = seat.table;
+                    window.localStorage.current_table_selection = seat.table;
+
+                    $state.go('main.app.punch');
+                }
+                else if(seat.status == 5){ //reserved - add guest data
+                    $scope.selectedTable = seat.table;
+                    window.localStorage.current_table_selection = seat.table;
+                    currentGuestData.setGuest(seat.guestName, seat.guestContact, seat.guestCount);
+
+                    $state.go('main.app.punch');                        
+                }
+            }
+        }
+    
+    }//openFreeTable
+
+   
+   })
 
     .controller('PunchCtrl', function(ShoppingCartService, menuContentService, currentGuestData, kitchen_comments, deviceLicenseService, $timeout, $ionicLoading, $ionicPopup, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicPopover, $ionicSideMenuDelegate) {
 
@@ -1199,7 +1529,13 @@ angular.module('pos.controllers', ['ionic'])
       }
 
 
-      $scope.addItemProcess = function(optionalSource){
+      $scope.addItemProcess = function(optionalSource, optionalPriorityFlag){
+
+
+        var priority_flag = false;
+        if(optionalPriorityFlag && optionalPriorityFlag == 'PIN_TO_TOP'){
+            priority_flag = true;
+        }
 
 
         var processed_item = {
@@ -1246,7 +1582,9 @@ angular.module('pos.controllers', ['ionic'])
         	processed_item.price = $scope.myItem.price;
         }
 
-        ShoppingCartService.addProduct(processed_item);
+
+        ShoppingCartService.addProduct(processed_item, priority_flag);
+        
         $scope.add_item_modal.hide();
 
         $scope.search.query = '';
@@ -2088,6 +2426,18 @@ angular.module('pos.controllers', ['ionic'])
         $state.go('main.app.punch');
     }
 
+    $scope.isCartEmpty = function(){
+        var cart = window.localStorage.accelerate_cart && window.localStorage.accelerate_cart != '' ? JSON.stringify(window.localStorage.accelerate_cart) : [];
+        
+        console.log(cart.length)
+        if(cart.length == 0){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
 
     $scope.enableCheckPlaceOrderButton = function(cartProducts){
         if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
@@ -2745,6 +3095,49 @@ angular.module('pos.controllers', ['ionic'])
 
     //Send changed KOT to server
     $scope.sendChangedKOT = function(runningKOTNumber){
+
+
+        //Complete removed check
+        var current_existing_cart = !_.isUndefined(window.localStorage.accelerate_cart) ? JSON.parse(window.localStorage.accelerate_cart) : [];
+        if(current_existing_cart.length == 0){
+        
+                  var alertPopup = $ionicPopup.alert({
+                                            cssClass: 'popup-clear confirm-alert-alternate',
+                                            title: '<b>Order Cancellation not Allowed</b>',
+                                            template: '<p style="padding: 0 10px 10px 10px; color: #E91E63; margin: 0; font-size: 15px; font-weight: 400;">Orders can be cancelled from <b>Desktop POS</b> only.<br>Do you want to Undo Changes?</p>'
+                                        });
+
+                    alertPopup.then(function(res){
+                        if(res){
+                            $scope.undoEditingOrder();
+                        }
+                        else{
+                            
+                        }
+                    });
+
+
+
+                // var confirmPopup = $ionicPopup.confirm({
+                //     cssClass: 'popup-clear confirm-alert-alternate',
+                //     title: '<br>'
+                // });
+
+                // confirmPopup.then(function(res){
+                //     if(res){
+                //         scope.undoEditingOrder();
+                //     }
+                //     else{
+                        
+                //     }
+                // });        
+
+
+                return '';
+        }
+
+
+
 
         $scope.hasRestrictedEdits = false;
 
