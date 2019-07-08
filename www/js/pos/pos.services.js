@@ -37,7 +37,7 @@ angular.module('pos.services', [])
       formatted_phone = '';
     }
 
-    guestName = name;
+    guestName = name.toUpperCase();
     guestMobile = formatted_phone;
     guestCount = count;
 

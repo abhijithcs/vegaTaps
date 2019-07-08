@@ -2244,6 +2244,8 @@ angular.module('pos.controllers', ['ionic'])
                             //Update Guest details
                             currentGuestData.setGuest(kot.customerName, kot.customerMobile ? parseInt(kot.customerMobile) : '', kot.guestCount ? parseInt(kot.guestCount) : '');
                             window.localStorage.current_table_selection = kot.table;
+
+                            $scope.selectedTable = seat.table;
                         }
                         else{
                                 var alertPopup = $ionicPopup.alert({
@@ -2335,7 +2337,7 @@ angular.module('pos.controllers', ['ionic'])
 })
 
 
- .controller('ShoppingCartCtrl', function(products, currentGuestData, billing_modes, billing_parameters, $ionicPopup, $http, $scope, $ionicLoading, $ionicModal, $state, $rootScope, $ionicActionSheet, $ionicSideMenuDelegate, ShoppingCartService, deviceLicenseService) {
+ .controller('ShoppingCartCtrl', function(products, currentGuestData, billing_modes, billing_parameters, $ionicPopup, $http, $scope, $ionicLoading, $ionicModal, $timeout, $state, $rootScope, $ionicActionSheet, $ionicSideMenuDelegate, ShoppingCartService, deviceLicenseService) {
 
 
     var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@localhost:5984/';
@@ -2848,19 +2850,36 @@ angular.module('pos.controllers', ['ionic'])
     };
 
 
+    $scope.isOrderConfirmationProgressing = false;
 
     //Clear all info after placing order
-    $scope.orderPostClearData = function(){
+    $scope.orderPostClearData = function(optionalFlag){
+        $scope.isOrderConfirmationProgressing = true;
         ShoppingCartService.clearCartToEmpty();
         currentGuestData.clearGuest();
-        $state.go('main.app.punch');
         window.localStorage.current_table_selection = '';
+
+        if(optionalFlag == 'SUCCESS'){
+            $ionicLoading.show({
+                template: '<p style=\'margin: 20px 0 0 0; font-size: 36px; color: #82dc82; font-family: "Great Vibes"\'>Success!</p><br>Order has been placed.',
+                duration: 2000
+            }); 
+
+            $timeout(function() {
+                $state.go('main.app.punch');
+            }, 2000);           
+        }
+        else{
+            $state.go('main.app.punch');   
+        }
     }
 
 
 
     //Send KOT
     $scope.sendKOTToServer = function(){
+
+        $scope.isOrderConfirmationProgressing = true;
          
                     //fetch billing parameters
                     $http({
@@ -3066,12 +3085,8 @@ angular.module('pos.controllers', ['ionic'])
                                     .success(function(response) { 
                                       if(response.ok){
                                         $ionicLoading.hide();
-                                        $ionicLoading.show({
-                                            template: "Success! Order has been placed.",
-                                            duration: 3000
-                                        });
 
-                                        $scope.orderPostClearData();
+                                        $scope.orderPostClearData('SUCCESS');
                                       }
                                       else{
                                         $ionicLoading.hide();
@@ -3096,6 +3111,7 @@ angular.module('pos.controllers', ['ionic'])
     //Send changed KOT to server
     $scope.sendChangedKOT = function(runningKOTNumber){
 
+        $scope.isOrderConfirmationProgressing = true;
 
         //Complete removed check
         var current_existing_cart = !_.isUndefined(window.localStorage.accelerate_cart) ? JSON.parse(window.localStorage.accelerate_cart) : [];
@@ -3115,22 +3131,6 @@ angular.module('pos.controllers', ['ionic'])
                             
                         }
                     });
-
-
-
-                // var confirmPopup = $ionicPopup.confirm({
-                //     cssClass: 'popup-clear confirm-alert-alternate',
-                //     title: '<br>'
-                // });
-
-                // confirmPopup.then(function(res){
-                //     if(res){
-                //         scope.undoEditingOrder();
-                //     }
-                //     else{
-                        
-                //     }
-                // });        
 
 
                 return '';
@@ -3323,10 +3323,19 @@ angular.module('pos.controllers', ['ionic'])
 
                         $ionicLoading.hide();
 
-                        $ionicLoading.show({
-                            template: "Not responding. Check your connection.",
-                            duration: 3000
-                        });
+                        if(data.error == "not_found"){
+                                var alertPopup = $ionicPopup.alert({
+                                    cssClass: 'popup-clear confirm-alert-alternate',
+                                    title: 'Not Found Error',
+                                    template: '<p style="padding: 0 10px 10px 10px; color: #E91E63; margin: 0; font-size: 15px; font-weight: 400;">#'+runningKOTNumber+' not found on Server.<br>Bill already taken may be.</p>'
+                                });                            
+                        }
+                        else{
+                            $ionicLoading.show({
+                                template: "Not responding. Check your connection.",
+                                duration: 3000
+                            });
+                        }
                     });
 
 
@@ -3405,11 +3414,18 @@ angular.module('pos.controllers', ['ionic'])
 
 
                       originalKOT.timeKOT = moment().format('HHmm');
-                      originalKOT.guestCount = originalKOT.guestCount && originalKOT.guestCount != null && originalKOT.guestCount != '' ? parseInt(originalKOT.guestCount) : 0;
                       originalKOT.cart = new_updated_cart;
 
-                            //RECALCULATE EXTRAS
 
+                      //Update guest data
+                      var updated_guest = currentGuestData.getGuest();
+
+                      originalKOT.guestCount = updated_guest.count && updated_guest.count != null && updated_guest.count != '' ? parseInt(updated_guest.count) : 0;
+                      originalKOT.customerName = updated_guest.name;
+                      originalKOT.customerMobile = updated_guest.mobile;
+
+
+                            //RECALCULATE EXTRAS
                             var cart_products = originalKOT.cart;
 
                             /*Process Figures*/
@@ -3505,12 +3521,8 @@ angular.module('pos.controllers', ['ionic'])
                                 .success(function(response) { 
                                   if(response.ok){
                                     $ionicLoading.hide();
-                                    $ionicLoading.show({
-                                        template: "Success! Order has been placed.",
-                                        duration: 3000
-                                    });
-
-                                    $scope.orderPostClearData();
+                                    
+                                    $scope.orderPostClearData('SUCCESS');
                                   }
                                   else{
                                     $ionicLoading.hide();

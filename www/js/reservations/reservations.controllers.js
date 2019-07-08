@@ -348,6 +348,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                 var data = {};
                 data.token = window.localStorage.admin;
                 data.details = $scope.walkin;
+                data.details.name = data.details.name.toUpperCase();
 
                 $ionicLoading.show({
                     template: '<ion-spinner></ion-spinner>'

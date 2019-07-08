@@ -23,7 +23,7 @@
                 <button class="guestCountButton" ng-click="guestDataTemp.count = 8; guestDataTemp.countManual = '';" ng-class="{'active' : guestDataTemp.count == 8}">8</button>
                 <button class="guestCountButton" ng-click="guestDataTemp.count = 9; guestDataTemp.countManual = '';" ng-class="{'active' : guestDataTemp.count == 9}">9</button>
                 <button class="guestCountButton" ng-click="guestDataTemp.count = 10; guestDataTemp.countManual = '';" ng-class="{'active' : guestDataTemp.count == 10}">10</button>
-                <input type="number" ng-model="guestDataTemp.countManual" ng-class="{'active' : guestDataTemp.countManual && guestDataTemp.countManual >= 11}" ng-change="guestDataTemp.count = guestDataTemp.countManual" class="guestCountInput">
+                <input type="tel" ng-model="guestDataTemp.countManual" ng-class="{'active' : guestDataTemp.countManual && guestDataTemp.countManual >= 11}" ng-change="guestDataTemp.count = guestDataTemp.countManual" class="guestCountInput">
               </div>
             </div>
           </div>
@@ -33,7 +33,7 @@
 
           <div style="margin-top: 5px; position: relative">
             <span style="text-align: center; color: #FFF; -ms-transform: rotate(20deg); /* -webkit-transform: rotate(20deg); */ transform: rotate(270deg); display: inline-block; position: absolute; top: 22px; left: -11px; font-weight: bold; font-size: 12px;">MOBILE</span>
-            <input type="number" ng-model="guestDataTemp.mobile" class="guestMobileInput" style="font-size: 24px; font-weight: bold; letter-spacing: 6px; height: 64px; padding: 0px; width: 100%; text-align: center; border: 1px solid #009688 !important; border-left: 26px solid #009688 !important; border-top-right-radius: 6px !important; border-bottom-right-radius: 4px !important; color: #009688;" placeholder="">
+            <input type="tel" ng-model="guestDataTemp.mobile" class="guestMobileInput" style="font-size: 24px; font-weight: bold; letter-spacing: 6px; height: 64px; padding: 0px; width: 100%; text-align: center; border: 1px solid #009688 !important; border-left: 26px solid #009688 !important; border-top-right-radius: 6px !important; border-bottom-right-radius: 4px !important; color: #009688;" placeholder="">
           </div>
 
           <div style="margin-top: 10px; position: relative">

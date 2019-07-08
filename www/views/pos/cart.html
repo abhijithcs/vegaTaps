@@ -17,7 +17,7 @@
     <!-- " -->
   </ion-header-bar>
   <ion-content class="shopping-cart-content" has-bouncing="false">
-    <div class="row row-center empty-cart-row" ng-if="products.length == 0">
+    <div class="row row-center empty-cart-row" ng-if="products.length == 0 && !isOrderConfirmationProgressing">
       <div class="col">
 
         <div ng-if="!isEditingOrder">
@@ -40,7 +40,7 @@
 
     	<div class="billingModeBarGray" ng-if="isEditingOrder">
     		{{selectedBillingMode.name}}
-    		<span style="float: right; font-weight: 300;">Table <b>#{{selectedTable}}</b></span>
+    		<span style="float: right; font-weight: 300;">Table <b>{{selectedTable}}</b></span>
     	</div>
 
       <div class="billingModeBarOrange" ng-click="changeBillingMode()" ng-if="!isEditingOrder">

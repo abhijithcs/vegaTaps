@@ -9,24 +9,10 @@
             </button>
 
 
-            <button class="button button-clear" style="min-width: 160px; text-align: center; margin-left: 5px; font-weight: 400; color: #FFF; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 18px; height: 38px; margin-top: -2px;" ng-click="openSeatPlanView()">
-              <tag class="reservationAddButton" style="float: right; background: rgb(255, 255, 255); width: 100%; border-radius: 4px; color: rgb(232, 74, 55); font-style: italic; height: 36px; font-size: 16px; line-height: 2.3;" ng-if="selectedTable == ''">
-                <i class="fa fa-question-circle" style="font-size: 24px; position: absolute; left: 6px; top: 5px;"></i>  Select Table
-              </tag>
-              <tag class="reservationAddButton" style="float: right; background: rgb(85, 191, 90); width: 100%; border-radius: 4px; font-weight: 400; height: 36px; font-size: 20px; line-height: 1.7;" ng-if="selectedTable != ''">
-                Table <b>#{{selectedTable}}</b>
-              </tag>
-            </button>  
-
             <!-- Captains details -->
-            <div style="position: relative; top: 3px; left: 6px; display: block; width: 180px;">
-              <tag style="color: #FFF; font-size: 17px; font-weight: 300; position: absolute;">{{currentTimeDisplay}}</tag>
-              <tag style="color: #FFF; font-size: 10px; font-weight: bold; position: absolute; top: 14px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; width: 100%; display: block; text-transform: uppercase" ng-if="isProfileSelected" ng-click="chooseUserProfile()">{{selectedUserProfile}}</tag>
-              <tag style="color: #FFC107; font-size: 12px; font-weight: bold; position: absolute; top: 14px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; width: 100%; display: block; font-style: italic" ng-if="!isProfileSelected" ng-click="chooseUserProfile()">Select User</tag>
+            <div style="position: relative; left: 6px; display: block; width: 130px;">
+              <tag style="color: #FFF; position: absolute; top: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; width: 100%; display: block; font-size: 21px; font-weight: 300; line-height: 1.65;">{{currentTimeDisplay}}</tag>
             </div>
-            
-
-            
 
 
             <!-- <button class="button button-clear clearSearchFilterButton" style="position: absolute; top: -4px; right: 55px; height: 44px;" ng-click="startSearching()" ng-if="!isQuickPunching">
@@ -36,6 +22,11 @@
             <button class="button button-clear clearSearchFilterButton" style="position: absolute; top: -4px; right: 0px; height: 44px;" ng-click="enableQuickSearch()">
               <i ng-if="!isQuickPunching" class="icon ion-qr-scanner"></i> 
               <i ng-if="isQuickPunching" class="icon ion-ios7-paper-outline"></i> 
+            </button>  
+
+            <button class="button button-clear clearSearchFilterButton" style="position: absolute; top: -4px; right: 55px; height: 44px; width: 180px; text-transform: capitalize; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; display: block;" ng-click="chooseUserProfile()">              
+              <tag ng-if="isProfileSelected" style="font-size: 18px; font-weight: bold;">{{selectedUserProfile}}</tag>
+              <tag ng-if="!isProfileSelected" style="border: 0.5px dashed #e86d67; padding: 5px 10px;"><i class="ion-android-social-user" style="color: #e86d67; margin-right: 4px;"></i> Select User</tag>
             </button>  
 
 
@@ -232,16 +223,21 @@
 **************** -->
 
          <!-- Selected Table Details -->
-         <div class="reservationBottomFilterHolder" ng-show="selectedTable != ''">
+         <div class="reservationBottomFilterHolder">   <!-- ng-show="selectedTable != ''" -->
 
-            <tag class="customItemAddButton" style="float: left; background: #a9adad" ng-click="notAvailable('Custom Item feature is not available in this version')"><i class="ion-plus"></i></tag>
-
-            <tag class="customItemAddButton" style="float: left; background: #a9adad; margin-left: 10px;" ng-click="notAvailable('Filter feature is not available in this Version')"><i class="fa fa-filter"></i></tag>
-
-            <tag class="guestAddButton" ng-class="{'active' : isGuestDataEntered()}" style="float: left; margin-left: 10px;" ng-click="openGuestDetails()">
+            <tag class="guestAddButton" ng-class="{'active' : isGuestDataEntered()}" style="float: left; margin-left: 0px;" ng-click="openGuestDetails()">
                 <i class="fa fa-user-o"></i>
                 <span ng-if="isGuestDataEntered()" class="guestCountTag">{{guestData.count}}</span>
             </tag>
+
+            <button class="button button-clear" style="min-width: 160px; text-align: center; margin-left: 10px; font-weight: 400; color: #FFF; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 18px; margin-top: -2px;" ng-click="openSeatPlanView()">
+              <tag class="reservationAddButton" style="float: right; background: rgb(255, 255, 255); width: 100%; border-radius: 4px; color: #e84a37; font-style: italic; height: 40px; font-size: 17px; line-height: 2.35; padding-left: 24px; border: 1px solid #e84a37;" ng-if="selectedTable == ''">
+                <i class="fa fa-question-circle" style="font-size: 24px; position: absolute; left: 9px; top: 6px;"></i>  Select Table
+              </tag>
+              <tag class="reservationAddButton" style="float: right; background: #53bdaa; width: 100%; border-radius: 4px; font-weight: 400; height: 40px; font-size: 20px; line-height: 1;" ng-if="selectedTable != ''">
+                Table <b style="font-family: 'Open Sans', sans-serif; font-weight: 800; font-size: 32px; position: relative; top: 4px; left: 6px;">{{selectedTable}}</b>
+              </tag>
+            </button>  
 
 
             <tag class="liveCartLabel" ng-class="{'active' : getProductsInCart() > 0}" ng-click="openCartWindow()" style="float: right; width: 110px; height: 45px !important; display: inline-block; font-size: 38px !important; padding: 0;">
