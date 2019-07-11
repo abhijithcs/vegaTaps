@@ -3,12 +3,14 @@
   <ion-content has-bouncing="false" scroll="" class="checkout-thanks-content">
     <div class="row thanks-row" style="margin-top: 60px">
       <div class="col">
-        <h3 class="thanks-title" style="color:#FFF; font-size: 32px; font-weight: 200">How was your recent experience with us?<br>
-        <span class="icon ion-android-star-outline" id="star1" ng-click="fillTill(1)"></span>
-        <span class="icon ion-android-star-outline" id="star2" ng-click="fillTill(2)"></span>
-        <span class="icon ion-android-star-outline" id="star3" ng-click="fillTill(3)"></span>
-        <span class="icon ion-android-star-outline" id="star4" ng-click="fillTill(4)"></span>
-        <span class="icon ion-android-star-outline" id="star5" ng-click="fillTill(5)"></span>
+        <h3 class="thanks-title" style="padding: 0px 5%; color:#FFF; font-size: 32px; font-weight: 200">How was your recent experience with us?<br>
+          <tag style="font-size: 29px">
+            <span class="icon ion-ios7-star-outline" id="star1" ng-click="fillTill(1)"></span>
+            <span class="icon ion-ios7-star-outline" id="star2" ng-click="fillTill(2)"></span>
+            <span class="icon ion-ios7-star-outline" id="star3" ng-click="fillTill(3)"></span>
+            <span class="icon ion-ios7-star-outline" id="star4" ng-click="fillTill(4)"></span>
+            <span class="icon ion-ios7-star-outline" id="star5" ng-click="fillTill(5)"></span>
+          </tag>
         <br><p ng-if="tag!=''" style="color: #fff; font-weight: 400;">{{tag}} <img src="{{getSmiley()}}" style="width: 1.3em; margin-left: 0px; display: inline-block; position: relative; top: 10px;"></p>
         </h3>
 
@@ -44,9 +46,9 @@
             </div>
         </div>
 
-        <div style="padding: 30px" ng-show="selection=='N' || selection=='P'">
+        <div style="padding: 30px 30px 80px 30px;" ng-show="selection=='N' || selection=='P'">
           <label for="commentsBox" style="color: rgba(0, 0, 0, .4); font-size: 14px;">Any Comments</label>
-          <textarea class="feedbackComments" style="color: #FFF; background: none; resize: none; line-height: 21px; text-align: center; border: 1px solid rgba(0, 0, 0, .2); border-radius: 5px;" rows="2" id="commentsBox" placeholder="We are listening. Do you want to tell us anything in particular? Please write it here." ng-model="commentsFeed"></textarea>
+          <textarea class="feedbackComments" style="color: #FFF; background: none; resize: none; line-height: 21px; text-align: center; border: 1px solid rgba(0, 0, 0, .2); border-radius: 5px;" rows="2" id="commentsBox" placeholder="We are listening. Do you want to tell us anything in particular? Please write it here." ng-model="commentsFeed.text"></textarea>
           <p id="characterCount" style="float: right; padding: 5px 0px; color: rgba(29, 29, 29, .4); font-size: 80%"></p>
         </div>
 

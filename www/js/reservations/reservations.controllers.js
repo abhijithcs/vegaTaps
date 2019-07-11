@@ -2723,10 +2723,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
         $scope.isGeneralView = true;
         $scope.booking = currentBooking.getBooking();
 
-        console.log($scope.booking)
-
         //Seater Area
-
         $scope.seatPlan = "";
         $scope.freeingAllList = "";
         $scope.seatPlanError = "";

@@ -1,12 +1,35 @@
 angular.module('feedback.controllers', [])    
 
-    .controller('feedbackLandingCtrl', function(feedbackService, $ionicPopup, $scope, $http, $state, $ionicLoading, $timeout, $ionicModal) {
+    .controller('feedbackLandingCtrl', function(feedbackService, inoviceFeedbackMappingService, $ionicPopup, $scope, $rootScope, $http, $state, $ionicLoading, $timeout, $ionicModal) {
 
         $scope.user = {};
         $scope.user.name = "";
         $scope.user.mobile = "";
         $scope.user.email = "";
+        $scope.billNumber = "";
 
+        $scope.fetchInvoiceDetails = function(){
+            var setUserData = inoviceFeedbackMappingService.getInvoiceDetails();
+            $scope.user.name = setUserData.name;
+            $scope.user.mobile = setUserData.contact;
+            $scope.billNumber = setUserData.invoice;
+            $scope.user.email = "";
+
+            if($scope.billNumber != ""){
+                feedbackService.setMappedInvoice($scope.billNumber)
+            }
+        }
+
+        $scope.fetchInvoiceDetails();
+
+        $rootScope.$on('feedback_opted', function() {
+            $scope.fetchInvoiceDetails();
+            $scope.searchUser();
+        });
+
+        $rootScope.$on('feedback_cleared', function() {
+            $scope.fetchInvoiceDetails();
+        });
 
         
         $scope.searchCounter = 0;
@@ -87,7 +110,7 @@ angular.module('feedback.controllers', [])
     })
 
 
-    .controller('thanksCtrl', function(feedbackService, $scope, $state, $interval) {
+    .controller('thanksCtrl', function(feedbackService, inoviceFeedbackMappingService, $scope, $rootScope, $state, $interval) {
         var user = feedbackService.getReviewInfo();
         $scope.message = "Thank You " + user.userName;
 
@@ -114,6 +137,9 @@ angular.module('feedback.controllers', [])
             }
 
             feedbackService.clearAll();
+            inoviceFeedbackMappingService.clearInvoiceDetails();
+
+            $rootScope.$broadcast('feedback_cleared', '');
             $state.go('main.app.feedbacklanding');
         }   
 
@@ -153,13 +179,15 @@ angular.module('feedback.controllers', [])
     
     })
 
-    .controller('feedbackCtrl', function(feedbackService, $scope, $http, $state, $rootScope, $ionicLoading) {
+    .controller('feedbackCtrl', function(feedbackService, inoviceFeedbackMappingService, deviceLicenseService, $scope, $http, $state, $rootScope, $ionicLoading, $ionicPopup) {
 
         $scope.tag = "";
         $scope.selection = "";
         $scope.isStarFilled = false;
 
         $scope.metadata = feedbackService.getReviewInfo();
+
+        var mapped_invoice = feedbackService.getMappedInvoice();
 
         $scope.fillTill = function(id) {
 
@@ -206,17 +234,19 @@ angular.module('feedback.controllers', [])
 
             var i = 1;
             while (i <= id) {
-                document.getElementById("star" + i).className = "icon ion-android-star";
+                document.getElementById("star" + i).className = "icon ion-ios7-star";
                 i++;
             }
             //Empty the remaining stars
             while (i <= 5) {
-                document.getElementById("star" + i).className = "icon ion-android-star-outline";
+                document.getElementById("star" + i).className = "icon ion-ios7-star-outline";
                 i++;
             }
         }
 
-        $scope.commentsFeed = "";
+        $scope.commentsFeed = {};
+        $scope.commentsFeed.text = "";
+
         //Characters Left in the comments
         document.getElementById('commentsBox').onkeyup = function() {
             document.getElementById('characterCount').innerHTML = (150 - (this.value.length)) + ' characters left.';
@@ -287,7 +317,7 @@ angular.module('feedback.controllers', [])
                         "food": $rootScope.positive_feedback.food,
                         "app": $rootScope.positive_feedback.app,
                         "other": $rootScope.positive_feedback.other,
-                        "comment": comments
+                        "comment": $scope.commentsFeed.text
                     }
                 } else {
                     var reviewObject = {
@@ -298,7 +328,7 @@ angular.module('feedback.controllers', [])
                         "food": $rootScope.negative_feedback.food,
                         "app": $rootScope.negative_feedback.app,
                         "other": $rootScope.negative_feedback.other,
-                        "comment": comments
+                        "comment": $scope.commentsFeed.text
                     }
                 }
 
@@ -308,21 +338,23 @@ angular.module('feedback.controllers', [])
 
 
                 $scope.postReview = function() {
+                    
                     //POST review
                     var data = {};
                     data.review = reviewObject;
                     data.details = $scope.metadata;
+                    data.token = window.localStorage.admin;
+
+                    data.billNumber = mapped_invoice;
 
                     $ionicLoading.show({
                         template: '<ion-spinner></ion-spinner>'
                     });
                     
-                    console.log(data)
-
 
                     $http({
                             method: 'POST',
-                            url: 'https://www.zaitoon.online/services/deskpostreviewiitm.php',
+                            url: 'https://www.zaitoon.online/services/deskpostreview.php',
                             data: data,
                             headers: {
                                 'Content-Type': 'application/x-www-form-urlencoded'
@@ -332,7 +364,15 @@ angular.module('feedback.controllers', [])
                         .success(function(response) {
                             $ionicLoading.hide();
                             if (response.status) {
-                                $state.go('main.app.feedbackthanks');
+                                    
+                                if(mapped_invoice != ''){
+                                    //Add rating to invoice on localserver
+                                    addRatingToInvoice(mapped_invoice, reviewObject, $scope.metadata);
+                                }
+                                else{
+                                    $state.go('main.app.feedbackthanks');
+                                }
+
                             } else {
                                 $ionicLoading.show({
                                     template: "Error: " + response.error + ". Please Re-try.",
@@ -347,6 +387,81 @@ angular.module('feedback.controllers', [])
                                 duration: 2000
                             });
                         });
+
+
+
+                        function addRatingToInvoice(mapped_invoice, reviewObject, otherData){
+
+                            var my_rating = reviewObject.rating;
+                            var my_comments = reviewObject.comment;
+
+                            var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@localhost:5984/';
+
+                            //Set _id from Branch mentioned in Licence
+                            var accelerate_licencee_branch = deviceLicenseService.getBranchCode();
+                            if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+                              $state.go('main.app.feedbackthanks');
+                              return '';
+                            }
+
+                            
+                            var invoice_request_data = accelerate_licencee_branch +"_BILL_"+ mapped_invoice;
+
+                            $http({
+                                method: 'GET',
+                                url: COMMON_IP_ADDRESS+'/accelerate_bills/'+invoice_request_data,
+                                timeout: 10000
+                            })
+                            .success(function(data) {
+                                if(data._id != ""){
+
+                                    var invoiceData = data;
+
+                                    if(invoiceData.customerRating){
+                                        $state.go('main.app.feedbackthanks');
+                                        return '';
+                                    }
+                                    else{
+                                            //Add rating
+                                            invoiceData.customerRating = my_rating;
+
+                                            if(my_comments != ''){
+                                                invoiceData.customerReview = my_comments;
+                                            }
+
+                                            //Check if customer data is not added
+                                            if(invoiceData.customerName == ""){
+                                                invoiceData.customerName = otherData.userName != "" ? otherData.userName : "";
+                                            }
+
+                                            if(invoiceData.customerMobile == ""){
+                                                invoiceData.customerMobile = otherData.userMobile != "" ? otherData.userMobile : "";
+                                            }
+                                    
+                                            //Update on Server
+                                            $http({
+                                                method: 'PUT',
+                                                url: COMMON_IP_ADDRESS+'/accelerate_bills/'+invoiceData._id+'/',
+                                                data: JSON.stringify(invoiceData),
+                                                contentType: "application/json",
+                                                dataType: 'json',
+                                                timeout: 10000
+                                            })
+                                            .success(function(data) {
+                                                $state.go('main.app.feedbackthanks');
+                                            });
+                                    }
+
+                                }
+                                else{
+                                    $state.go('main.app.feedbackthanks');
+                                }
+                            })
+                            .error(function(data) {
+                                $state.go('main.app.feedbackthanks');
+                            });
+
+                        }
                 }
 
                 $scope.postReview();

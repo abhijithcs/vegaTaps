@@ -1,6 +1,10 @@
 <ion-view class="account-profile-view account-sub-view" cache-view="false">
   <ion-content>
 
+  <ion-refresher
+    on-refresh="doTableRefresh()">
+  </ion-refresher>
+  
   <div ng-show="!isRenderTableLoaded && !renderTableFailed">
 
     <div class="user-data-row">

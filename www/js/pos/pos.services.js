@@ -33,7 +33,7 @@ angular.module('pos.services', [])
 
     var formatted_phone = Number(mobile);
 
-    if(formatted_phone == NaN){
+    if(formatted_phone == NaN || formatted_phone == 0){
       formatted_phone = '';
     }
 
@@ -234,7 +234,6 @@ angular.module('pos.services', [])
     getDetails: function(placeId) {
       var deferred = $q.defer();
       detailsService.getDetails({placeId: placeId}, function(result) {
-        console.log(result)
         deferred.resolve(result);
       });
       return deferred.promise;
@@ -332,7 +331,6 @@ angular.module('pos.services', [])
     return checkoutMode;
   }
   this.setCheckoutMode = function(value){
-    console.log('Setting Value..'+value)
     checkoutMode = value;
   }
 
@@ -600,9 +598,7 @@ angular.module('pos.services', [])
 
 
   this.moreProduct = function(cart_index){
-
-    console.log(cart_index)
-
+    
     var cart_products = JSON.parse(window.localStorage.accelerate_cart);
       
     for(var i = 0; i < cart_products.length; i++){

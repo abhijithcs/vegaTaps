@@ -50,8 +50,20 @@
     <script src="js/pos/pos.services.js"></script>
     <script src="js/pos/pos.directives.js"></script>
 
+    <script type="text/javascript">
+        //Disable ' key --> JSON Safe
+        document.addEventListener("keydown", keyDownTextField, false);
+
+        function keyDownTextField(e) {
+          if(e.keyCode == 222) {
+            e.preventDefault();
+          }
+        }
+    </script>
+
   </head>
   <body ng-app="accelerateVegaTaps">
     <ion-nav-view></ion-nav-view>
   </body>
+
 </html>
