@@ -35,9 +35,17 @@ angular.module('reservations.services', [])
 
     return data;
   }
+})
 
 
+.service('sessionsListService', function ($http, $q){
 
+  var listOfSessions = ["Lunch", "Dinner"];
+
+  this.getList = function(){
+    return listOfSessions;
+  }
+  
 })
 
 
@@ -47,7 +55,7 @@ angular.module('reservations.services', [])
     var currentBook = "";
 
     this.setBooking = function (bookObj){
-		currentBook = bookObj;
+		  currentBook = bookObj;
     }
 
     this.getBooking = function(){

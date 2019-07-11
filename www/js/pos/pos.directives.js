@@ -291,22 +291,22 @@ angular.module('pos.directives', [])
 	};
 })
 
-.directive('tagCheckbox', function($ionicConfig) {
-  return {
-    restrict: 'E',
-		scope: {
-			title: '@',
-			model: '=ngModel'
-		},
-    replace: true,
-    transclude: true,
-    templateUrl: 'views/filters/tag-checkbox.template.html',
-    compile: function(element, attr) {
-      var checkboxWrapper = element[0].querySelector('.checkbox');
-      checkboxWrapper.classList.add('checkbox-' + $ionicConfig.form.checkbox());
-    }
-  };
-})
+// .directive('tagCheckbox', function($ionicConfig) {
+//   return {
+//     restrict: 'E',
+// 		scope: {
+// 			title: '@',
+// 			model: '=ngModel'
+// 		},
+//     replace: true,
+//     transclude: true,
+//     templateUrl: 'views/filters/tag-checkbox.template.html',
+//     compile: function(element, attr) {
+//       var checkboxWrapper = element[0].querySelector('.checkbox');
+//       checkboxWrapper.classList.add('checkbox-' + $ionicConfig.form.checkbox());
+//     }
+//   };
+// })
 
 .directive('tagRadio', function() {
   return {

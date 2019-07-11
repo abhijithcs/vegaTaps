@@ -31,8 +31,14 @@ angular.module('pos.services', [])
       count = 0;
     }
 
-    guestName = name;
-    guestMobile = mobile;
+    var formatted_phone = Number(mobile);
+
+    if(formatted_phone == NaN || formatted_phone == 0){
+      formatted_phone = '';
+    }
+
+    guestName = name.toUpperCase();
+    guestMobile = formatted_phone;
     guestCount = count;
 
     var guestObject = {
@@ -143,35 +149,44 @@ angular.module('pos.services', [])
 
 
 
-.service('userLocationService', function ($http, $q){
+.service('menuContentService', function ($http, $q){
   
   //Default Parameters
-  var latitude = "";
-  var longitude = "";
+  var menu = [];
+  var itemsList = [];
 
-  var locationText = "";
+  this.setMenu = function(menuData){
 
-  this.setCoords = function(lat, lng){
-    latitude = lat;
-    longitude = lng;
+            var items_listed = [];
+            
+            for(var n = 0; n < menuData.length; n++){
+
+                var sub_list_of_items = menuData[n].items;
+                
+                var q = 0;
+                while(sub_list_of_items[q]){
+                  sub_list_of_items[q].category = menuData[n].category;
+                  q++;
+                }
+
+                items_listed = items_listed.concat(sub_list_of_items);
+            } 
+
+            items_listed.sort(function(itemOne, itemTwo) {
+                return itemOne.name.localeCompare(itemTwo.name);
+            });  
+
+            itemsList = items_listed;
+            menu = menuData;
   }
 
-  this.getCoords = function(){
-    var data = {
-      "lat":latitude,
-      "lng":longitude
-    }
-    return data;
+  this.getMenu = function(){
+    return menu;
   }  
 
-  this.setText = function(loc){
-    locationText = loc;
+  this.getMenuItems = function(){
+    return itemsList;
   }
-
-  this.getText = function(){
-    return locationText;
-  }
-
 })
 
 .service('locationChangeRouteTrackerService', function ($http, $q){
@@ -219,7 +234,6 @@ angular.module('pos.services', [])
     getDetails: function(placeId) {
       var deferred = $q.defer();
       detailsService.getDetails({placeId: placeId}, function(result) {
-        console.log(result)
         deferred.resolve(result);
       });
       return deferred.promise;
@@ -317,7 +331,6 @@ angular.module('pos.services', [])
     return checkoutMode;
   }
   this.setCheckoutMode = function(value){
-    console.log('Setting Value..'+value)
     checkoutMode = value;
   }
 
@@ -341,16 +354,16 @@ angular.module('pos.services', [])
   };
 
   this.saveUserSelectedCard = function(card){
-    window.localStorage.zaitoonFirst_selected_card = JSON.stringify(card);
+    window.localStorage.accelerateVegaTaps_selected_card = JSON.stringify(card);
   }
   this.saveUserSelectedAddress = function(address){
-    window.localStorage.zaitoonFirst_selected_address = JSON.stringify(address);
+    window.localStorage.accelerateVegaTaps_selected_address = JSON.stringify(address);
   }
   this.getUserSelectedCard = function(){
-    return JSON.parse(window.localStorage.zaitoonFirst_selected_card || '[]');
+    return JSON.parse(window.localStorage.accelerateVegaTaps_selected_card || '[]');
   };
   this.getUserSelectedAddress = function(){
-    return JSON.parse(window.localStorage.zaitoonFirst_selected_address || '[]');
+    return JSON.parse(window.localStorage.accelerateVegaTaps_selected_address || '[]');
   };
 })
 
@@ -427,7 +440,7 @@ angular.module('pos.services', [])
 
 .service('ShoppingCartService', function ($http, $q, $rootScope){
 
-  var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@192.168.1.3:5984/';
+  var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@localhost:5984/';
 
   //Billing Modes
   this.getBillingModes = function(){
@@ -435,10 +448,14 @@ angular.module('pos.services', [])
 
     $http({
       method  : 'GET',
-      url     : COMMON_IP_ADDRESS + 'accelerate_settings/ACCELERATE_BILLING_MODES'
+      url     : COMMON_IP_ADDRESS + 'accelerate_settings/ACCELERATE_BILLING_MODES',
+      timeout : 3000
      })
-    .then(function(response) {
-      dfd.resolve(response.data.value);
+    .success(function(response) {
+      dfd.resolve(response.value);
+    })
+    .error(function(response) {
+      dfd.resolve([]);
     });
 
     return dfd.promise;
@@ -450,10 +467,14 @@ angular.module('pos.services', [])
 
     $http({
       method  : 'GET',
-      url     : COMMON_IP_ADDRESS + 'accelerate_settings/ACCELERATE_BILLING_PARAMETERS'
+      url     : COMMON_IP_ADDRESS + 'accelerate_settings/ACCELERATE_BILLING_PARAMETERS',
+      timeout : 3000
      })
-    .then(function(response) {
-      dfd.resolve(response.data.value);
+    .success(function(response) {
+      dfd.resolve(response.value);
+    })
+    .error(function(response) {
+      dfd.resolve([]);
     });
 
     return dfd.promise;
@@ -465,13 +486,18 @@ angular.module('pos.services', [])
 
     $http({
       method  : 'GET',
-      url     : COMMON_IP_ADDRESS + 'accelerate_settings/ACCELERATE_SAVED_COMMENTS'
+      url     : COMMON_IP_ADDRESS + 'accelerate_settings/ACCELERATE_SAVED_COMMENTS',
+      timeout : 3000
      })
-    .then(function(response) {
-      var my_data = response.data.value;
-      my_data.sort();
+    .success(function(response) {
+      
+      var my_data = response.value;
+      //my_data.sort();
       
       dfd.resolve(my_data);
+    })
+    .error(function(response) {
+      dfd.resolve([]);
     });
 
     return dfd.promise;
@@ -510,7 +536,9 @@ angular.module('pos.services', [])
     $rootScope.$broadcast('cart_updated', products);
   };
 
-  this.addProduct = function(productToAdd){
+  this.addProduct = function(productToAdd, priority_flag){
+
+    //If priority_flag is enabled, item will be pinned to top of the KOT
 
     var cart_products = !_.isUndefined(window.localStorage.accelerate_cart) ? JSON.parse(window.localStorage.accelerate_cart) : [];
 
@@ -526,9 +554,21 @@ angular.module('pos.services', [])
       }
     }
 
-    productToAdd.cartIndex = maxCartIndex + 1;
+      productToAdd.cartIndex = maxCartIndex + 1;
 
+      productToAdd.priorityIndex = priority_flag ? 1 : 0;
+
+      //Serve First comment if priority_flag enabled
+      if(priority_flag){
+        productToAdd.comments = productToAdd.comments ? productToAdd.comments + "- FIRST" : "FIRST";
+      }
+      
       cart_products.push(productToAdd);
+
+      cart_products.sort(function(item1, item2) {
+        return item2.priorityIndex - item1.priorityIndex; //Sorting based on Priority Index
+      });
+
       $rootScope.$broadcast('cart_updated', cart_products);
       $rootScope.$emit('cart_updated', cart_products);
 
@@ -538,6 +578,7 @@ angular.module('pos.services', [])
 
     //animateCartIcon();
   };
+
 
   this.lessProduct = function(cart_index){
 
@@ -557,9 +598,7 @@ angular.module('pos.services', [])
 
 
   this.moreProduct = function(cart_index){
-
-    console.log(cart_index)
-
+    
     var cart_products = JSON.parse(window.localStorage.accelerate_cart);
       
     for(var i = 0; i < cart_products.length; i++){

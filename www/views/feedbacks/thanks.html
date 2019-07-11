@@ -1,0 +1,54 @@
+<ion-view class="login-view auth-view" ng-class="getMainBackground()" cache-view="false">
+  <ion-content has-bouncing="false">
+    <div class="row form-row" style="padding-top: 20px">
+      <div class="col">
+        <form name="login_form" class="form-container" novalidate>
+        
+          <div class="floralContainer">
+            <div class="droplet oddPetal" id="no1"></div>
+            <div class="droplet evenPetal" id="no2"></div>
+            <div class="droplet oddPetal" id="no3"></div>
+            <div class="droplet evenPetal" id="no4"></div>
+            <div class="droplet oddPetal" id="no5"></div>
+            <div class="droplet evenPetal" id="no6"></div>
+            <div class="droplet oddPetal" id="no7"></div>
+            <div class="droplet evenPetal" id="no8"></div>
+            <div class="droplet oddPetal" id="no9"></div>
+            <div class="droplet evenPetal" id="no10"></div>
+          </div>
+
+
+          <div class="input-list list list-inset">
+            <center>
+              <h1 class="thankYouText">Thank You!</h1>
+              <p style="color: #FFF; font-size: 18px; line-height: 24px; font-weight: 400; font-family: 'Roboto', sans-serif;">{{customMessage}}</p>     
+            </center>
+          </div>
+
+
+          <tag style="position: absolute; top: 0; right: 0;">      
+            <button type="submit" class="button" style="background: none;" ng-click="new()">
+              <tag style="font-weight: 200; font-size: 18px; color: rgba(255, 255, 255, 0.5);">{{counter}}</tag>
+            </button>
+          </tag>
+
+
+        </form>
+
+
+        
+
+      </div>
+    </div>
+
+  </ion-content>
+
+  <ion-footer-bar style="background: none; height: 80px; padding: 0; border: none">
+    <div style="background: none; height: 80px; padding: 10px 0; position: absolute; width: 100%; bottom: 0;">
+      <div style="position: relative; text-align: center; opacity: 0.3;">
+        <img style="height: 60px" src="./img/common/white_logo.png">
+      </div>
+    </div>
+  </ion-footer-bar>
+
+</ion-view>

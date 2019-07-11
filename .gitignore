@@ -3,6 +3,7 @@
 
 node_modules/
 platforms/
+platform/
 plugins/
 showcase/
 UPLOAD/
@@ -14,6 +15,7 @@ DESIGN/
 _hooks/
 UI-UX_inspiration/
 build/
+resources/android/
 
 www/css/
 www/lib/
@@ -25,3 +27,5 @@ www/js/app/tracking-config.js
 
 .DS_Store
 ._DS_Store
+ionic.project
+package-lock.json

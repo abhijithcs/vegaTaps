@@ -1,0 +1,51 @@
+<ion-modal-view class="modal-view legal-view" style="background: #FFF;">
+
+  <ion-header-bar class="search-header searchBarBlue">
+    <div class="row item-input-inset search-row">
+      <div class="col" ng-class="getSearchBarClass()">
+        <label class="item-input-wrapper search-label" style="height: 70px; font-size: 28px;">
+          <i class="icon ion-ios-search placeholder-icon"></i>
+          <input type="search" id="menu_search_input" name="search_query" ng-model="search.query" style="width: 100%; font-size: 32px; font-weight: 300; height: 100%;">
+        </label>
+      </div>
+      <div class="col" ng-show="search.query != ''">
+        <button class="button button-clear cancel-button ion-refresh" style="float: right; width: 50px; font-size: 25px; color: #FFF;" ng-click="resetSearch()">
+        </button>
+      </div>
+    </div>
+  </ion-header-bar>
+
+  <ion-content>
+
+
+<!-- Search Results -->
+<div class="feed-view" ng-if="isSearching" style="padding-top: 65px">
+      <div class="posMyItem" ng-class="{'unavail': !item.isAvailable}" ng-repeat="item in itemList = (allSearchItemsList | searchField : 'item.name' | filter:search.query | limitTo:10) track by $index" ng-click="openItemDetails(item, 'SEARCHING')">
+        <div class="row">
+          <div class="col vegFlagPOS">
+            <span class="icon ion-android-radio-button-on nveg"></span>
+          </div>
+          <div class="col col-75">
+            <span class="menuPOSItemText">{{item.name}}</span>
+          </div>
+          <div class="col">
+            <span class="menuPOSItemPrice"><i class="fa fa-inr" style="font-size: 80%"></i><b>{{item.price}}</b></span>
+          </div>
+        </div>
+      </div>
+
+      <p ng-if="itemList.length == 0" style="margin: 45px 0px; text-align: center; color: rgb(193, 191, 191); font-size: 28px; font-weight: 300;">No items found.</p>
+</div>  
+
+  </ion-content>
+
+  <ion-footer-bar class="search-header" style="padding: 0; background: #FFF; height: 45px;">
+    <div style="border-radius: 0; position: absolute; bottom: 0; z-index: 1000; margin: 0; left: 0; width: 100%; border-top: 2px solid #4d606b;">
+      <button class="button button-default close-button" style="width: 100%; float: left; margin: 0; border-radius: 0; height: 45px; font-size: 16px;" ng-click="search_item_modal.hide()">Close</button>
+    </div>  
+  </ion-footer-bar>
+
+</ion-modal-view>
+
+
+

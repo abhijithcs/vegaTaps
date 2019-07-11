@@ -1,4 +1,4 @@
-angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-datepicker']) //'moment-picker'
+angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-datepicker', 'moment-picker']) //'moment-picker'
 
     .config(function(ionicTimePickerProvider) {
         var timePickerObj = {
@@ -37,8 +37,6 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
         if (_.isUndefined(window.localStorage.admin) || window.localStorage.admin == '') {
             $state.go('main.app.login');
         }
-
-
 
         //Default values
         $scope.mydata = changeSlotService.getValues();
@@ -87,21 +85,27 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
             $state.go('main.reservationsapp.upcoming');
         }
 
-        $scope.chosenTime = $scope.mydata.time;
+        $scope.chosenTime = moment($scope.mydata.time, 'h:mm a').format('HHmm');
         $scope.mytime = {};
-        $scope.mytime.time = "";
+        $scope.mytime.time = $scope.chosenTime;
 
+        $scope.formatMyTime = function(time){
+            return moment(time, "HHmm").format('hh:mm a');
+        }
 
 
         $scope.editBook = function(resObj) {
 
             var temp_data = {};
             temp_data = resObj;
-            temp_data.time = (moment($scope.mytime.time).format("HHmm"));
+            temp_data.time = (moment($scope.mytime.time, 'hhmm').format("HHmm"));
             temp_data.date = $scope.normalDate;
 
-            if (temp_data.count == "" || temp_data.count == 0) {
-                $scope.editReservationError = "Invalid Person Count";
+
+            $scope.editReservationError = "";
+
+            if (temp_data.count == "" || temp_data.count < 1) {
+                $scope.editReservationError = "Invalid Guest Count";
             } else if (temp_data.date == "" || temp_data.time == "") {
                 $scope.editReservationError = "Add Date and Time";
             } else {
@@ -114,7 +118,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                 });
                 $http({
                         method: 'POST',
-                        url: 'https://kopperkadai.online/services/editreservationsadmin.php',
+                        url: 'https://www.zaitoon.online/services/editreservationsadmin.php',
                         data: data,
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded'
@@ -146,48 +150,52 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
         //Default list of Channels
 		$scope.channels = [{ name: "Direct Call", code: "DIRECT" }, { name: "Direct Email", code: "EMAIL" }];
 		
-		$scope.refreshModesList = function(){
-                var data = {};
-                data.token = window.localStorage.admin;
-				
-                $ionicLoading.show({
-                    template: '<ion-spinner></ion-spinner><br>Refreshing List'
-                });
-				
-				
-					$http({
-                        method: 'POST',
-                        url: 'https://www.zaitoon.online/services/deskreservationchannels.php',
-                        data: data,
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded'
-                        },
-						timeout : 10000
-                    })
-                    .success(function(data) {
-						$ionicLoading.hide();
-						if(data.status){
-							window.localStorage.modeList = JSON.stringify(data.response);
-							$scope.channels = data.response;
-							$scope.selectedChannelCode = $scope.channels[1].code;
-						}
-                    });					
-		}
 		
 		if(_.isUndefined(window.localStorage.modeList) || window.localStorage.modeList == ''){
-			$scope.refreshModesList();
+			
 		}
 		else{
 			$scope.channels = JSON.parse(window.localStorage.modeList);
 		}
+
+        $scope.formatMyTime = function(time){
+            return moment(time, "HHmm").format('hh:mm a');
+        }
 		        
 
-        $scope.channel = '';
-        $scope.selectedChannelCode = $scope.channels[1].code;
+        $scope.channel = $scope.channels[0].name;
+        $scope.selectedChannelCode = $scope.channels[0].code;
 
-        $scope.setChannel = function(selectedChannel) {
-			if(selectedChannel){
-				$scope.selectedChannelCode = selectedChannel.code;
+        $scope.selectChannel = function(){
+
+                        //Render Template
+                        var i = 0;
+                        var choiceTemplate = '<div style="margin-top: 5px">';
+                        while (i < $scope.channels.length) {
+                            
+                            choiceTemplate = choiceTemplate + '<button class="button button-full" style="text-align: left; color: #c52031; margin-bottom: 8px; font-size: 18px; height: 54px; font-weight: 500; " ng-click="setChannel(\''+$scope.channels[i].code+'\', \''+$scope.channels[i].name+'\')">' + $scope.channels[i].name + ' </button>';
+                            
+                            i++;
+                        }
+                        choiceTemplate = choiceTemplate + '</div>';
+
+                        $scope.sourceSelectionPopup = $ionicPopup.show({
+                            cssClass: 'popup-tiles new-shipping-address-view',
+                            template: choiceTemplate,
+                            title: 'Select Source',
+                            scope: $scope,
+                            buttons: [{
+                                text: 'Cancel'
+                            }]
+                        });
+
+        }
+
+        $scope.setChannel = function(code, name) {
+			if(code != ''){
+				$scope.selectedChannelCode = code;
+                $scope.channel = name;
+                $scope.sourceSelectionPopup.close();
 			}
         }
 
@@ -331,7 +339,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                             duration: 2000
                         });
 						
-            } else if ($scope.walkin.count == "") {
+            } else if ($scope.walkin.count == "" || $scope.walkin.count < 1) {
                         $ionicLoading.show({
                             template: "Add Number of Guests",
                             duration: 2000
@@ -340,6 +348,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                 var data = {};
                 data.token = window.localStorage.admin;
                 data.details = $scope.walkin;
+                data.details.name = data.details.name.toUpperCase();
 
                 $ionicLoading.show({
                     template: '<ion-spinner></ion-spinner>'
@@ -373,7 +382,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
     })
 
 
-.controller('completedReservationsCtrl', function(changeSlotService, currentFilterService, $ionicSideMenuDelegate, $ionicLoading, ionicDatePicker, $scope, $interval, $ionicPopup, $state, $http, $ionicPopover, $ionicLoading, $timeout, mappingService, currentBooking) {
+.controller('completedReservationsCtrl', function(sessionsListService, changeSlotService, currentFilterService, $ionicSideMenuDelegate, $ionicLoading, ionicDatePicker, $scope, $interval, $ionicPopup, $state, $http, $ionicPopover, $ionicLoading, $timeout, mappingService, currentBooking) {
 
         if (_.isUndefined(window.localStorage.admin) || window.localStorage.admin == '') {
             $state.go('main.app.login');
@@ -504,7 +513,9 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
   //Fetch Data
 
   //Number of Sessions by Default = 0
-      $scope.numberOfSessions = 0;
+      
+      $scope.list_of_sessions = sessionsListService.getList();
+      $scope.numberOfSessions = $scope.list_of_sessions.length;
       $scope.sessionSummary = [];
 
       $scope.fetchData = function(){
@@ -516,7 +527,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
             data.token = window.localStorage.admin;
 
             if($scope.isFilterEnabled){
-                data.date = $scope.filterFrom;
+                data.key = $scope.filterFrom;
             }
 
             //LOADING 
@@ -524,7 +535,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
             $http({
               method  : 'POST',
-              url     : 'https://zaitoon.online/services/deskfetchreservations.php',
+              url     : 'https://zaitoon.online/services/tapsfetchreservations.php',
               data    : data,
               headers : {'Content-Type': 'application/x-www-form-urlencoded'},
               timeout : 10000
@@ -538,25 +549,28 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                         $scope.reservationsList_length = $scope.reservationsList.length;
 
                         $scope.sessionSummary = response.sessionSummary;
-                        $scope.numberOfSessions = $scope.sessionSummary.length;
 
                         $scope.renderInfo();
+                        
                         $scope.renderFailed = false;
+                        $scope.isRenderLoaded = true;
                 }
                 else{
                         $scope.isReservationsFound = false;
                         $scope.resultMessage = "There are no Reservations found";
+                        $scope.reservationsList = [];
                         $scope.reservationsList_length = 0;
 
                         $scope.sessionSummary = [];
-                        $scope.numberOfSessions = 0;
                         
-                        $scope.renderFailed = true;
+                        $scope.isRenderLoaded = true;
 
-                        $ionicLoading.show({
-                            template:  response.error,
-                            duration: 3000
-                        });                    
+                        if(response.error != ""){
+                            $ionicLoading.show({
+                                template:  response.error,
+                                duration: 3000
+                            });  
+                        }                  
                 }
 
                 $scope.$broadcast('scroll.refreshComplete');
@@ -624,15 +638,48 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
             currentFilterService.setSession($scope.timeFilterFlag);
         }
 
+
+
         $scope.changeTimeFilter = function() {
 
             if($scope.numberOfSessions == 0){
                 return '';
             }
 
+
+            //incase of No results (pre check)
+            if($scope.sessionSummary.length == 0){
+
+                var list = sessionsListService.getList();
+
+                if($scope.timeFilterFlag == 'All'){
+                    $scope.timeFilterFlag = list[0];
+                    window.localStorage.timeFilter = $scope.timeFilterFlag;
+                }
+                else{
+                    if($scope.timeFilterFlag == list[list.length - 1]){
+                        $scope.timeFilterFlag = 'All';
+                        window.localStorage.timeFilter = $scope.timeFilterFlag;
+                    }
+                    else{
+                        for(var i = 0; i < list.length; i++){
+                            if($scope.timeFilterFlag == list[i]){
+                                $scope.timeFilterFlag = list[i+1];
+                                window.localStorage.timeFilter = $scope.timeFilterFlag;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return '';
+            }
+
+
+
             //Showing All --> first in the session list
             if($scope.timeFilterFlag == 'All'){
-                $scope.timeFilterFlag = $scope.sessionSummary[0].sessionName;
+                $scope.timeFilterFlag = $scope.sessionSummary[$scope.list_of_sessions[0]].sessionName;
                 window.localStorage.timeFilter = $scope.timeFilterFlag;
                 currentFilterService.setSession($scope.timeFilterFlag);
                 $scope.applyFilterOnResultData();//apply new filter on display data
@@ -641,8 +688,8 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
             //Showing something in the sessions list --> next in the sessions list
             for(var i = 0; i < $scope.numberOfSessions; i++){
-                if($scope.timeFilterFlag == $scope.sessionSummary[i].sessionName && i != $scope.numberOfSessions - 1){
-                    $scope.timeFilterFlag = $scope.sessionSummary[i+1].sessionName;
+                if($scope.timeFilterFlag == $scope.sessionSummary[$scope.list_of_sessions[i]].sessionName && i != $scope.numberOfSessions - 1){
+                    $scope.timeFilterFlag = $scope.sessionSummary[$scope.list_of_sessions[i+1]].sessionName;
                     break;
                 }
             }
@@ -667,14 +714,20 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                 return -1;
             }
 
+
+            //incase of No results (pre check)
+            if($scope.sessionSummary.length == 0){
+                return 0;
+            }
+
             if($scope.timeFilterFlag == 'All'){ //Show all
 
                 var activeCountSum = 0;
                 var doneCountSum = 0;
 
                 for(var i = 0; i < $scope.numberOfSessions; i++){
-                    activeCountSum += $scope.sessionSummary[i].activeCount;
-                    doneCountSum += $scope.sessionSummary[i].doneCount;
+                    activeCountSum += $scope.sessionSummary[$scope.list_of_sessions[i]].activeCount;
+                    doneCountSum += $scope.sessionSummary[$scope.list_of_sessions[i]].doneCount;
                 }
 
                 if(activeCountSum == 0 && doneCountSum == 0){
@@ -690,9 +743,9 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                 var doneSessionCountSum = 0;
 
                 for(var i = 0; i < $scope.numberOfSessions; i++){
-                    if($scope.timeFilterFlag == $scope.sessionSummary[i].sessionName){
-                        activeSessionCountSum = $scope.sessionSummary[i].activeCount;
-                        doneSessionCountSum = $scope.sessionSummary[i].doneCount;
+                    if($scope.timeFilterFlag == $scope.sessionSummary[$scope.list_of_sessions[i]].sessionName){
+                        activeSessionCountSum = $scope.sessionSummary[$scope.list_of_sessions[i]].activeCount;
+                        doneSessionCountSum = $scope.sessionSummary[$scope.list_of_sessions[i]].doneCount;
                         break;
                     }
                 }
@@ -709,6 +762,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
             return -1;
         }
 
+
         $scope.quickSummary = function() {
 
             var myTemplate = '';
@@ -721,16 +775,16 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
             for(var i = 0; i < $scope.numberOfSessions; i++){
 
-                myTemplate = myTemplate + '<div class="row" style="color: #34495e; font-weight: bold; text-transform: uppercase; font-size: 12px"><div class="col" style="text-align: center; border-bottom: 1px solid #3c5064;">'+$scope.sessionSummary[i].sessionName+' Session</div></div>';
+                myTemplate = myTemplate + '<div class="row" style="color: #34495e; font-weight: bold; text-transform: uppercase; font-size: 12px"><div class="col" style="text-align: center; border-bottom: 1px solid #3c5064;">'+$scope.sessionSummary[$scope.list_of_sessions[i]].sessionName+' Session</div></div>';
 
-                myTemplate = myTemplate + '<div class="row" style="color: #34495e; font-weight: 300; text-transform: uppercase; font-size: 10px"><div class="col col-50">Status</div><div class="col col-25" style="text-align: center">Count</div><div class="col col-25" style="text-align: center">PAX</div></div>';
+                myTemplate = myTemplate + '<div class="row" style="color: #34495e; font-weight: 300; text-transform: uppercase; font-size: 10px"><div class="col col-50">Status</div><div class="col col-25" style="text-align: center">Groups</div><div class="col col-25" style="text-align: center">PAX</div></div>';
 
-                myTemplate = myTemplate + '<div class="row" style="color: #34495e;"><div class="col col-50">Pending</div><div class="col col-25" style="text-align: center">' + $scope.sessionSummary[i].activeCount + '</div><div class="col col-25" style="text-align: center">' + $scope.sessionSummary[i].activePAX + '</div></div>'; // <--- Lunch Pending
+                myTemplate = myTemplate + '<div class="row" style="color: #34495e;"><div class="col col-50">Pending</div><div class="col col-25" style="text-align: center">' + $scope.sessionSummary[$scope.list_of_sessions[i]].activeCount + '</div><div class="col col-25" style="text-align: center">' + $scope.sessionSummary[$scope.list_of_sessions[i]].activePAX + '</div></div>'; // <--- Lunch Pending
 
-                myTemplate = myTemplate + '<div class="row" style="color: #34495e;"><div class="col col-50">Completed</div><div class="col col-25" style="text-align: center">' + $scope.sessionSummary[i].doneCount + '</div><div class="col col-25" style="text-align: center">' + $scope.sessionSummary[i].donePAX + '</div></div>'; // <--- Lunch Done
+                myTemplate = myTemplate + '<div class="row" style="color: #34495e;"><div class="col col-50">Completed</div><div class="col col-25" style="text-align: center">' + $scope.sessionSummary[$scope.list_of_sessions[i]].doneCount + '</div><div class="col col-25" style="text-align: center">' + $scope.sessionSummary[$scope.list_of_sessions[i]].donePAX + '</div></div>'; // <--- Lunch Done
 
-                doneCount += $scope.sessionSummary[i].doneCount;
-                donePAX += $scope.sessionSummary[i].donePAX;
+                doneCount += $scope.sessionSummary[$scope.list_of_sessions[i]].doneCount;
+                donePAX += $scope.sessionSummary[$scope.list_of_sessions[i]].donePAX;
 
             }
 
@@ -738,13 +792,14 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
             /* All */
             myTemplate = myTemplate + '<div class="row" style="color: #34495e; font-weight: bold; text-transform: uppercase; font-size: 12px"><div class="col" style="text-align: center; border-bottom: 1px solid #3c5064;">All Sessions</div></div>';
 
-            myTemplate = myTemplate + '<div class="row" style="color: #34495e; font-weight: 300; text-transform: uppercase; font-size: 10px"><div class="col col-50">Status</div><div class="col col-25" style="text-align: center">Count</div><div class="col col-25" style="text-align: center">PAX</div></div>';
+            myTemplate = myTemplate + '<div class="row" style="color: #34495e; font-weight: 300; text-transform: uppercase; font-size: 10px"><div class="col col-50">Status</div><div class="col col-25" style="text-align: center">Groups</div><div class="col col-25" style="text-align: center">PAX</div></div>';
 
             myTemplate = myTemplate + '<div class="row" style="color: #34495e;"><div class="col col-50">Completed</div><div class="col col-25" style="text-align: center">' + doneCount + '</div><div class="col col-25" style="text-align: center">' + donePAX + '</div></div>'; // <--- All Done
 
 
             $ionicPopup.alert({
-                title: 'Quick Summary',
+                title: '',
+                cssClass: 'popup-clear confirm-alert-alternate',
                 template: myTemplate,
                 buttons: [{
                     text: '<b>OK</b>',
@@ -761,11 +816,11 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
             if (reservation.statusCode == 0) {
                 myPopup = $ionicPopup.show({
-                    title: 'Options',
-                    template: '<button class="button icon-left ion-android-checkbox-outline button-balanced button-block" ng-click="initAssignTable(\''+encodeURI(JSON.stringify(reservation))+'\')">Allot Seat</button>' +
-                        '<button class="button icon-left ion-edit button-outline button-positive button-block" ng-click="initModifyReservation()">Edit Reservation</button>'+
-                        '<button class="button icon-left ion-android-cancel button-outline button-assertive button-block" ng-click="initCancelReservation()">Cancel Reservation</button>' +
-                        '<button class="button icon-left ion-trash-a button-outline button-assertive button-block" ng-click="initDeleteReservation()">Mark Spam and Delete</button>',
+                    cssClass: 'popup-actions tile-actions-view tile-actions-view-list',
+                    template: '<button class="button icon-left ion-android-checkbox-outline button-block noBorderListButton shadeGreenDarkgreen" ng-click="initAssignTable(\''+encodeURI(JSON.stringify(reservation))+'\')">Allot Seat</button>' +
+                        '<button class="button icon-left ion-edit button-block noBorderListButton shadeBlueViolet" ng-click="initModifyReservation()">Edit Reservation</button>'+
+                        '<button class="button icon-left ion-android-cancel button-block noBorderListButton shadeRedPink" ng-click="initCancelReservation()">Cancel Reservation</button>' +
+                        '<button class="button icon-left ion-trash-a button-block noBorderListButton shadeRedPink" ng-click="initDeleteReservation()">Mark Spam and Delete</button>',
                     scope: $scope,
                     buttons: [{
                         text: 'Close'
@@ -774,9 +829,9 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
             } else if (reservation.statusCode == 1) {
                 myPopup = $ionicPopup.show({
-                        title: 'Options',
-                        template: '<button class="button icon-left ion-android-done button-outline button-balanced button-block" ng-click="initCompleteReservation()">Mark as Completed</button>' +
-                            '<button class="button icon-left ion-android-cancel button-outline button-assertive button-block" ng-click="initCancelReservation()">Mark as Cancelled</button>',
+                        cssClass: 'popup-actions tile-actions-view tile-actions-view-list',
+                        template: '<button class="button icon-left ion-android-done button-block noBorderListButton shadeGreenDarkgreen" ng-click="initCompleteReservation()">Mark as Completed</button>' +
+                            '<button class="button icon-left ion-android-cancel button-block noBorderListButton shadeRedPink" ng-click="initCancelReservation()">Mark as Cancelled</button>',
                         scope: $scope,
                         buttons: [{
                             text: 'Close'
@@ -785,8 +840,8 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                 
             } else if (reservation.statusCode == 2) {
                 myPopup = $ionicPopup.show({
-                        title: 'Options',
-                        template: '<button class="button icon-left ion-android-cancel button-outline button-assertive button-block" ng-click="initCancelReservation()">Mark as Cancelled</button>',
+                        cssClass: 'popup-actions tile-actions-view tile-actions-view-list',
+                        template: '<button class="button icon-left ion-android-cancel button-block noBorderListButton shadeRedPink" ng-click="initCancelReservation()">Mark as Cancelled</button>',
                         scope: $scope,
                         buttons: [{
                             text: 'Close'
@@ -795,9 +850,9 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                 
             } else if (reservation.statusCode == 4) {
                 myPopup = $ionicPopup.show({
-                        title: 'Options',
-                        template: '<button class="button icon-left ion-android-done button-outline button-balanced button-block" ng-click="initCompleteReservation()">Mark as Completed</button>' +
-                            '<button class="button icon-left ion-android-cancel button-outline button-assertive button-block" ng-click="initCancelReservation()">Mark as Cancelled</button>',
+                        cssClass: 'popup-actions tile-actions-view tile-actions-view-list',
+                        template: '<button class="button icon-left ion-android-done button-block noBorderListButton shadeGreenDarkgreen" ng-click="initCompleteReservation()">Mark as Completed</button>' +
+                            '<button class="button icon-left ion-android-cancel button-block noBorderListButton shadeRedPink" ng-click="initCancelReservation()">Mark as Cancelled</button>',
                         scope: $scope,
                         buttons: [{
                             text: 'Close'
@@ -863,7 +918,8 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
             $ionicPopup.alert({
                 title: 'Comments',
-                template: '<p style="margin: 0; text-align: center; font-size: 16px; font-weight: 400; color: #2980b9;">' + reservation.comments + '</p>',
+                cssClass: 'popup-clear confirm-alert-alternate',
+                template: '<p style="margin: 0; text-align: left; font-size: 16px; color: #2980b9; padding: 0 8px 10px 8px; font-weight: bold; font-style: italic;">' + reservation.comments + '</p>',
                 buttons: [{
                     text: '<b>OK</b>',
                     type: 'button-stable button-outline'
@@ -932,15 +988,6 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
         }
 
 
-        $scope.Timer = $interval(function() {
-            $scope.fetchData();
-        }, 60000);
-        
-        $scope.$on('$destroy', function () {$interval.cancel($scope.Timer);});
-
-
-
-
         $scope.newBook = function() {
             $state.go('main.app.walkin');
         }
@@ -953,7 +1000,8 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
         $scope.completeReservation = function(reservation) {
 
             $ionicPopup.show({
-                title: 'The tables allocated to <strong style="color: #e74c3c">' + reservation.user + '</strong> will automatically get released when you mark it \'Completed\'. Do you really want to mark this reservation as \'Completed\'?',
+                title: 'Do you really want to mark this reservation as \'Completed\'?',
+                cssClass: 'popup-clear confirm-alert-alternate',
                 scope: $scope,
                 buttons: [{
                         text: 'No'
@@ -981,17 +1029,17 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                                     $ionicLoading.hide();
                                     if (response.status) {
                                         $ionicLoading.show({
-                                            template: 'Marked Completed and tables released',
+                                            template: 'Reservation marked as Completed',
                                             duration: 2000
                                         });
+
+                                        $scope.fetchData();
                                     } else {
                                         $ionicLoading.show({
                                             template: 'Error : ' + response.error,
                                             duration: 2000
                                         });
                                     }
-
-                                    $scope.initReservations();
                                 })
                                 .error(function(data) {
                                     $ionicLoading.hide();
@@ -1010,6 +1058,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
         $scope.cancelReservation = function(reservation) {
 
             $ionicPopup.show({
+                cssClass: 'popup-clear confirm-alert-alternate',
                 title: 'Do you really want to Cancel this reservation by ' + reservation.user + '?',
                 scope: $scope,
                 buttons: [{
@@ -1041,14 +1090,14 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                                             template: 'Reservation Cancelled',
                                             duration: 2000
                                         });
+
+                                        $scope.fetchData();
                                     } else {
                                         $ionicLoading.show({
                                             template: 'Error : ' + response.error,
                                             duration: 2000
                                         });
                                     }
-
-                                    $scope.initReservations();
                                 })
                                 .error(function(data) {
                                     $ionicLoading.hide();
@@ -1066,7 +1115,8 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
         $scope.deleteReservation = function(reservation) {
 
             $ionicPopup.show({
-                title: 'Deleting a Reservation will delete it for ever. It can not be undone. Do you really want to delete this reservation by ' + reservation.user + '?',
+                cssClass: 'popup-clear confirm-alert-alternate',
+                title: 'Deleting a Reservation will remove it for ever. It can not be undone. Do you really want to delete this reservation by ' + reservation.user + '?',
                 scope: $scope,
                 buttons: [{
                         text: 'Cancel',
@@ -1101,14 +1151,14 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                                             template: 'Reservation Deleted',
                                             duration: 2000
                                         });
+
+                                        $scope.fetchData();
                                     } else {
                                         $ionicLoading.show({
                                             template: 'Error : ' + response.error,
                                             duration: 2000
                                         });
                                     }
-
-                                    $scope.initReservations();
                                 })
                                 .error(function(data) {
                                     $ionicLoading.hide();
@@ -1131,7 +1181,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
     })
 
  
-.controller('seatedReservationsCtrl', function(changeSlotService, currentFilterService, $ionicSideMenuDelegate, $ionicLoading, ionicDatePicker, $scope, $interval, $ionicPopup, $state, $http, $ionicPopover, $ionicLoading, $timeout, mappingService, currentBooking) {
+.controller('seatedReservationsCtrl', function(sessionsListService, changeSlotService, currentFilterService, $ionicSideMenuDelegate, $ionicLoading, ionicDatePicker, $scope, $interval, $ionicPopup, $state, $http, $ionicPopover, $ionicLoading, $timeout, mappingService, currentBooking) {
 
         if (_.isUndefined(window.localStorage.admin) || window.localStorage.admin == '') {
             $state.go('main.app.login');
@@ -1262,7 +1312,8 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
     //Fetch Data
 
     //Number of Sessions by Default = 0
-      $scope.numberOfSessions = 0;
+      $scope.list_of_sessions = sessionsListService.getList();
+      $scope.numberOfSessions = $scope.list_of_sessions.length;
       $scope.sessionSummary = [];
 
       $scope.fetchData = function(){
@@ -1274,7 +1325,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
             data.token = window.localStorage.admin;
 
             if($scope.isFilterEnabled){
-                data.date = $scope.filterFrom;
+                data.key = $scope.filterFrom;
             }
 
             //LOADING 
@@ -1282,7 +1333,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
             $http({
               method  : 'POST',
-              url     : 'https://zaitoon.online/services/deskfetchreservations.php',
+              url     : 'https://zaitoon.online/services/tapsfetchreservations.php',
               data    : data,
               headers : {'Content-Type': 'application/x-www-form-urlencoded'},
               timeout : 10000
@@ -1296,25 +1347,27 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                         $scope.reservationsList_length = $scope.reservationsList.length;
 
                         $scope.sessionSummary = response.sessionSummary;
-                        $scope.numberOfSessions = $scope.sessionSummary.length;
 
                         $scope.renderInfo();
                         $scope.renderFailed = false;
+                        $scope.isRenderLoaded = true;
                 }
                 else{
                         $scope.isReservationsFound = false;
                         $scope.resultMessage = "There are no Reservations found";
+                        $scope.reservationsList = [];
                         $scope.reservationsList_length = 0;
 
                         $scope.sessionSummary = [];
-                        $scope.numberOfSessions = 0;
                         
-                        $scope.renderFailed = true;
+                        $scope.isRenderLoaded = true;    
 
-                        $ionicLoading.show({
-                            template:  response.error,
-                            duration: 3000
-                        });                    
+                        if(response.error != ""){
+                            $ionicLoading.show({
+                                template:  response.error,
+                                duration: 3000
+                            });  
+                        }     
                 }
 
                 $scope.$broadcast('scroll.refreshComplete');
@@ -1370,7 +1423,6 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
             n++;
         }
-
       }
 
 
@@ -1388,9 +1440,40 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                 return '';
             }
 
+
+            //incase of No results (pre check)
+            if($scope.sessionSummary.length == 0){
+
+                var list = sessionsListService.getList();
+
+                if($scope.timeFilterFlag == 'All'){
+                    $scope.timeFilterFlag = list[0];
+                    window.localStorage.timeFilter = $scope.timeFilterFlag;
+                }
+                else{
+                    if($scope.timeFilterFlag == list[list.length - 1]){
+                        $scope.timeFilterFlag = 'All';
+                        window.localStorage.timeFilter = $scope.timeFilterFlag;
+                    }
+                    else{
+                        for(var i = 0; i < list.length; i++){
+                            if($scope.timeFilterFlag == list[i]){
+                                $scope.timeFilterFlag = list[i+1];
+                                window.localStorage.timeFilter = $scope.timeFilterFlag;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return '';
+            }
+
+
+
             //Showing All --> first in the session list
             if($scope.timeFilterFlag == 'All'){
-                $scope.timeFilterFlag = $scope.sessionSummary[0].sessionName;
+                $scope.timeFilterFlag = $scope.sessionSummary[$scope.list_of_sessions[0]].sessionName;
                 window.localStorage.timeFilter = $scope.timeFilterFlag;
                 currentFilterService.setSession($scope.timeFilterFlag);
                 $scope.applyFilterOnResultData();//apply new filter on display data
@@ -1399,8 +1482,8 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
             //Showing something in the sessions list --> next in the sessions list
             for(var i = 0; i < $scope.numberOfSessions; i++){
-                if($scope.timeFilterFlag == $scope.sessionSummary[i].sessionName && i != $scope.numberOfSessions - 1){
-                    $scope.timeFilterFlag = $scope.sessionSummary[i+1].sessionName;
+                if($scope.timeFilterFlag == $scope.sessionSummary[$scope.list_of_sessions[i]].sessionName && i != $scope.numberOfSessions - 1){
+                    $scope.timeFilterFlag = $scope.sessionSummary[$scope.list_of_sessions[i+1]].sessionName;
                     break;
                 }
             }
@@ -1425,14 +1508,20 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                 return -1;
             }
 
+
+            //incase of No results (pre check)
+            if($scope.sessionSummary.length == 0){
+                return 0;
+            }
+
             if($scope.timeFilterFlag == 'All'){ //Show all
 
                 var activeCountSum = 0;
                 var doneCountSum = 0;
 
                 for(var i = 0; i < $scope.numberOfSessions; i++){
-                    activeCountSum += $scope.sessionSummary[i].activeCount;
-                    doneCountSum += $scope.sessionSummary[i].doneCount;
+                    activeCountSum += $scope.sessionSummary[$scope.list_of_sessions[i]].activeCount;
+                    doneCountSum += $scope.sessionSummary[$scope.list_of_sessions[i]].doneCount;
                 }
 
                 if(activeCountSum == 0 && doneCountSum == 0){
@@ -1448,9 +1537,9 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                 var doneSessionCountSum = 0;
 
                 for(var i = 0; i < $scope.numberOfSessions; i++){
-                    if($scope.timeFilterFlag == $scope.sessionSummary[i].sessionName){
-                        activeSessionCountSum = $scope.sessionSummary[i].activeCount;
-                        doneSessionCountSum = $scope.sessionSummary[i].doneCount;
+                    if($scope.timeFilterFlag == $scope.sessionSummary[$scope.list_of_sessions[i]].sessionName){
+                        activeSessionCountSum = $scope.sessionSummary[$scope.list_of_sessions[i]].activeCount;
+                        doneSessionCountSum = $scope.sessionSummary[$scope.list_of_sessions[i]].doneCount;
                         break;
                     }
                 }
@@ -1479,16 +1568,16 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
             for(var i = 0; i < $scope.numberOfSessions; i++){
 
-                myTemplate = myTemplate + '<div class="row" style="color: #34495e; font-weight: bold; text-transform: uppercase; font-size: 12px"><div class="col" style="text-align: center; border-bottom: 1px solid #3c5064;">'+$scope.sessionSummary[i].sessionName+' Session</div></div>';
+                myTemplate = myTemplate + '<div class="row" style="color: #34495e; font-weight: bold; text-transform: uppercase; font-size: 12px"><div class="col" style="text-align: center; border-bottom: 1px solid #3c5064;">'+$scope.sessionSummary[$scope.list_of_sessions[i]].sessionName+' Session</div></div>';
 
-                myTemplate = myTemplate + '<div class="row" style="color: #34495e; font-weight: 300; text-transform: uppercase; font-size: 10px"><div class="col col-50">Status</div><div class="col col-25" style="text-align: center">Count</div><div class="col col-25" style="text-align: center">PAX</div></div>';
+                myTemplate = myTemplate + '<div class="row" style="color: #34495e; font-weight: 300; text-transform: uppercase; font-size: 10px"><div class="col col-50">Status</div><div class="col col-25" style="text-align: center">Groups</div><div class="col col-25" style="text-align: center">PAX</div></div>';
 
-                myTemplate = myTemplate + '<div class="row" style="color: #34495e;"><div class="col col-50">Pending</div><div class="col col-25" style="text-align: center">' + $scope.sessionSummary[i].activeCount + '</div><div class="col col-25" style="text-align: center">' + $scope.sessionSummary[i].activePAX + '</div></div>'; // <--- Lunch Pending
+                myTemplate = myTemplate + '<div class="row" style="color: #34495e;"><div class="col col-50">Pending</div><div class="col col-25" style="text-align: center">' + $scope.sessionSummary[$scope.list_of_sessions[i]].activeCount + '</div><div class="col col-25" style="text-align: center">' + $scope.sessionSummary[$scope.list_of_sessions[i]].activePAX + '</div></div>'; // <--- Lunch Pending
 
-                myTemplate = myTemplate + '<div class="row" style="color: #34495e;"><div class="col col-50">Completed</div><div class="col col-25" style="text-align: center">' + $scope.sessionSummary[i].doneCount + '</div><div class="col col-25" style="text-align: center">' + $scope.sessionSummary[i].donePAX + '</div></div>'; // <--- Lunch Done
+                myTemplate = myTemplate + '<div class="row" style="color: #34495e;"><div class="col col-50">Completed</div><div class="col col-25" style="text-align: center">' + $scope.sessionSummary[$scope.list_of_sessions[i]].doneCount + '</div><div class="col col-25" style="text-align: center">' + $scope.sessionSummary[$scope.list_of_sessions[i]].donePAX + '</div></div>'; // <--- Lunch Done
 
-                doneCount += $scope.sessionSummary[i].doneCount;
-                donePAX += $scope.sessionSummary[i].donePAX;
+                doneCount += $scope.sessionSummary[$scope.list_of_sessions[i]].doneCount;
+                donePAX += $scope.sessionSummary[$scope.list_of_sessions[i]].donePAX;
 
             }
 
@@ -1496,13 +1585,14 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
             /* All */
             myTemplate = myTemplate + '<div class="row" style="color: #34495e; font-weight: bold; text-transform: uppercase; font-size: 12px"><div class="col" style="text-align: center; border-bottom: 1px solid #3c5064;">All Sessions</div></div>';
 
-            myTemplate = myTemplate + '<div class="row" style="color: #34495e; font-weight: 300; text-transform: uppercase; font-size: 10px"><div class="col col-50">Status</div><div class="col col-25" style="text-align: center">Count</div><div class="col col-25" style="text-align: center">PAX</div></div>';
+            myTemplate = myTemplate + '<div class="row" style="color: #34495e; font-weight: 300; text-transform: uppercase; font-size: 10px"><div class="col col-50">Status</div><div class="col col-25" style="text-align: center">Groups</div><div class="col col-25" style="text-align: center">PAX</div></div>';
 
             myTemplate = myTemplate + '<div class="row" style="color: #34495e;"><div class="col col-50">Completed</div><div class="col col-25" style="text-align: center">' + doneCount + '</div><div class="col col-25" style="text-align: center">' + donePAX + '</div></div>'; // <--- All Done
 
 
             $ionicPopup.alert({
-                title: 'Quick Summary',
+                title: '',
+                cssClass: 'popup-clear confirm-alert-alternate',
                 template: myTemplate,
                 buttons: [{
                     text: '<b>OK</b>',
@@ -1519,11 +1609,11 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
             if (reservation.statusCode == 0) {
                 myPopup = $ionicPopup.show({
-                    title: 'Options',
-                    template: '<button class="button icon-left ion-android-checkbox-outline button-balanced button-block" ng-click="initAssignTable(\''+encodeURI(JSON.stringify(reservation))+'\')">Allot Seat</button>' +
-                        '<button class="button icon-left ion-edit button-outline button-positive button-block" ng-click="initModifyReservation()">Edit Reservation</button>'+
-                        '<button class="button icon-left ion-android-cancel button-outline button-assertive button-block" ng-click="initCancelReservation()">Cancel Reservation</button>' +
-                        '<button class="button icon-left ion-trash-a button-outline button-assertive button-block" ng-click="initDeleteReservation()">Mark Spam and Delete</button>',
+                    cssClass: 'popup-actions tile-actions-view tile-actions-view-list',
+                    template: '<button class="button icon-left ion-android-checkbox-outline noBorderListButton shadeGreenDarkgreen" ng-click="initAssignTable(\''+encodeURI(JSON.stringify(reservation))+'\')">Allot Seat</button>' +
+                        '<button class="button icon-left ion-edit button-block noBorderListButton shadeBlueViolet" ng-click="initModifyReservation()">Edit Reservation</button>'+
+                        '<button class="button icon-left ion-android-cancel button-block noBorderListButton shadeRedPink" ng-click="initCancelReservation()">Cancel Reservation</button>' +
+                        '<button class="button icon-left ion-trash-a button-block noBorderListButton shadeRedPink" ng-click="initDeleteReservation()">Mark Spam and Delete</button>',
                     scope: $scope,
                     buttons: [{
                         text: 'Close'
@@ -1532,9 +1622,9 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
             } else if (reservation.statusCode == 1) {
                 myPopup = $ionicPopup.show({
-                        title: 'Options',
-                        template: '<button class="button icon-left ion-android-done button-outline button-balanced button-block" ng-click="initCompleteReservation()">Mark as Completed</button>' +
-                            '<button class="button icon-left ion-android-cancel button-outline button-assertive button-block" ng-click="initCancelReservation()">Mark as Cancelled</button>',
+                        cssClass: 'popup-actions tile-actions-view tile-actions-view-list',
+                        template: '<button class="button icon-left ion-android-done button-block noBorderListButton shadeGreenDarkgreen" ng-click="initCompleteReservation()">Mark as Completed</button>' +
+                            '<button class="button icon-left ion-android-cancel button-block noBorderListButton shadeRedPink" ng-click="initCancelReservation()">Mark as Cancelled</button>',
                         scope: $scope,
                         buttons: [{
                             text: 'Close'
@@ -1543,8 +1633,8 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                 
             } else if (reservation.statusCode == 2) {
                 myPopup = $ionicPopup.show({
-                        title: 'Options',
-                        template: '<button class="button icon-left ion-android-cancel button-outline button-assertive button-block" ng-click="initCancelReservation()">Mark as Cancelled</button>',
+                        cssClass: 'popup-actions tile-actions-view tile-actions-view-list',
+                        template: '<button class="button icon-left ion-android-cancel button-block noBorderListButton shadeRedPink" ng-click="initCancelReservation()">Mark as Cancelled</button>',
                         scope: $scope,
                         buttons: [{
                             text: 'Close'
@@ -1553,9 +1643,9 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                 
             } else if (reservation.statusCode == 4) {
                 myPopup = $ionicPopup.show({
-                        title: 'Options',
-                        template: '<button class="button icon-left ion-android-done button-outline button-balanced button-block" ng-click="initCompleteReservation()">Mark as Completed</button>' +
-                            '<button class="button icon-left ion-android-cancel button-outline button-assertive button-block" ng-click="initCancelReservation()">Mark as Cancelled</button>',
+                        cssClass: 'popup-actions tile-actions-view tile-actions-view-list',
+                        template: '<button class="button icon-left ion-android-done button-block noBorderListButton shadeGreenDarkgreen" ng-click="initCompleteReservation()">Mark as Completed</button>' +
+                            '<button class="button icon-left ion-android-cancel button-block noBorderListButton shadeRedPink" ng-click="initCancelReservation()">Mark as Cancelled</button>',
                         scope: $scope,
                         buttons: [{
                             text: 'Close'
@@ -1622,7 +1712,8 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
             $ionicPopup.alert({
                 title: 'Comments',
-                template: '<p style="margin: 0; text-align: center; font-size: 16px; font-weight: 400; color: #2980b9;">' + reservation.comments + '</p>',
+                cssClass: 'popup-clear confirm-alert-alternate',
+                template: '<p style="margin: 0; text-align: left; font-size: 16px; color: #2980b9; padding: 0 8px 10px 8px; font-weight: bold; font-style: italic;">' + reservation.comments + '</p>',
                 buttons: [{
                     text: '<b>OK</b>',
                     type: 'button-stable button-outline'
@@ -1655,15 +1746,6 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
         }
 
 
-        $scope.Timer = $interval(function() {
-            $scope.fetchData();
-        }, 60000);
-        
-        $scope.$on('$destroy', function () {$interval.cancel($scope.Timer);});
-
-
-
-
         $scope.newBook = function() {
             $state.go('main.app.walkin');
         }
@@ -1676,7 +1758,8 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
         $scope.completeReservation = function(reservation) {
 
             $ionicPopup.show({
-                title: 'The tables allocated to <strong style="color: #e74c3c">' + reservation.user + '</strong> will automatically get released when you mark it \'Completed\'. Do you really want to mark this reservation as \'Completed\'?',
+                title: 'Do you really want to mark this reservation as \'Completed\'?',
+                cssClass: 'popup-clear confirm-alert-alternate',
                 scope: $scope,
                 buttons: [{
                         text: 'No'
@@ -1704,17 +1787,17 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                                     $ionicLoading.hide();
                                     if (response.status) {
                                         $ionicLoading.show({
-                                            template: 'Marked Completed and tables released',
+                                            template: 'Reservation marked as Completed',
                                             duration: 2000
                                         });
+
+                                        $scope.fetchData();
                                     } else {
                                         $ionicLoading.show({
                                             template: 'Error : ' + response.error,
                                             duration: 2000
                                         });
                                     }
-
-                                    $scope.initReservations();
                                 })
                                 .error(function(data) {
                                     $ionicLoading.hide();
@@ -1733,6 +1816,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
         $scope.cancelReservation = function(reservation) {
 
             $ionicPopup.show({
+                cssClass: 'popup-clear confirm-alert-alternate',
                 title: 'Do you really want to Cancel this reservation by ' + reservation.user + '?',
                 scope: $scope,
                 buttons: [{
@@ -1764,14 +1848,14 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                                             template: 'Reservation Cancelled',
                                             duration: 2000
                                         });
+
+                                        $scope.fetchData();
                                     } else {
                                         $ionicLoading.show({
                                             template: 'Error : ' + response.error,
                                             duration: 2000
                                         });
                                     }
-
-                                    $scope.initReservations();
                                 })
                                 .error(function(data) {
                                     $ionicLoading.hide();
@@ -1789,7 +1873,8 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
         $scope.deleteReservation = function(reservation) {
 
             $ionicPopup.show({
-                title: 'Deleting a Reservation will delete it for ever. It can not be undone. Do you really want to delete this reservation by ' + reservation.user + '?',
+                cssClass: 'popup-clear confirm-alert-alternate',
+                title: 'Deleting a Reservation will remove it for ever. It can not be undone. Do you really want to delete this reservation by ' + reservation.user + '?',
                 scope: $scope,
                 buttons: [{
                         text: 'Cancel',
@@ -1824,14 +1909,14 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                                             template: 'Reservation Deleted',
                                             duration: 2000
                                         });
+
+                                        $scope.fetchData();
                                     } else {
                                         $ionicLoading.show({
                                             template: 'Error : ' + response.error,
                                             duration: 2000
                                         });
                                     }
-
-                                    $scope.initReservations();
                                 })
                                 .error(function(data) {
                                     $ionicLoading.hide();
@@ -1853,7 +1938,9 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
     })
 
-.controller('upcomingReservationsCtrl', function(changeSlotService, currentFilterService, $ionicSideMenuDelegate, $ionicLoading, ionicDatePicker, $scope, $interval, $ionicPopup, $state, $http, $ionicPopover, $ionicLoading, $timeout, mappingService, currentBooking) {
+.controller('upcomingReservationsCtrl', function(sessionsListService, changeSlotService, currentFilterService, $ionicSideMenuDelegate, $ionicLoading, ionicDatePicker, $scope, $interval, $ionicPopup, $state, $http, $ionicPopover, $ionicLoading, $timeout, mappingService, currentBooking) {
+
+
 
         if (_.isUndefined(window.localStorage.admin) || window.localStorage.admin == '') {
             $state.go('main.app.login');
@@ -1968,7 +2055,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
             disabledDates: [ //Optional
             ],
             //from: new Date(), //Optional
-            to: new Date(), //Optional
+            //to: new Date(), //Optional
             inputDate: new Date(), //Optional
             mondayFirst: true, //Optional
             disableWeekdays: [], //Optional
@@ -1984,7 +2071,8 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
     //Fetch Data
 
     //Number of Sessions by Default = 0
-      $scope.numberOfSessions = 0;
+      $scope.list_of_sessions = sessionsListService.getList();
+      $scope.numberOfSessions = $scope.list_of_sessions.length;
       $scope.sessionSummary = [];
 
       $scope.fetchData = function(){
@@ -1996,7 +2084,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
             data.token = window.localStorage.admin;
 
             if($scope.isFilterEnabled){
-                data.date = $scope.filterFrom;
+                data.key = $scope.filterFrom;
             }
 
             //LOADING 
@@ -2004,39 +2092,42 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
             $http({
               method  : 'POST',
-              url     : 'https://zaitoon.online/services/deskfetchreservations.php',
+              url     : 'https://zaitoon.online/services/tapsfetchreservations.php',
               data    : data,
               headers : {'Content-Type': 'application/x-www-form-urlencoded'},
               timeout : 10000
              })
              .success(function(response) {
+              
                 $ionicLoading.hide();
                 if(response.status){
                         $scope.isReservationsFound = true;
                         $scope.reservationsList = response.response;
-
                         $scope.reservationsList_length = $scope.reservationsList.length;
 
                         $scope.sessionSummary = response.sessionSummary;
-                        $scope.numberOfSessions = $scope.sessionSummary.length;
 
                         $scope.renderInfo();
+                        
                         $scope.renderFailed = false;
+                        $scope.isRenderLoaded = true;
                 }
                 else{
                         $scope.isReservationsFound = false;
                         $scope.resultMessage = "There are no Reservations found";
+                        $scope.reservationsList = [];
                         $scope.reservationsList_length = 0;
 
                         $scope.sessionSummary = [];
-                        $scope.numberOfSessions = 0;
                         
-                        $scope.renderFailed = true;
+                        $scope.isRenderLoaded = true;
 
-                        $ionicLoading.show({
-                            template:  response.error,
-                            duration: 3000
-                        });                    
+                        if(response.error != ""){
+                            $ionicLoading.show({
+                                template:  response.error,
+                                duration: 3000
+                            });  
+                        }                  
                 }
 
                 $scope.$broadcast('scroll.refreshComplete');
@@ -2057,6 +2148,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
       }
 
       $scope.fetchData();
+
 
       $scope.doRefresh = function(){
         $scope.fetchData();
@@ -2104,15 +2196,47 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
             currentFilterService.setSession($scope.timeFilterFlag);
         }
 
+
         $scope.changeTimeFilter = function() {
 
             if($scope.numberOfSessions == 0){
                 return '';
             }
 
+            //incase of No results (pre check)
+            if($scope.sessionSummary.length == 0){
+
+                var list = sessionsListService.getList();
+
+                if($scope.timeFilterFlag == 'All'){
+                    $scope.timeFilterFlag = list[0];
+                    window.localStorage.timeFilter = $scope.timeFilterFlag;
+                }
+                else{
+                    if($scope.timeFilterFlag == list[list.length - 1]){
+                        $scope.timeFilterFlag = 'All';
+                        window.localStorage.timeFilter = $scope.timeFilterFlag;
+                    }
+                    else{
+                        for(var i = 0; i < list.length; i++){
+                            if($scope.timeFilterFlag == list[i]){
+                                $scope.timeFilterFlag = list[i+1];
+                                window.localStorage.timeFilter = $scope.timeFilterFlag;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return '';
+            }
+
+
+
+
             //Showing All --> first in the session list
             if($scope.timeFilterFlag == 'All'){
-                $scope.timeFilterFlag = $scope.sessionSummary[0].sessionName;
+                $scope.timeFilterFlag = $scope.sessionSummary[$scope.list_of_sessions[0]].sessionName;
                 window.localStorage.timeFilter = $scope.timeFilterFlag;
                 currentFilterService.setSession($scope.timeFilterFlag);
                 $scope.applyFilterOnResultData();//apply new filter on display data
@@ -2121,11 +2245,13 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
             //Showing something in the sessions list --> next in the sessions list
             for(var i = 0; i < $scope.numberOfSessions; i++){
-                if($scope.timeFilterFlag == $scope.sessionSummary[i].sessionName && i != $scope.numberOfSessions - 1){
-                    $scope.timeFilterFlag = $scope.sessionSummary[i+1].sessionName;
+                if($scope.timeFilterFlag == $scope.sessionSummary[$scope.list_of_sessions[i]].sessionName && i != $scope.numberOfSessions - 1){
+                    $scope.timeFilterFlag = $scope.sessionSummary[$scope.list_of_sessions[i+1]].sessionName;
                     break;
                 }
             }
+
+
 
             //last iteration, set to ALL
             if(i == $scope.numberOfSessions){
@@ -2147,14 +2273,21 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                 return -1;
             }
 
+
+            //incase of No results (pre check)
+            if($scope.sessionSummary.length == 0){
+                return 0;
+            }
+
+
             if($scope.timeFilterFlag == 'All'){ //Show all
 
                 var activeCountSum = 0;
                 var doneCountSum = 0;
 
                 for(var i = 0; i < $scope.numberOfSessions; i++){
-                    activeCountSum += $scope.sessionSummary[i].activeCount;
-                    doneCountSum += $scope.sessionSummary[i].doneCount;
+                    activeCountSum += $scope.sessionSummary[$scope.list_of_sessions[i]].activeCount;
+                    doneCountSum += $scope.sessionSummary[$scope.list_of_sessions[i]].doneCount;
                 }
 
                 if(activeCountSum == 0 && doneCountSum == 0){
@@ -2170,9 +2303,9 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                 var doneSessionCountSum = 0;
 
                 for(var i = 0; i < $scope.numberOfSessions; i++){
-                    if($scope.timeFilterFlag == $scope.sessionSummary[i].sessionName){
-                        activeSessionCountSum = $scope.sessionSummary[i].activeCount;
-                        doneSessionCountSum = $scope.sessionSummary[i].doneCount;
+                    if($scope.timeFilterFlag == $scope.sessionSummary[$scope.list_of_sessions[i]].sessionName){
+                        activeSessionCountSum = $scope.sessionSummary[$scope.list_of_sessions[i]].activeCount;
+                        doneSessionCountSum = $scope.sessionSummary[$scope.list_of_sessions[i]].doneCount;
                         break;
                     }
                 }
@@ -2189,6 +2322,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
             return -1;
         }
 
+
         $scope.quickSummary = function() {
 
             var myTemplate = '';
@@ -2201,16 +2335,16 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
             for(var i = 0; i < $scope.numberOfSessions; i++){
 
-                myTemplate = myTemplate + '<div class="row" style="color: #34495e; font-weight: bold; text-transform: uppercase; font-size: 12px"><div class="col" style="text-align: center; border-bottom: 1px solid #3c5064;">'+$scope.sessionSummary[i].sessionName+' Session</div></div>';
+                myTemplate = myTemplate + '<div class="row" style="color: #34495e; font-weight: bold; text-transform: uppercase; font-size: 12px"><div class="col" style="text-align: center; border-bottom: 1px solid #3c5064;">'+$scope.sessionSummary[$scope.list_of_sessions[i]].sessionName+' Session</div></div>';
 
-                myTemplate = myTemplate + '<div class="row" style="color: #34495e; font-weight: 300; text-transform: uppercase; font-size: 10px"><div class="col col-50">Status</div><div class="col col-25" style="text-align: center">Count</div><div class="col col-25" style="text-align: center">PAX</div></div>';
+                myTemplate = myTemplate + '<div class="row" style="color: #34495e; font-weight: 300; text-transform: uppercase; font-size: 10px"><div class="col col-50">Status</div><div class="col col-25" style="text-align: center">Groups</div><div class="col col-25" style="text-align: center">PAX</div></div>';
 
-                myTemplate = myTemplate + '<div class="row" style="color: #34495e;"><div class="col col-50">Pending</div><div class="col col-25" style="text-align: center">' + $scope.sessionSummary[i].activeCount + '</div><div class="col col-25" style="text-align: center">' + $scope.sessionSummary[i].activePAX + '</div></div>'; // <--- Lunch Pending
+                myTemplate = myTemplate + '<div class="row" style="color: #34495e;"><div class="col col-50">Pending</div><div class="col col-25" style="text-align: center">' + $scope.sessionSummary[$scope.list_of_sessions[i]].activeCount + '</div><div class="col col-25" style="text-align: center">' + $scope.sessionSummary[$scope.list_of_sessions[i]].activePAX + '</div></div>'; // <--- Lunch Pending
 
-                myTemplate = myTemplate + '<div class="row" style="color: #34495e;"><div class="col col-50">Completed</div><div class="col col-25" style="text-align: center">' + $scope.sessionSummary[i].doneCount + '</div><div class="col col-25" style="text-align: center">' + $scope.sessionSummary[i].donePAX + '</div></div>'; // <--- Lunch Done
+                myTemplate = myTemplate + '<div class="row" style="color: #34495e;"><div class="col col-50">Completed</div><div class="col col-25" style="text-align: center">' + $scope.sessionSummary[$scope.list_of_sessions[i]].doneCount + '</div><div class="col col-25" style="text-align: center">' + $scope.sessionSummary[$scope.list_of_sessions[i]].donePAX + '</div></div>'; // <--- Lunch Done
 
-                doneCount += $scope.sessionSummary[i].doneCount;
-                donePAX += $scope.sessionSummary[i].donePAX;
+                doneCount += $scope.sessionSummary[$scope.list_of_sessions[i]].doneCount;
+                donePAX += $scope.sessionSummary[$scope.list_of_sessions[i]].donePAX;
 
             }
 
@@ -2218,13 +2352,14 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
             /* All */
             myTemplate = myTemplate + '<div class="row" style="color: #34495e; font-weight: bold; text-transform: uppercase; font-size: 12px"><div class="col" style="text-align: center; border-bottom: 1px solid #3c5064;">All Sessions</div></div>';
 
-            myTemplate = myTemplate + '<div class="row" style="color: #34495e; font-weight: 300; text-transform: uppercase; font-size: 10px"><div class="col col-50">Status</div><div class="col col-25" style="text-align: center">Count</div><div class="col col-25" style="text-align: center">PAX</div></div>';
+            myTemplate = myTemplate + '<div class="row" style="color: #34495e; font-weight: 300; text-transform: uppercase; font-size: 10px"><div class="col col-50">Status</div><div class="col col-25" style="text-align: center">Groups</div><div class="col col-25" style="text-align: center">PAX</div></div>';
 
             myTemplate = myTemplate + '<div class="row" style="color: #34495e;"><div class="col col-50">Completed</div><div class="col col-25" style="text-align: center">' + doneCount + '</div><div class="col col-25" style="text-align: center">' + donePAX + '</div></div>'; // <--- All Done
 
 
             $ionicPopup.alert({
-                title: 'Quick Summary',
+                title: '',
+                cssClass: 'popup-clear confirm-alert-alternate',
                 template: myTemplate,
                 buttons: [{
                     text: '<b>OK</b>',
@@ -2241,11 +2376,12 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
             if (reservation.statusCode == 0) {
                 myPopup = $ionicPopup.show({
-                    title: 'Options',
-                    template: '<button class="button icon-left ion-android-checkbox-outline button-balanced button-block" ng-click="initAssignTable(\''+encodeURI(JSON.stringify(reservation))+'\')">Allot Seat</button>' +
-                        '<button class="button icon-left ion-edit button-outline button-positive button-block" ng-click="initModifyReservation()">Edit Reservation</button>'+
-                        '<button class="button icon-left ion-android-cancel button-outline button-assertive button-block" ng-click="initCancelReservation()">Cancel Reservation</button>' +
-                        '<button class="button icon-left ion-trash-a button-outline button-assertive button-block" ng-click="initDeleteReservation()">Mark Spam and Delete</button>',
+                    cssClass: 'popup-actions tile-actions-view tile-actions-view-list',
+                    template: '<button class="button icon-left ion-android-checkbox-outline button-block noBorderListButton shadeGreenDarkgreen" ng-click="initAssignTable(\''+encodeURI(JSON.stringify(reservation))+'\')">Allot Seat</button>' +
+                        '<button class="button icon-left ion-android-done button-block noBorderListButton shadeYellowOrange" ng-click="initCompleteReservation()">Mark as Completed</button>' +
+                        '<button class="button icon-left ion-edit button-block noBorderListButton shadeBlueViolet" ng-click="initModifyReservation()">Edit Reservation</button>'+
+                        '<button class="button icon-left ion-android-cancel button-block noBorderListButton shadeRedPink" ng-click="initCancelReservation()">Cancel Reservation</button>' +
+                        '<button class="button icon-left ion-trash-a button-block noBorderListButton shadeRedPink" ng-click="initDeleteReservation()">Mark Spam and Delete</button>',
                     scope: $scope,
                     buttons: [{
                         text: 'Close'
@@ -2254,9 +2390,9 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
             } else if (reservation.statusCode == 1) {
                 myPopup = $ionicPopup.show({
-                        title: 'Options',
-                        template: '<button class="button icon-left ion-android-done button-outline button-balanced button-block" ng-click="initCompleteReservation()">Mark as Completed</button>' +
-                            '<button class="button icon-left ion-android-cancel button-outline button-assertive button-block" ng-click="initCancelReservation()">Mark as Cancelled</button>',
+                        cssClass: 'popup-actions tile-actions-view tile-actions-view-list',
+                        template: '<button class="button icon-left ion-android-done button-block noBorderListButton shadeGreenDarkgreen" ng-click="initCompleteReservation()">Mark as Completed</button>' +
+                            '<button class="button icon-left ion-android-cancel button-block noBorderListButton shadeRedPink" ng-click="initCancelReservation()">Mark as Cancelled</button>',
                         scope: $scope,
                         buttons: [{
                             text: 'Close'
@@ -2265,8 +2401,8 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                 
             } else if (reservation.statusCode == 2) {
                 myPopup = $ionicPopup.show({
-                        title: 'Options',
-                        template: '<button class="button icon-left ion-android-cancel button-outline button-assertive button-block" ng-click="initCancelReservation()">Mark as Cancelled</button>',
+                        cssClass: 'popup-actions tile-actions-view tile-actions-view-list',
+                        template: '<button class="button icon-left ion-android-cancel button-block noBorderListButton shadeRedPink" ng-click="initCancelReservation()">Mark as Cancelled</button>',
                         scope: $scope,
                         buttons: [{
                             text: 'Close'
@@ -2275,9 +2411,9 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                 
             } else if (reservation.statusCode == 4) {
                 myPopup = $ionicPopup.show({
-                        title: 'Options',
-                        template: '<button class="button icon-left ion-android-done button-outline button-balanced button-block" ng-click="initCompleteReservation()">Mark as Completed</button>' +
-                            '<button class="button icon-left ion-android-cancel button-outline button-assertive button-block" ng-click="initCancelReservation()">Mark as Cancelled</button>',
+                        cssClass: 'popup-actions tile-actions-view tile-actions-view-list',
+                        template: '<button class="button icon-left ion-android-done button-block noBorderListButton shadeGreenDarkgreen" ng-click="initCompleteReservation()">Mark as Completed</button>' +
+                            '<button class="button icon-left ion-android-cancel button-block noBorderListButton shadeRedPink" ng-click="initCancelReservation()">Mark as Cancelled</button>',
                         scope: $scope,
                         buttons: [{
                             text: 'Close'
@@ -2345,7 +2481,8 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
             $ionicPopup.alert({
                 title: 'Comments',
-                template: '<p style="margin: 0; text-align: center; font-size: 16px; font-weight: 400; color: #2980b9;">' + reservation.comments + '</p>',
+                cssClass: 'popup-clear confirm-alert-alternate',
+                template: '<p style="margin: 0; text-align: left; font-size: 16px; color: #2980b9; padding: 0 8px 10px 8px; font-weight: bold; font-style: italic;">' + reservation.comments + '</p>',
                 buttons: [{
                     text: '<b>OK</b>',
                     type: 'button-stable button-outline'
@@ -2376,14 +2513,6 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
         }
 
 
-        $scope.Timer = $interval(function() {
-            $scope.fetchData();
-        }, 60000);
-		
-		$scope.$on('$destroy', function () {$interval.cancel($scope.Timer);});
-
-
-
 
         $scope.newBook = function() {
             $state.go('main.app.walkin');
@@ -2397,7 +2526,8 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
         $scope.completeReservation = function(reservation) {
 
             $ionicPopup.show({
-                title: 'The tables allocated to <strong style="color: #e74c3c">' + reservation.user + '</strong> will automatically get released when you mark it \'Completed\'. Do you really want to mark this reservation as \'Completed\'?',
+                title: 'Do you really want to mark this reservation as \'Completed\'?',
+                cssClass: 'popup-clear confirm-alert-alternate',
                 scope: $scope,
                 buttons: [{
                         text: 'No'
@@ -2425,17 +2555,17 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 									$ionicLoading.hide();
                                     if (response.status) {
                                         $ionicLoading.show({
-                                            template: 'Marked Completed and tables released',
+                                            template: 'Reservation marked as Completed',
                                             duration: 2000
                                         });
+
+                                        $scope.fetchData();
                                     } else {
                                         $ionicLoading.show({
                                             template: 'Error : ' + response.error,
                                             duration: 2000
                                         });
                                     }
-
-                                    $scope.initReservations();
                                 })
                                 .error(function(data) {
                                     $ionicLoading.hide();
@@ -2454,6 +2584,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
         $scope.cancelReservation = function(reservation) {
 
             $ionicPopup.show({
+                cssClass: 'popup-clear confirm-alert-alternate',
                 title: 'Do you really want to Cancel this reservation by ' + reservation.user + '?',
                 scope: $scope,
                 buttons: [{
@@ -2463,12 +2594,15 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                         text: '<b>Yes, Cancel</b>',
                         type: 'button-assertive',
                         onTap: function(e) {
+
                             var data = {};
                             data.id = reservation.id;
                             data.token = window.localStorage.admin;
+
                             $ionicLoading.show({
                                 template: '<ion-spinner></ion-spinner>'
                             });
+
                             $http({
                                     method: 'POST',
                                     url: 'https://www.zaitoon.online/services/cancelreservationsadmin.php',
@@ -2485,14 +2619,14 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                                             template: 'Reservation Cancelled',
                                             duration: 2000
                                         });
+
+                                        $scope.fetchData();
                                     } else {
                                         $ionicLoading.show({
                                             template: 'Error : ' + response.error,
                                             duration: 2000
                                         });
                                     }
-
-                                    $scope.initReservations();
                                 })
                                 .error(function(data) {
                                     $ionicLoading.hide();
@@ -2510,7 +2644,8 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
         $scope.deleteReservation = function(reservation) {
 
             $ionicPopup.show({
-                title: 'Deleting a Reservation will delete it for ever. It can not be undone. Do you really want to delete this reservation by ' + reservation.user + '?',
+                cssClass: 'popup-clear confirm-alert-alternate',
+                title: 'Deleting a Reservation will remove it for ever. It can not be undone. Do you really want to delete this reservation by ' + reservation.user + '?',
                 scope: $scope,
                 buttons: [{
                         text: 'Cancel',
@@ -2545,14 +2680,14 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                                             template: 'Reservation Deleted',
                                             duration: 2000
                                         });
+
+                                        $scope.fetchData();
                                     } else {
                                         $ionicLoading.show({
                                             template: 'Error : ' + response.error,
                                             duration: 2000
                                         });
                                     }
-
-                                    $scope.initReservations();
                                 })
                                 .error(function(data) {
                                     $ionicLoading.hide();
@@ -2581,15 +2716,14 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
             $state.go('main.app.login');
         }
 
+        var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@localhost:5984/';
+
 
         /**** ACTUAL BEGINNING ***/
         $scope.isGeneralView = true;
         $scope.booking = currentBooking.getBooking();
 
-        console.log($scope.booking)
-
         //Seater Area
-
         $scope.seatPlan = "";
         $scope.freeingAllList = "";
         $scope.seatPlanError = "";
@@ -2598,41 +2732,113 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
             $scope.seatPlanError = "";
 
-            var data = {};
-            data.token = window.localStorage.admin;
             $ionicLoading.show({
                 template: '<ion-spinner></ion-spinner>'
             });
-            $http({
-                    method: 'POST',
-                    url: 'https://kopperkadai.online/services/deskfetchtables.php',
-                    data: data,
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-					timeout : 10000
-                })
-                .success(function(response) {
-					$ionicLoading.hide();
-                    if (response.status) {
-                        $scope.seatPlanError = '';
-                        $scope.fetchTime = response.time;
-                        $scope.seatPlan = response.response;
-                        $scope.freeingAllList = response.freeingList;
-                    } else {
-                        $scope.seatPlanError = response.error;
-                    }
-                })
-                .error(function(data) {
-                    $ionicLoading.hide();
-                    $ionicLoading.show({
-                        template: "Not responding. Check your connection.",
-                        duration: 3000
+
+                    $http({
+                        method: 'GET',
+                        url: COMMON_IP_ADDRESS+'/accelerate_tables/_design/filter-tables/_view/all/',
+                        timeout: 10000
+                    })
+                    .success(function(response) {
+
+                        $ionicLoading.hide();
+
+                        if(response.rows.length > 0){
+                          var tableData = response.rows;
+                          tableData.sort(function(obj1, obj2) {
+                            return obj1.key - obj2.key; //Key is equivalent to sortIndex
+                          });
+
+
+                            $http({
+                                method: 'GET',
+                                url: COMMON_IP_ADDRESS+'/accelerate_settings/ACCELERATE_TABLE_SECTIONS/',
+                                timeout: 10000
+                            })
+                            .success(function(response) {
+                                var tableSections = response.value;
+
+                                $scope.seatPlan = [];
+
+                                var n = 0;
+                                while(tableSections[n]){
+
+                                    var section_wise_tables = [];
+
+                                    for(var i = 0; i < tableData.length; i++){
+                                        if(tableData[i].value.type == tableSections[n]){
+                                            section_wise_tables.push({
+                                                  "table": tableData[i].value.table,
+                                                  "capacity": tableData[i].value.capacity,
+                                                  "KOT": tableData[i].value.KOT,
+                                                  "status": tableData[i].value.status,
+                                                  "lastUpdate": tableData[i].value.lastUpdate,
+                                                  "assigned": tableData[i].value.assigned,
+                                                  "remarks": tableData[i].value.remarks,
+                                                  "guestName": tableData[i].value.guestName,
+                                                  "guestContact": tableData[i].value.guestContact,
+                                                  "reservationMapping": tableData[i].value.reservationMapping,
+                                                  "guestCount": tableData[i].value.guestCount
+                                            });
+                                        }
+                                    }
+
+                                    //              'name' : tableData[i].value.table,
+                                    //             'capacity' : tableData[i].value.capacity,
+                                    //             'status' : tableData[i].value.status,
+                                    //             'lastUpdate': tableData[i].value.lastUpdate,
+                                    //             'occupant' : 
+
+                                    $scope.seatPlan.push({
+                                        'sectionName': tableSections[n],
+                                        'tables': section_wise_tables
+                                    });
+
+                                    n++;
+                                }
+
+                            })
+                            .error(function(data) {
+                                $ionicLoading.show({
+                                    template: "Not responding. Check your connection.",
+                                    duration: 3000
+                                });
+                            });
+
+                            $scope.seatPlanError = "";
+                        }
+                        else{
+                            $scope.seatPlanError = "There are no tables found.";
+                        }  
+
+                    })
+                    .error(function(data) {
+                        $ionicLoading.hide();
+                        $ionicLoading.show({
+                            template: "Not responding. Check your connection.",
+                            duration: 3000
+                        });
                     });
-                });
+
         }
 
         $scope.initSeatPlan();
+
+
+        $scope.getTimeAgo = function(time){
+            var tempTime = moment(time, 'HHmm').fromNow(true);
+            tempTime = tempTime.replace("seconds", "s");
+            tempTime = tempTime.replace("a few s", "seconds");
+            tempTime = tempTime.replace("a minute", "1m");
+            tempTime = tempTime.replace(" minutes", "m");
+            tempTime = tempTime.replace("an hour", "1h");
+            tempTime = tempTime.replace(" hours", "h");
+            return tempTime;
+        }
+
+
 
 
         $scope.holdList = []; //Seats to hold
@@ -2672,8 +2878,6 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
         }
 
 
-
-
         $scope.getMyClass = function(seat) {
             if (seat.status == 0) {
                 return "button-balanced";
@@ -2682,15 +2886,21 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
             } else if (seat.status == 2) {
                 return "button-energized";
             }
+            else if (seat.status == 5) {
+                return "buttonSigma";
+            }
         }
 
-
-
+        $scope.getCurrentTime = function(){
+            return 'TIME_NOW';
+        }
 
         $scope.seatOptionsView = function(seat) {
+
             if (seat.status != 0) { //Seat Not Free
                 var confirmPopup = $ionicPopup.confirm({
-                    title: 'Table ' + seat.name + ' is allocated to ' + seat.occupantData.name + '. Do you sure want to release ' + seat.name + '?',
+                    title: 'Table <b>#' + seat.table + '</b> is <b class="pinkText">not free</b> at the moment. Do you sure want to release ' + seat.table + '?',
+                    cssClass: 'popup-clear confirm-alert-alternate',
                     scope: $scope,
                     buttons: [{
                             text: 'Cancel'
@@ -2700,37 +2910,68 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                             type: 'button-assertive',
                             onTap: function(e) {
 
-                                var data = {};
-                                data.token = window.localStorage.admin;
-                                data.id = seat.name;
-                                data.bookingID = seat.occupantData.reservationID;
+
                                 $ionicLoading.show({
                                     template: '<ion-spinner></ion-spinner>'
                                 });
-                                $http({
-                                        method: 'POST',
-                                        url: 'https://kopperkadai.online/services/deskreleasetables.php',
-                                        data: data,
-                                        headers: {
-                                            'Content-Type': 'application/x-www-form-urlencoded'
-                                        },
-										timeout : 10000
+
+
+                                    var tableNumber = seat.table;
+
+                                    $http({
+                                        method: 'GET',
+                                        url: COMMON_IP_ADDRESS+'/accelerate_tables/_design/filter-tables/_view/filterbyname?startkey=["'+tableNumber+'"]&endkey=["'+tableNumber+'"]',
+                                        timeout : 10000
                                     })
                                     .success(function(response) {
-										$ionicLoading.hide();
-                                        if (response.status) {
-                                            $ionicLoading.show({
-                                                template: "Table " + seat.name + " released",
-                                                duration: 1000
-                                            });
-                                            $scope.initSeatPlan();
-                                        } else {
-                                            $ionicLoading.show({
-                                                template: "Error: " + response.error,
-                                                duration: 1000
+
+                                        var tableData = response.rows[0].value;
+
+                                        tableData.remarks = "";
+                                        tableData.assigned = name;
+                                        tableData.KOT = "";
+                                        tableData.status = 0;
+                                        tableData.lastUpdate = "";
+                                        tableData.guestName = "";
+                                        tableData.guestCount = "";  
+                                        tableData.guestContact = ""; 
+                                        tableData.guestName = "";
+                                        tableData.reservationMapping = "";
+
+                                          //Post to local Server
+                                          $http({
+                                                method  : 'PUT',
+                                                url     : COMMON_IP_ADDRESS+'accelerate_tables/'+tableData._id+'/',
+                                                data    : JSON.stringify(tableData),
+                                                headers : {'Content-Type': 'application/json'},
+                                                timeout : 10000
+                                            })
+                                            .success(function(response) { 
+                                              if(response.ok){
+                                                $ionicLoading.hide();
+                                                    $ionicLoading.show({
+                                                        template: "Table <b>#" + seat.table + "</b> is released",
+                                                        duration: 1000
+                                                    });
+                                                    $scope.initSeatPlan();
+                                              }
+                                              else{
+                                                $ionicLoading.hide();
+                                                $ionicLoading.show({
+                                                    template: "Not responding. Check your connection.",
+                                                    duration: 3000
+                                                });
+                                              }
+
+                                            })
+                                            .error(function(data) {
+                                                $ionicLoading.hide();
+                                                $ionicLoading.show({
+                                                    template: "Not responding. Check your connection.",
+                                                    duration: 3000
+                                                });
                                             });
 
-                                        }
                                     })
                                     .error(function(data) {
                                         $ionicLoading.hide();
@@ -2744,11 +2985,6 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                             }
                         },
                     ]
-                });
-            } else {
-                $ionicLoading.show({
-                    template: seat.name + " is already free",
-                    duration: 1000
                 });
             }
         }
@@ -2766,28 +3002,28 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
             } else {
                 if ($scope.holdList.length == 0) {
                     $scope.holdListCapacity = Number(seat.capacity);
-                    $scope.holdList.push(seat.name);
-                    document.getElementById("seat_" + seat.name).classList.remove('btn-success');
-                    document.getElementById("seat_" + seat.name).classList.add('seatSelected');
-                    document.getElementById("seatTag_" + seat.name).innerHTML = '<i class="fa fa-check"></i>';
+                    $scope.holdList.push(seat.table);
+                    document.getElementById("seat_" + seat.table).classList.remove('btn-success');
+                    document.getElementById("seat_" + seat.table).classList.add('seatSelected');
+                    document.getElementById("seatTag_" + seat.table).innerHTML = '<i class="fa fa-check"></i>';
 
                 } else {
-                    var index = $scope.holdList.indexOf(seat.name);
+                    var index = $scope.holdList.indexOf(seat.table);
                     if (index > -1) { //Already in the list --> UNSELECT
                         $scope.holdList.splice(index, 1);
                         $scope.holdListCapacity = Number($scope.holdListCapacity) - Number(seat.capacity);
-                        document.getElementById("seat_" + seat.name).classList.remove('seatSelected');
-                        document.getElementById("seat_" + seat.name).classList.add('btn-success');
-                        document.getElementById("seatTag_" + seat.name).innerHTML = (seat.occupant).substring(0, 20);
-                        if ((seat.occupant).length > 20) {
-                            document.getElementById("seatTag_" + seat.name).innerHTML += '...';
+                        document.getElementById("seat_" + seat.table).classList.remove('seatSelected');
+                        document.getElementById("seat_" + seat.table).classList.add('btn-success');
+                        document.getElementById("seatTag_" + seat.table).innerHTML = (seat.guestName).substring(0, 20);
+                        if ((seat.guestName).length > 20) {
+                            document.getElementById("seatTag_" + seat.table).innerHTML += '...';
                         }
                     } else { //Not in the list --> SELECT
-                        $scope.holdList.push(seat.name);
+                        $scope.holdList.push(seat.table);
                         $scope.holdListCapacity = Number($scope.holdListCapacity) + Number(seat.capacity);
-                        document.getElementById("seat_" + seat.name).classList.remove('btn-success');
-                        document.getElementById("seat_" + seat.name).classList.add('seatSelected');
-                        document.getElementById("seatTag_" + seat.name).innerHTML = '<i class="fa fa-check"></i>';
+                        document.getElementById("seat_" + seat.table).classList.remove('btn-success');
+                        document.getElementById("seat_" + seat.table).classList.add('seatSelected');
+                        document.getElementById("seatTag_" + seat.table).innerHTML = '<i class="fa fa-check"></i>';
                     }
                 }
 
@@ -2804,146 +3040,151 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
             $scope.openSeatPlan($scope.booking);
         }
 
-
-
-        $scope.allocateSeats = function(name, code, list) {
-
-            var confirmPopup = $ionicPopup.confirm({
-                title: 'Do you want to allocate ' + list.toString() + ' to ' + name + '?',
-                scope: $scope,
-                buttons: [{
-                        text: 'Cancel'
-                    },
-                    {
-                        text: '<b>Allot</b>',
-                        type: 'button-balanced',
-                        onTap: function(e) {
-
-
-                            $ionicLoading.show({
-                                template: '<ion-spinner></ion-spinner>'
-                            });
-
-                            var data = {};
-                            data.token = window.localStorage.admin;
-                            data.id = code;
-                            data.tables = list; //JSON.stringify(list);
-                            $ionicLoading.show({
-                                template: '<ion-spinner></ion-spinner>'
-                            });
-                            $http({
-                                    method: 'POST',
-                                    url: 'https://kopperkadai.online/services/deskassigntable.php',
-                                    data: data,
-                                    headers: {
-                                        'Content-Type': 'application/x-www-form-urlencoded'
-                                    },
-									timeout : 10000
-                                })
-                                .success(function(response) {
-
-                                    $ionicLoading.hide();
-
-                                    if (response.status) {
-                                        $ionicLoading.show({
-                                            template: "Tables allocated.",
-                                            duration: 1000
-                                        });
-
-                                        $scope.initSeatPlan();
-                                        $state.go('main.reservationsapp.upcoming');
-                                    } else {
-
-                                        $ionicLoading.show({
-                                            template: "Error: " + response.error,
-                                            duration: 1000
-                                        });
-
-                                    }
-                                })
-                                .error(function(data) {
-                                    $ionicLoading.hide();
-                                    $ionicLoading.show({
-                                        template: "Not responding. Check your connection.",
-                                        duration: 3000
-                                    });
-                                });
-                        }
-                    },
-                ]
-            });
-
-
+        $scope.getReservationTag = function(seat){
+            if(seat.assigned == "Hold Order"){
+                return "Saved Order";
+            }
+            else{
+                return "Reserved"
+            }
         }
 
-        $scope.deallocateSeats = function(code, incoming_list) {
-			
-			//Process Duplicates
-			var list = incoming_list.filter(function(elem, index, self) {
-				return index == self.indexOf(elem);
-			})
 
+        $scope.allocateSeats = function(guestData, list) {
+  
+                            reserveTable(0);
 
-            var confirmPopup = $ionicPopup.confirm({
-                title: 'Do you want to release the tables ' + list.toString() + '?',
-                scope: $scope,
-                buttons: [{
-                        text: 'Cancel'
-                    },
-                    {
-                        text: '<b>Release</b>',
-                        type: 'button-balanced',
-                        onTap: function(e) {
-                            var data = {};
-                            data.token = window.localStorage.admin;
-                            data.id = code;
+                            $ionicLoading.show({ template: '<ion-spinner></ion-spinner>' });
 
-                            $ionicLoading.show({
-                                template: '<ion-spinner></ion-spinner>'
-                            });
-                            $http({
-                                    method: 'POST',
-                                    url: 'https://kopperkadai.online/services/deskreleasealltables.php',
-                                    data: data,
-                                    headers: {
-                                        'Content-Type': 'application/x-www-form-urlencoded'
-                                    },
-									timeout : 10000
-                                })
-                                .success(function(response) {
-									
-									$ionicLoading.hide();
+                            function reserveTable(index){
 
-                                    if (response.status) {
+                                    var tableNumber = list[index];
+
+                                    $http({
+                                        method: 'GET',
+                                        url: COMMON_IP_ADDRESS+'/accelerate_tables/_design/filter-tables/_view/filterbyname?startkey=["'+tableNumber+'"]&endkey=["'+tableNumber+'"]',
+                                        timeout : 10000
+                                    })
+                                    .success(function(response) {
+
+                                        var tableData = response.rows[0].value;
+
+                                        tableData.remarks = "";
+                                        tableData.assigned = "";
+                                        tableData.KOT = "";
+                                        tableData.status = 5;
+                                        tableData.lastUpdate = "";
+                                        tableData.guestName = guestData.user;
+                                        tableData.guestContact = guestData.mobile;  
+                                        tableData.guestCount = parseInt(guestData.count); 
+                                        tableData.reservationMapping = guestData.id;  
+
+                                          //Post to local Server
+                                          $http({
+                                                method  : 'PUT',
+                                                url     : COMMON_IP_ADDRESS+'accelerate_tables/'+tableData._id+'/',
+                                                data    : JSON.stringify(tableData),
+                                                headers : {'Content-Type': 'application/json'},
+                                                timeout : 10000
+                                            })
+                                            .success(function(response) { 
+                                              if(response.ok){
+
+                                                if(list[index+1]){
+                                                    reserveTable(index + 1);
+                                                }
+                                                else{
+
+                                                    $ionicLoading.hide();
+
+                                                    $ionicLoading.show({
+                                                        template: "Tables allocated.",
+                                                        duration: 1000
+                                                    });
+
+                                                    $scope.allocateTablesOnlineUpdate(guestData.id);
+                                                    
+                                                    $scope.isGeneralView = true;
+                                                    $scope.holdList = [];
+
+                                                    $scope.initSeatPlan();
+
+                                                    //$state.go('main.reservationsapp.upcoming'); (not refreshing reservations list -- that's why)
+                                                }
+                                              }
+                                              else{
+                                                $ionicLoading.hide();
+                                                $ionicLoading.show({
+                                                    template: "Not responding. Check your connection.",
+                                                    duration: 3000
+                                                });
+                                              }
+
+                                            })
+                                            .error(function(data) {
+                                                $ionicLoading.hide();
+                                                $ionicLoading.show({
+                                                    template: "Not responding. Check your connection.",
+                                                    duration: 3000
+                                                });
+                                            });
+
+                                    })
+                                    .error(function(data) {
+                                        $ionicLoading.hide();
                                         $ionicLoading.show({
-                                            template: "Tables released.",
-                                            duration: 1000
+                                            template: "Not responding. Check your connection.",
+                                            duration: 3000
                                         });
-
-                                        $scope.initSeatPlan();
-                                        $state.go('main.reservationsapp.upcoming');
-                                    } else {
-
-                                        $ionicLoading.show({
-                                            template: "Error: " + response.error,
-                                            duration: 1000
-                                        });
-
-                                    }
-                                })
-                                .error(function(data) {
-                                    $ionicLoading.hide();
-                                    $ionicLoading.show({
-                                        template: "Not responding. Check your connection.",
-                                        duration: 3000
                                     });
-                                });
-                        }
-                    },
-                ]
-            });
+                            } //end of function
 
+
+
+                            $scope.allocateTablesOnlineUpdate = function(reservation_id){
+
+                                var data = {};
+                                data.token = window.localStorage.admin;
+                                data.id = reservation_id;
+
+                                $ionicLoading.show({
+                                    template: '<ion-spinner></ion-spinner>'
+                                });
+
+                                $http({
+                                        method: 'POST',
+                                        url: 'https://www.zaitoon.online/services/deskassigntable.php',
+                                        data: data,
+                                        headers: {
+                                            'Content-Type': 'application/x-www-form-urlencoded'
+                                        },
+                                        timeout : 10000
+                                    })
+                                    .success(function(response) {
+
+                                        $ionicLoading.hide();
+
+                                        if (response.status) {
+
+                                        } else {
+
+                                            $ionicLoading.show({
+                                                template: "Table assigned, but failed to move it to Seated Reservations. Error: " + response.error,
+                                                duration: 3000
+                                            });
+
+                                        }
+                                    })
+                                    .error(function(data) {
+                                        $ionicLoading.hide();
+                                        $ionicLoading.show({
+                                            template: "Table assigned, but failed to move it to Seated Reservations.",
+                                            duration: 3000
+                                        });
+                                    });                                
+                            }
         }
+
 
         $scope.goBack = function() {
             $state.go('main.reservationsapp.upcoming');

@@ -1,17 +1,5 @@
 <ion-view class="feed-view" cache-view="false">
 
-<!-- 
-  <ion-header-bar class="filters-header">
-    <div class="buttons">
-      <button class="button button-clear cancel-button" ng-click="goBack()"><i class="icon ion-chevron-left"></i></button>
-    </div>
-    <h1 class="title" style="font-size: 16px; font-weight: 300; text-transform: uppercase; text-align: right"></h1>
-  </ion-header-bar>
- -->
-
-
-
-
       <ion-header-bar class="feed-header">
          <div class="buttons" style="position: absolute; top: 5px; left: 5px; bottom: 5px;">
 
@@ -21,11 +9,10 @@
 
 
             <button class="button button-clear" style="text-align: left; margin-left: 10px; font-weight: 400; color: #FFF; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; font-size: 18px; margin-right: 90px;">
-              {{isGeneralView ? 'Current Seating Status' : 'Allot Seat to '+guestInfo.user }}
+              {{isGeneralView ? 'Current Seating Status' : 'Seat '+guestInfo.user+(guestInfo.count > 1 ? ' and '+(guestInfo.count-1)+' others': '') }}
             </button>  
 
-
-            <button class="button button-balanced apply-button" ng-if="holdList.length > 0 && !isGeneralView" style="position: absolute; top: 0px; right: 0px; font-size: 16px; font-weight: bold; text-transform: uppercase;" ng-click="allocateSeats(guestInfo.user, guestInfo.id, holdList)"><i class="icon ion-checkmark-circled"></i> Seat</button>
+            <button class="button button-balanced apply-button" ng-if="holdList.length > 0 && !isGeneralView" style="position: absolute; top: 0px; right: 0px; font-size: 16px; font-weight: bold; text-transform: uppercase;" ng-click="allocateSeats(guestInfo, holdList)"><i class="icon ion-checkmark-circled"></i> Seat</button>
 
          </div>
 
@@ -34,38 +21,41 @@
 
 
 
-  <ion-content style="margin-top: 30px;">
-    <p style="text-align: center; font-size: 21px; color: #16a085" ng-if="!isGeneralView">Seat <strong>{{guestInfo.user}}</strong><tag ng-if="guestInfo.count > 1"> and {{guestInfo.count-1}} others</tag></p>
-
+  <ion-content style="margin-top: 10px;">
 
 <center style="padding-bottom: 60px">
 									<div ng-repeat="section in seatPlan track by $index">
-										<p ng-if="section.tables.length > 0" style="margin-top: 10px; text-align: center; font-size: 18px;">{{section.sectionName}} Section as of <b style="color: #3498db;">{{fetchTime}}</b></p>
-										<button class="button" ng-attr-id="{{'seat_'+seat.name}}" ng-repeat="seat in section.tables" ng-class="getMyClass(seat)" ng-click="seatOptions(seat);" style="line-height: initial; width: 110px; max-width: 32%; height: 60px; margin: 3px; padding: 2px">
+
+										<h2 ng-if="section.tables.length > 0" class="legal-title ng-binding" style="margin: 15px 0 5px 0; font-size: 14px; font-weight: 400; color: #444; text-transform: uppercase; letter-spacing: 2px;">{{section.sectionName}}</h2>
+
+
+										<button class="button" ng-attr-id="{{'seat_'+seat.table}}" ng-repeat="seat in section.tables" ng-class="getMyClass(seat)" ng-click="seatOptions(seat);" style="line-height: initial; width: 110px; max-width: 32%; height: 60px; margin: 3px; padding: 2px">
 										
 											
-											<tag class="seatName" ng-init="checkDeallot(seat.occupantData.reservationID, guestInfo.id, seat.name)" ng-class="{yellowText: seat.occupantData.reservationID == guestInfo.id}">{{seat.name}}</tag>
+											<tag class="seatName" style="color: #FFF">{{seat.table}}</tag>
 											
 											<!-- Seater Count or Occuppied Guest Name -->
-											<tag ng-if="seat.status == 0" class="seatCapacity" ng-class="{yellowText: seat.occupantData.reservationID == guestInfo.id}">{{seat.capacity}} Seater</tag>
+											<tag ng-if="seat.status == 0" class="seatCapacity">{{seat.capacity}} Seater</tag>
 											
-											<tag ng-if="seat.status != 0" class="seatCapacity" ng-class="{yellowText: seat.occupantData.reservationID == guestInfo.id}">{{seat.occupant}}</tag>
+											<tag ng-if="seat.status == 1" class="seatCapacity">Running</tag>
+
+											<tag ng-if="seat.status == 2" class="seatTime blink_me" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Billed</tag>
+
+											<tag ng-if="seat.status == 5 && seat.assigned == 'Hold Order'" class="seatCapacity"><i class="fa fa-cloud-download"></i></tag>
+											<tag ng-if="seat.status == 5 && seat.assigned != 'Hold Order'" class="seatCapacity">For {{seat.guestName != "" ? seat.guestName : 'Guests'}}</tag>
 											
 											
 											
 											<!-- Free or Occuppied Time -->
-											<tag ng-if="seat.status == 0" class="seatStatus" ng-class="{yellowText: seat.occupantData.reservationID == guestInfo.id}" ng-attr-id="{{'seatTag_'+seat.name}}">Free</tag>																						
-											<tag ng-if="seat.status == 1" class="seatTime" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" ng-class="{yellowText: seat.occupantData.reservationID == guestInfo.id}">{{seat.occupantData.seatedTime}}</tag>
+											<tag ng-if="seat.status == 0" class="seatStatus" ng-attr-id="{{'seatTag_'+seat.table}}">Free</tag>														
+											<tag ng-if="seat.status == 1" class="seatTime" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{getTimeAgo(seat.lastUpdate)}}</tag>
+
+											<tag ng-if="seat.status == 5" class="seatTime" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{getReservationTag(seat)}}</tag>
 											
-											<tag ng-if="seat.status == 2" class="seatTime blink_me" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Billing</tag>
+											
 											
 										</button>
 									</div>	
-									
-									
-
-									
-									<p ng-if="freeingAllList.length > 0 && isGeneralView" style="padding: 15px; margin: 0;  font-size: 18px; color: #e67e22;" class="blink_me">Tables <tag ng-repeat="free in freeingAllList"><comma ng-if='$index != 0'>, </comma><b>{{free}}</b></tag> might get Free soon</p>	
 									
 									
 									
@@ -75,6 +65,4 @@
 
 
   </ion-content>
-  
-									<button type="button" class="button button-assertive" style="margin-top: 20px; text-transform: none; border-radius: 0; width: 100%; position: fixed; left: 0; bottom: 0; color: #f1c40f; overflow:hidden; white-space:nowrap" ng-if="allotedList.length > 0" ng-click="deallocateSeats(guestInfo.id, allotedList)">Release all tables allocated to {{guestInfo.user}}</button>  
 </ion-view>

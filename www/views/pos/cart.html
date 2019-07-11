@@ -17,19 +17,30 @@
     <!-- " -->
   </ion-header-bar>
   <ion-content class="shopping-cart-content" has-bouncing="false">
-    <div class="row row-center empty-cart-row" ng-if="products.length == 0">
+    <div class="row row-center empty-cart-row" ng-if="products.length == 0 && !isOrderConfirmationProgressing">
       <div class="col">
-        <center>
-          <img src="./img/feed/emptycart.png" width="30%"/>
-        </center>
-        <h3 class="no-products-title" style="margin-top: 30px; color: #c52031">Your cart is empty.</h3>
+
+        <div ng-if="!isEditingOrder">
+          <center>
+            <img src="./img/feed/emptycart.png" width="30%"/>
+          </center>
+          <h3 class="no-products-title" style="margin-top: 30px; color: #c52031">Your cart is empty.</h3>
+        </div>
+        
+        <div ng-if="isEditingOrder">
+          <p style="margin: 0; font-size: 64px; color: #dadada"><i class="fa fa-warning"></i></p>
+          <h3 class="no-products-title" style="margin: 30px 0 0 0; color: #8c8c8c">Removed all items.</h3>
+        
+           <button class="button button-clear checkout-button" style="text-transform: uppercase; font-size: 14px; letter-spacing: 1px; padding: 0; width: 100%; float: right; color: #FF9800;" ng-click="undoEditingOrder()">Undo Changes</button>
+
+        </div>
       </div>
     </div>
     <div ng-if="products.length > 0">
 
     	<div class="billingModeBarGray" ng-if="isEditingOrder">
     		{{selectedBillingMode.name}}
-    		<span style="float: right; font-weight: 300;">Table <b>#{{selectedTable}}</b></span>
+    		<span style="float: right; font-weight: 300;">Table <b>{{selectedTable}}</b></span>
     	</div>
 
       <div class="billingModeBarOrange" ng-click="changeBillingMode()" ng-if="!isEditingOrder">
@@ -41,14 +52,14 @@
 
     <div class="shopping-cart-view">
     <ul class="list checkout-products">
-      <li class="item checkout-product" ng-repeat="product in products | reverse track by $index">
+      <li class="item checkout-product" ng-repeat="product in products | orderBy : 'priorityIndex' | reverse track by $index">
         <div class="row">
 
           <div class="col col-75 col-center">
             <div class="row">
               <div class="col col-10 col-center noColorButton">
                 <!-- <span ng-click="removeFromCart(product)" class="icon ion-ios-close-outline myDelete"></span> -->
-                  <a ng-click="removeFromCart(product)" class="button button-small noColorButton" style="border-top-right-radius: 0; border-bottom-right-radius: 0; color: #DE8F8F; border:none"><i class="icon ion-ios-close-outline"></i></a>
+                  <a ng-click="removeFromCart(product)" class="button button-small noColorButton" style="border-top-right-radius: 0; border-bottom-right-radius: 0; color: #DE8F8F; border:none; padding-top: 3px;"><i class="icon ion-trash-a"></i></a>
               </div>
               <div class="col col-90 col-center">
                 <span class="product-name item-text-wrap" style="color: #2d2d2d; font-weight: 400;">{{product.name}}
@@ -78,7 +89,7 @@
                 <tag class="noColorButton">
                   <a ng-click="lessCount(product.cartIndex)" class="button button-small button-outline" style="border-top-right-radius: 0; border-bottom-right-radius: 0; color: #61C68B; border:1px solid #61C68B">-</a>
                 </tag>
-                  <a class="button button-small"  style="color: #FFF; background-color:#61C68B; border-radius: 0; ">{{product.qty}}</a>
+                  <a class="button button-small"  style="color: #FFF; background-color:#61C68B; border-radius: 0; font-size: 17px; font-weight: bold; ">{{product.qty}}</a>
                 <tag class="noColorButton">
                   <a ng-click="moreCount(product.cartIndex)" class="button button-small button-outline" style="border-top-left-radius: 0; border-bottom-left-radius: 0; color: #61C68B; border:1px solid #61C68B">+</a>
                 </tag>

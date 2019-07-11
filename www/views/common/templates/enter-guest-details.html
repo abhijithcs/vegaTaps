@@ -1,16 +1,18 @@
-<ion-modal-view class="modal-view legal-view" style="background: #ff984c;">
+
+<ion-modal-view class="modal-view legal-view" style="background: #FFF;">
+
   <ion-content>
 
-    <div class="row copy-row">
-      <div class="col">
-        <h2 class="legal-title" style="margin: 15px 0 5px 0; font-size: 24px; font-weight: 300 !important;">Guest Details</h2>
 
-        <div class="legal-content" style="padding: 10px">
+<!-- Search Results -->
+<div class="feed-view" style="padding: 0 20px">
 
-          <span style="text-align: center; display: block; color: #444; letter-spacing: 2px;">NUMBER OF GUESTS</span>
+          <h2 class="legal-title" style="margin: 25px 0 5px 0; font-size: 26px; font-weight: 300 !important; color: #009688;">Guest Details</h2>
+
+          <span style="text-align: center; display: block; color: #444; letter-spacing: 2px; margin: 10px 0">NUMBER OF GUESTS</span>
           <div>
             <div class="row">
-              <div class="col">
+              <div class="col" style="text-align: center">
                 <button class="guestCountButton" ng-click="guestDataTemp.count = 1; guestDataTemp.countManual = '';" ng-class="{'active' : guestDataTemp.count == 1}">1</button>
                 <button class="guestCountButton" ng-click="guestDataTemp.count = 2; guestDataTemp.countManual = '';" ng-class="{'active' : guestDataTemp.count == 2}">2</button>
                 <button class="guestCountButton" ng-click="guestDataTemp.count = 3; guestDataTemp.countManual = '';" ng-class="{'active' : guestDataTemp.count == 3}">3</button>
@@ -21,42 +23,45 @@
                 <button class="guestCountButton" ng-click="guestDataTemp.count = 8; guestDataTemp.countManual = '';" ng-class="{'active' : guestDataTemp.count == 8}">8</button>
                 <button class="guestCountButton" ng-click="guestDataTemp.count = 9; guestDataTemp.countManual = '';" ng-class="{'active' : guestDataTemp.count == 9}">9</button>
                 <button class="guestCountButton" ng-click="guestDataTemp.count = 10; guestDataTemp.countManual = '';" ng-class="{'active' : guestDataTemp.count == 10}">10</button>
-                <button class="guestCountButton" ng-click="guestDataTemp.count = 11; guestDataTemp.countManual = '';" ng-class="{'active' : guestDataTemp.count == 11}">11</button>
-                <button class="guestCountButton" ng-click="guestDataTemp.count = 12; guestDataTemp.countManual = '';" ng-class="{'active' : guestDataTemp.count == 12}">12</button>
-                <button class="guestCountButton" ng-click="guestDataTemp.count = 13; guestDataTemp.countManual = '';" ng-class="{'active' : guestDataTemp.count == 13}">13</button>
-                <button class="guestCountButton" ng-click="guestDataTemp.count = 14; guestDataTemp.countManual = '';" ng-class="{'active' : guestDataTemp.count == 14}">14</button>
-                <button class="guestCountButton" ng-click="guestDataTemp.count = 15; guestDataTemp.countManual = '';" ng-class="{'active' : guestDataTemp.count == 15}">15</button>
-                <button class="guestCountButton" ng-click="guestDataTemp.count = 16; guestDataTemp.countManual = '';" ng-class="{'active' : guestDataTemp.count == 16}">16</button>
-                <button class="guestCountButton" ng-click="guestDataTemp.count = 17; guestDataTemp.countManual = '';" ng-class="{'active' : guestDataTemp.count == 17}">17</button>
-                <button class="guestCountButton" ng-click="guestDataTemp.count = 18; guestDataTemp.countManual = '';" ng-class="{'active' : guestDataTemp.count == 18}">18</button>
-                <button class="guestCountButton" ng-click="guestDataTemp.count = 19; guestDataTemp.countManual = '';" ng-class="{'active' : guestDataTemp.count == 19}">19</button>
-                <button class="guestCountButton" ng-click="guestDataTemp.count = 20; guestDataTemp.countManual = '';" ng-class="{'active' : guestDataTemp.count == 20}">20</button>
-                <input type="number" ng-model="guestDataTemp.countManual" ng-class="{'active' : guestDataTemp.countManual && guestDataTemp.countManual >= 21}" ng-change="guestDataTemp.count = guestDataTemp.countManual" class="guestCountInput">
+                <input type="tel" ng-model="guestDataTemp.countManual" ng-class="{'active' : guestDataTemp.countManual && guestDataTemp.countManual >= 11}" ng-change="guestDataTemp.count = guestDataTemp.countManual" class="guestCountInput">
               </div>
             </div>
           </div>
-         
 
-          <div style="margin-top: 20px">
-            <span style="text-align: center; display: block; color: #444; letter-spacing: 2px;">MOBILE NUMBER</span>
-            <input type="number" placeholder="10 digit mobile number" ng-model="guestDataTemp.mobile" class="guestMobileInput">
+          <span style="text-align: center; display: block; color: #444; letter-spacing: 2px; margin: 10px 0 5px 0">PERSONAL DETAILS</span>
+    
+
+          <div style="margin-top: 5px; position: relative">
+            <span style="text-align: center; color: #FFF; -ms-transform: rotate(20deg); /* -webkit-transform: rotate(20deg); */ transform: rotate(270deg); display: inline-block; position: absolute; top: 22px; left: -11px; font-weight: bold; font-size: 12px;">MOBILE</span>
+            <input type="tel" ng-model="guestDataTemp.mobile" class="guestMobileInput" style="font-size: 24px; font-weight: bold; letter-spacing: 6px; height: 64px; padding: 0px; width: 100%; text-align: center; border: 1px solid #009688 !important; border-left: 26px solid #009688 !important; border-top-right-radius: 6px !important; border-bottom-right-radius: 4px !important; color: #009688;" placeholder="">
           </div>
 
-          <div style="margin-top: 20px">
-            <span style="text-align: center; display: block; color: #444; letter-spacing: 2px;">NAME</span>
-            <input type="text" placeholder="Name of the guest" ng-model="guestDataTemp.name" class="guestMobileInput">
+          <div style="margin-top: 10px; position: relative">
+            <span style="text-align: center; color: #FFF; -ms-transform: rotate(20deg); /* -webkit-transform: rotate(20deg); */ transform: rotate(270deg); display: inline-block; position: absolute; top: 22px; left: -5px; font-weight: bold; font-size: 12px;">NAME</span>
+            <input type="text" ng-model="guestDataTemp.name" class="guestMobileInput" style="font-size: 24px; font-weight: bold; letter-spacing: 6px; height: 64px; padding: 0px; width: 100%; text-align: center; border: 1px solid #009688 !important; border-left: 26px solid #009688 !important; border-top-right-radius: 6px !important; border-bottom-right-radius: 4px !important; color: #009688; letter-spacing: 1px; text-transform: uppercase;" placeholder="">
           </div>
-  
-      </div>
-    </div>
 
-  <div style="border-radius: 0; position: absolute; bottom: 0; z-index: 1000; margin: 0; left: 0; width: 100%; border-top: 2px solid #b96c2f;">
-    <button class="button button-default close-button" style="width: 35%; float: left; margin: 0; border-radius: 0;" ng-click="guest_modal.hide()">Close</button>
-    <button ng-click="saveGuestData()" style="width: 65%; float: right; display: inline-block; position: absolute; right: 0; border-radius: 0; top: 0; margin: 0; font-weight: bold; text-transform: uppercase;" class="button button-balanced button-block">Save</button>
-  </div>
+
+</div>  
+
 
   </ion-content>
+
+  <ion-footer-bar class="search-header" style="padding: 0; background: #FFF; height: 45px;">
+    <div style="border-radius: 0; position: absolute; bottom: 0; z-index: 1000; margin: 0; left: 0; width: 100%; border-top: 2px solid #4d606b;">
+      <!-- <button class="button button-default close-button" style="width: 100%; float: left; margin: 0; border-radius: 0; height: 45px; font-size: 16px;" ng-click="search_item_modal.hide()">Close</button> -->
+
+      <button class="button button-default close-button" style="width: 35%; float: left; margin: 0; border-radius: 0; height: 45px; font-size: 16px;" ng-click="guest_modal.hide()">Close</button>
+    <button ng-click="saveGuestData()" style="width: 65%; float: right; display: inline-block; position: absolute; right: 0; border-radius: 0; top: 0; margin: 0; font-weight: bold; text-transform: uppercase; height: 45px; font-size: 16px;" class="button button-balanced button-block">Save</button>
+
+
+    </div>  
+  </ion-footer-bar>
+
 </ion-modal-view>
+
+
+
 
 
 
