@@ -17,10 +17,6 @@ UI-UX_inspiration/
 build/
 resources/android/
 
-www/css/
-www/lib/
-www/fonts/
-www/img/orig
 www/js/app/views.js
 www/js/views.js
 www/js/app/tracking-config.js
