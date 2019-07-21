@@ -1997,7 +1997,7 @@ angular.module('pos.controllers', ['ionic'])
             return {'bottom': '107px'};
         }
         else{
-            return {'bottom': '49px'};
+            return {'bottom': '107px'};
         }
       }
 
@@ -2640,7 +2640,7 @@ angular.module('pos.controllers', ['ionic'])
 })
 
 
- .controller('ShoppingCartCtrl', function(products, currentGuestData, billing_modes, billing_parameters, $ionicPopup, $http, $scope, $ionicLoading, $ionicModal, $timeout, $state, $rootScope, $ionicActionSheet, $ionicSideMenuDelegate, ShoppingCartService, deviceLicenseService) {
+ .controller('ShoppingCartCtrl', function(products, currentGuestData, kitchen_comments, billing_modes, billing_parameters, $ionicPopup, $http, $scope, $ionicLoading, $ionicModal, $timeout, $state, $rootScope, $ionicActionSheet, $ionicSideMenuDelegate, ShoppingCartService, deviceLicenseService) {
 
 
     var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@localhost:5984/';
@@ -2734,7 +2734,6 @@ angular.module('pos.controllers', ['ionic'])
     $scope.isCartEmpty = function(){
         var cart = window.localStorage.accelerate_cart && window.localStorage.accelerate_cart != '' ? JSON.stringify(window.localStorage.accelerate_cart) : [];
         
-        console.log(cart.length)
         if(cart.length == 0){
             return true;
         }
@@ -3049,6 +3048,185 @@ angular.module('pos.controllers', ['ionic'])
         }
 
     }
+
+
+    //Edit comments for the Item in Cart
+
+      $ionicModal.fromTemplateUrl('views/common/templates/edit-item-comments.html', {
+        scope: $scope,
+        animation: 'slide-in-up'
+      }).then(function(modal) {
+        $scope.edit_item_modal = modal;
+      });
+
+      $scope.editCartItem = function(itemData){
+
+        if(!window.localStorage.current_table_selection || window.localStorage.current_table_selection == ''){ //No table selected
+            $ionicLoading.show({
+                template: "Table <b>not</b> selected",
+                duration: 1500
+            });            
+            return '';
+        }
+
+
+        //Already printed item in KOT 
+        if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+            var change_noticed = checkForItemChanges(itemData.code, itemData.variant, itemData.qty, itemData.cartIndex);
+            
+            if(change_noticed == 'QUANTITY_INCREASE' || change_noticed == 'QUANTITY_DECREASE' || change_noticed == 'NEW_ITEM'){
+                
+            }
+            else {
+                return '';
+            }
+        }
+
+
+        $scope.kitchenCommentsForEdit = kitchen_comments.sort();
+        $scope.myEditItem = angular.copy(itemData);
+
+        $scope.edit_item_modal.show();
+      };
+
+
+
+
+
+    function checkForItemChanges(code, variant, quantity, cart_index){
+
+    /*
+        Check if a particular item in accelerate_cart has any change w.r.t originalCart 
+        (useful while editing an order)
+    */
+
+        var isCustom = true;
+        if(!variant || variant == ''){
+            isCustom = false;
+        }
+
+        if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+
+            var originalData = window.localStorage.edit_KOT_originalCopy ?  JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
+            
+            var changed_cart_products = window.localStorage.accelerate_cart ?  JSON.parse(window.localStorage.accelerate_cart) : [];
+            if(changed_cart_products.length == 0){
+                return 'ERROR';
+            }
+
+
+            //Compare changes in the Cart
+            var original_cart_products = originalData.cart;
+            if(original_cart_products.length == 0){
+                return 'ERROR';
+            }
+
+
+                //Search for the item in orignal Cart
+                for(var m = 0; m < original_cart_products.length; m++){
+                    //check if item is found, not found implies New Item!
+                    if(!isCustom && (code == original_cart_products[m].code && cart_index == original_cart_products[m].cartIndex)){
+                        //Item Found
+                        if(quantity > original_cart_products[m].qty){ //qty increased
+                            return 'QUANTITY_INCREASE';
+                        }
+                        else if(quantity < original_cart_products[m].qty){ //qty decreased
+                            return 'QUANTITY_DECREASE';
+                        }
+                        
+                        break;
+                    }
+                    else if(isCustom && (code == original_cart_products[m].code && cart_index == original_cart_products[m].cartIndex) && (variant == original_cart_products[m].variant)){
+                        //Item Found
+                        if(quantity > original_cart_products[m].qty){ //qty increased
+                            return 'QUANTITY_INCREASE';
+                        }
+                        else if(quantity < original_cart_products[m].qty){ //qty decreased
+                            return 'QUANTITY_DECREASE';
+                        }
+                        break;
+                    }
+
+                    //Last iteration to find the item
+                    if(m == original_cart_products.length-1){ //New item
+                        return 'NEW_ITEM';
+                    }
+                } 
+        }
+        else{
+            return 'ERROR';
+        }
+
+        return 'NO_CHANGE';
+    }
+
+
+      $scope.saveEditedItemComments = function(editedItem){
+        var comments = '';
+
+        if(editedItem.comments != "" && editedItem.comments != undefined){
+            comments = editedItem.comments;
+        }
+
+        ShoppingCartService.updateComments(editedItem.cartIndex, comments)
+        $scope.edit_item_modal.hide();
+      }
+
+
+      $scope.isCommentAddedEditedItem = function(comment){
+
+        if($scope.myEditItem.comments == "" || $scope.myEditItem.comments == undefined){
+            return false;
+        }
+
+        var comm_splits = ($scope.myEditItem.comments).split(', ');
+
+        var n = 0;
+        while(comm_splits[n]){
+            if(comm_splits[n] == comment){
+                return true;
+            }
+            n++;
+        }
+
+        return false;
+      }
+
+
+      $scope.addCommentToEditItem = function(commentNew){
+        if($scope.myEditItem.comments == '' || $scope.myEditItem.comments == undefined){
+            $scope.myEditItem.comments = commentNew;
+        }
+        else{
+            
+            var temp_all = $scope.myEditItem.comments.split(', ');
+
+            var n = 0;
+            while(temp_all[n]){
+                if(temp_all[n] == commentNew){
+                    temp_all.splice(n, 1);
+                    var new_comments = '';
+                    for(var i = 0; i < temp_all.length; i++){
+                        if(i == 0){
+                            new_comments = temp_all[0];
+                        }
+                        else{
+                            new_comments += ', ' + temp_all[i];
+                        }
+                    }
+
+                    $scope.myEditItem.comments = new_comments;
+                    
+                    return "";
+                }
+                n++;
+            }
+
+            $scope.myEditItem.comments += ', '+commentNew;            
+            
+        }
+
+      }
 
 
 
