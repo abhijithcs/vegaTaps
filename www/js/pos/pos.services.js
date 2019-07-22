@@ -69,83 +69,7 @@ angular.module('pos.services', [])
 })
 
 
-.service('outletService', function ($http, $q){
 
-  //Default Parameters
-  var outlet = "";
-  var paymentKey = "";
-  var onlyTakeAway = false;
-  var isSpecial = false;
-  var city = "";
-  var location = "";
-  var locationCode = "";
-
-  var isAcceptingOnlinePayment = true;
-  var isOpen = true;
-
-  var isDelayed = false;
-  var delayMessage = '';
-  var closureMessage = '';
-
-  var isTaxCollected = true;
-  var taxPercentage = 0.02;
-
-  var isParcelCollected = true;
-  var parcelPercentageDelivery = 0.05;
-  var parcelPercentagePickup = 0.03;
-
-  var minAmount = 300;
-  var minTime = 45;
-
-  this.setOutletInfo = function(info){
-    outlet = info.outlet;
-    onlyTakeAway = info.onlyTakeAway;
-    isSpecial = info.isSpecial;
-    city = info.city;
-    location = info.location;
-    locationCode = info.locationCode;
-    isAcceptingOnlinePayment = info.isAcceptingOnlinePayment;
-    isOpen = info.isOpen;
-    paymentKey = info.paymentKey;
-    isTaxCollected = info.isTaxCollected;
-    taxPercentage = info.taxPercentage;
-    isParcelCollected = info.isParcelCollected;
-    parcelPercentageDelivery = info.parcelPercentageDelivery;
-    parcelPercentagePickup = info.parcelPercentagePickup;
-    minAmount = info.minAmount;
-    minTime = info.minTime;
-
-    isDelayed = info.isDelayed;
-    delayMessage = info.delayMessage;
-    closureMessage = info.closureMessage;
-  }
-
-  this.getInfo = function(){
-    var data = {
-      "outlet":outlet,
-      "onlyTakeAway":onlyTakeAway,
-      "isSpecial": isSpecial,
-      "city":city,
-      "location":location,
-      "locationCode":locationCode,
-      "isTaxCollected": isTaxCollected,
-      "taxPercentage": taxPercentage,
-      "isParcelCollected":isParcelCollected,
-      "parcelPercentageDelivery": parcelPercentageDelivery,
-      "parcelPercentagePickup": parcelPercentagePickup,
-      "minTime": minTime,
-      "minAmount": minAmount,
-      "isAcceptingOnlinePayment": isAcceptingOnlinePayment,
-      "isOpen": isOpen,
-      "paymentKey": paymentKey,
-      "isDelayed": isDelayed,
-      "delayMessage": delayMessage,
-      "closureMessage": closureMessage
-    }
-    return data;
-  }
-
-})
 
 
 
@@ -189,24 +113,6 @@ angular.module('pos.services', [])
   }
 })
 
-.service('locationChangeRouteTrackerService', function ($http, $q){
-  
-  //Default Parameters
-  var source = "";
-
-  this.setSource = function(src){
-    source = src;
-  }
-
-  this.getSource = function(){
-    return source;
-  }  
-
-  this.reset = function(){
-    source = "";
-  }
-
-})
 
 
 .service('LocationService', function($q){
@@ -577,6 +483,32 @@ angular.module('pos.services', [])
     $rootScope.$broadcast('cart_updated', cart_products);
 
     //animateCartIcon();
+  };
+
+
+  this.updateComments = function(itemIndex, newComments){
+
+    var cart_products = !_.isUndefined(window.localStorage.accelerate_cart) ? JSON.parse(window.localStorage.accelerate_cart) : [];
+
+    if(cart_products.length > 0){
+      var t = 0;
+      while(cart_products[t]){
+        if(cart_products[t].cartIndex == itemIndex){
+          cart_products[t].comments = newComments && newComments != undefined ? newComments : '';
+          break;
+        }
+        t++;
+      }
+    }
+
+
+    $rootScope.$broadcast('cart_updated', cart_products);
+    $rootScope.$emit('cart_updated', cart_products);
+
+
+    window.localStorage.accelerate_cart = JSON.stringify(cart_products);
+    $rootScope.$broadcast('cart_updated', cart_products);
+    
   };
 
 

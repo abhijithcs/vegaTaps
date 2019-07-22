@@ -1,0 +1,46 @@
+
+<ion-modal-view class="modal-view legal-view" style="background: #ff7600; background: -webkit-linear-gradient(to bottom, #ff7600, #ffab6b); background: linear-gradient(to bottom, #ff7600, #ffab6b);">
+
+  <ion-content>
+
+
+<!-- Search Results -->
+<div class="feed-view" style="padding: 0 15px; background: none">
+
+    <h2 class="legal-title" style="font-family: 'Roboto'; margin: 20px 0 15px 0; font-size: 21px;">Comments for <b>{{myEditItem.name}}</b> <tag ng-if="myEditItem.isCustom">({{myEditItem.variant}})</tag><tag ng-if="myEditItem.qty > 1" style="display: block; font-size: 14px;">Quantity {{myEditItem.qty}}</tag></h2>
+
+    <div style="padding: 15px; border-radius: 4px; background-color: #FFF; color: #ecf0f1; font-size: 12px;">
+     
+          <span style="text-align: center; display: block; color: #444; font-weight: bold; letter-spacing: 2px;">COMMENTS</span>
+
+          <textarea placeholder="Any Comments?" ng-model="myEditItem.comments" style="border-radius: 0px; resize: none; border: 1px solid #ebebeb; color: #3a3939; padding: 10px; width: 100%; font-size: 16px; line-height: 21px;" rows="3" ng-trim="false"></textarea>
+
+          <div style="margin-top: 10px;">
+            <button ng-repeat="comm in kitchenCommentsForEdit track by $index" class="itemWiseComment" ng-class="{'itemWiseCommentActive' : isCommentAddedEditedItem(comm)}" ng-click="addCommentToEditItem(comm)">{{comm}}</button>
+
+          </div>
+
+    </div>  
+
+</div> 
+
+  </ion-content>
+
+  <ion-footer-bar class="search-header" style="padding: 0; background: #FFF; height: 45px;">
+    <div style="border-radius: 0; position: absolute; bottom: 0; z-index: 1000; margin: 0; left: 0; width: 100%; border-top: 2px solid #8c6307;">
+
+      <button class="button button-default close-button" style="width: 30%; float: left; margin: 0; border-radius: 0; height: 45px; font-size: 16px;" ng-click="edit_item_modal.hide()">Hide</button>
+
+      <button ng-click="saveEditedItemComments(myEditItem)" style="width: 70%; float: right; display: inline-block; position: absolute; right: 0; border-radius: 0; top: 0; margin: 0; font-weight: bold; text-transform: uppercase; height: 45px; font-size: 16px;" class="button button-energized button-block">Save</button>
+
+
+    </div>  
+  </ion-footer-bar>
+
+</ion-modal-view>
+
+
+
+
+
+

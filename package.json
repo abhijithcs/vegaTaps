@@ -1,6 +1,6 @@
 {
     "name": "accelerateVegaTaps",
-    "version": "1.0.2",
+    "version": "1.0.4",
     "description": "Mobile POS Application and Table Manager",
     "dependencies": {
         "angular-chart.js": "^1.1.1",

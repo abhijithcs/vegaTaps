@@ -1,0 +1,12 @@
+{
+  "name": "ionmultiapp-icons",
+  "_release": "a996970a40",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "a996970a4078a75b12ab43b91a92c9cd72caa445"
+  },
+  "_source": "https://bitbucket.org/picosypalas/ionmultiapp-icons.git",
+  "_target": "*",
+  "_originalSource": "https://bitbucket.org/picosypalas/ionmultiapp-icons.git"
+}

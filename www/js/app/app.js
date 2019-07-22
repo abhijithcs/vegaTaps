@@ -322,6 +322,9 @@ angular.module('accelerateVegaTaps', [
                     },
                     billing_parameters: function(ShoppingCartService) {
                         return ShoppingCartService.getBillingParameters();
+                    },
+                    kitchen_comments: function(ShoppingCartService) {
+                        return ShoppingCartService.getComments();
                     }
                 }
             })
