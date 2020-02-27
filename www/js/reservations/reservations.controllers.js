@@ -118,7 +118,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                 });
                 $http({
                         method: 'POST',
-                        url: 'https://www.zaitoon.online/services/editreservationsadmin.php',
+                        url: 'http://www.zaitoonrestaurant.com/services/editreservationsadmin.php',
                         data: data,
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded'
@@ -355,7 +355,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                 });
                 $http({
                         method: 'POST',
-                        url: 'https://www.zaitoon.online/services/newreservationsadmin.php',
+                        url: 'http://www.zaitoonrestaurant.com/services/newreservationsadmin.php',
                         data: data,
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded'
@@ -535,7 +535,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
             $http({
               method  : 'POST',
-              url     : 'https://zaitoon.online/services/tapsfetchreservations.php',
+              url     : 'http://zaitoonrestaurant.com/services/tapsfetchreservations.php',
               data    : data,
               headers : {'Content-Type': 'application/x-www-form-urlencoded'},
               timeout : 10000
@@ -1018,7 +1018,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                             });
                             $http({
                                     method: 'POST',
-                                    url: 'https://www.zaitoon.online/services/deskmarkreservationcompleted.php',
+                                    url: 'http://www.zaitoonrestaurant.com/services/deskmarkreservationcompleted.php',
                                     data: data,
                                     headers: {
                                         'Content-Type': 'application/x-www-form-urlencoded'
@@ -1076,7 +1076,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                             });
                             $http({
                                     method: 'POST',
-                                    url: 'https://www.zaitoon.online/services/cancelreservationsadmin.php',
+                                    url: 'http://www.zaitoonrestaurant.com/services/cancelreservationsadmin.php',
                                     data: data,
                                     headers: {
                                         'Content-Type': 'application/x-www-form-urlencoded'
@@ -1137,7 +1137,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                             });
                             $http({
                                     method: 'POST',
-                                    url: 'https://www.zaitoon.online/services/deskdeletereservation.php',
+                                    url: 'http://www.zaitoonrestaurant.com/services/deskdeletereservation.php',
                                     data: data,
                                     headers: {
                                         'Content-Type': 'application/x-www-form-urlencoded'
@@ -1333,7 +1333,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
             $http({
               method  : 'POST',
-              url     : 'https://zaitoon.online/services/tapsfetchreservations.php',
+              url     : 'http://zaitoonrestaurant.com/services/tapsfetchreservations.php',
               data    : data,
               headers : {'Content-Type': 'application/x-www-form-urlencoded'},
               timeout : 10000
@@ -1776,7 +1776,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                             });
                             $http({
                                     method: 'POST',
-                                    url: 'https://www.zaitoon.online/services/deskmarkreservationcompleted.php',
+                                    url: 'http://www.zaitoonrestaurant.com/services/deskmarkreservationcompleted.php',
                                     data: data,
                                     headers: {
                                         'Content-Type': 'application/x-www-form-urlencoded'
@@ -1834,7 +1834,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                             });
                             $http({
                                     method: 'POST',
-                                    url: 'https://www.zaitoon.online/services/cancelreservationsadmin.php',
+                                    url: 'http://www.zaitoonrestaurant.com/services/cancelreservationsadmin.php',
                                     data: data,
                                     headers: {
                                         'Content-Type': 'application/x-www-form-urlencoded'
@@ -1895,7 +1895,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                             });
                             $http({
                                     method: 'POST',
-                                    url: 'https://www.zaitoon.online/services/deskdeletereservation.php',
+                                    url: 'http://www.zaitoonrestaurant.com/services/deskdeletereservation.php',
                                     data: data,
                                     headers: {
                                         'Content-Type': 'application/x-www-form-urlencoded'
@@ -2092,7 +2092,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
             $http({
               method  : 'POST',
-              url     : 'https://zaitoon.online/services/tapsfetchreservations.php',
+              url     : 'http://zaitoonrestaurant.com/services/tapsfetchreservations.php',
               data    : data,
               headers : {'Content-Type': 'application/x-www-form-urlencoded'},
               timeout : 10000
@@ -2544,7 +2544,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                             });
                             $http({
                                     method: 'POST',
-                                    url: 'https://www.zaitoon.online/services/deskmarkreservationcompleted.php',
+                                    url: 'http://www.zaitoonrestaurant.com/services/deskmarkreservationcompleted.php',
                                     data: data,
                                     headers: {
                                         'Content-Type': 'application/x-www-form-urlencoded'
@@ -2605,7 +2605,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
                             $http({
                                     method: 'POST',
-                                    url: 'https://www.zaitoon.online/services/cancelreservationsadmin.php',
+                                    url: 'http://www.zaitoonrestaurant.com/services/cancelreservationsadmin.php',
                                     data: data,
                                     headers: {
                                         'Content-Type': 'application/x-www-form-urlencoded'
@@ -2666,7 +2666,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                             });
                             $http({
                                     method: 'POST',
-                                    url: 'https://www.zaitoon.online/services/deskdeletereservation.php',
+                                    url: 'http://www.zaitoonrestaurant.com/services/deskdeletereservation.php',
                                     data: data,
                                     headers: {
                                         'Content-Type': 'application/x-www-form-urlencoded'
@@ -3153,7 +3153,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
 
                                 $http({
                                         method: 'POST',
-                                        url: 'https://www.zaitoon.online/services/deskassigntable.php',
+                                        url: 'http://www.zaitoonrestaurant.com/services/deskassigntable.php',
                                         data: data,
                                         headers: {
                                             'Content-Type': 'application/x-www-form-urlencoded'

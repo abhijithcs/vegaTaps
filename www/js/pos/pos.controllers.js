@@ -1846,7 +1846,7 @@ angular.module('pos.controllers', ['ionic'])
         	"category" : optionalSource == 'SEARCH_AND_ADD' ? $scope.myItem.category : $scope.renderingSubMenu,
         	"isCustom" : $scope.myItem.isCustom,
         	"comments" : $scope.myItem.comment,
-        	"qty" : $scope.myItem.qty,
+        	"qty" : parseInt($scope.myItem.qty),
             "isPackaged": $scope.myItem.isPackaged
         }
 

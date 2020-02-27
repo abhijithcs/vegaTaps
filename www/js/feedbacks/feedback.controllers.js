@@ -43,7 +43,7 @@ angular.module('feedback.controllers', [])
 
                         $http({
                             method: 'POST',
-                            url: 'https://www.zaitoon.online/services/deskreviewsearchuser.php',
+                            url: 'http://www.zaitoonrestaurant.com/services/deskreviewsearchuser.php',
                             data: data,
                             headers: {
                                 'Content-Type': 'application/x-www-form-urlencoded'
@@ -354,7 +354,7 @@ angular.module('feedback.controllers', [])
 
                     $http({
                             method: 'POST',
-                            url: 'https://www.zaitoon.online/services/deskpostreview.php',
+                            url: 'http://www.zaitoonrestaurant.com/services/deskpostreview.php',
                             data: data,
                             headers: {
                                 'Content-Type': 'application/x-www-form-urlencoded'

@@ -248,7 +248,7 @@ angular.module('pos.services', [])
 
     $http({
       method  : 'POST',
-      url     : 'https://www.zaitoon.online/services/fetchusers.php',
+      url     : 'http://www.zaitoonrestaurant.com/services/fetchusers.php',
       data    : data,
       headers : {'Content-Type': 'application/x-www-form-urlencoded'}
      })

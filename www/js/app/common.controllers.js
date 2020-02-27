@@ -17,7 +17,7 @@ angular.module('common.controllers', [])
             $scope.isApplicationActivated = false;
             $scope.myactivation.code = "";
             $scope.activationError = "";
-        }          
+        }  
 
         //Device Activation 
         $scope.doActivation = function(){
@@ -42,7 +42,7 @@ angular.module('common.controllers', [])
 
             $http({
                     method: 'POST',
-                    url: 'https://www.accelerateengine.app/apis/posactivatedevice.php',
+                    url: 'http://www.accelerateengine.app/apis/posactivatedevice.php',
                     data: JSON.stringify(admin_data),
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
@@ -114,7 +114,7 @@ angular.module('common.controllers', [])
             });
             $http({
                     method: 'POST',
-                    url: 'https://www.zaitoon.online/services/adminlogin.php',
+                    url: 'http://www.zaitoonrestaurant.com/services/adminlogin.php',
                     data: $scope.mydata,
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
@@ -148,7 +148,7 @@ angular.module('common.controllers', [])
 
 
 
-    .controller('landingCtrl', function(deviceLicenseService, $ionicLoading, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate, ShoppingCartService, mappingService) {
+    .controller('landingCtrl', function(deviceLicenseService, $ionicActionSheet, $ionicLoading, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate, ShoppingCartService, mappingService) {
         
         if(deviceLicenseService.isActive()){
 
@@ -179,7 +179,7 @@ angular.module('common.controllers', [])
                 //Regenrating token
                 $http({
                         method: 'POST',
-                        url: 'https://www.zaitoon.online/services/admintokenregenerate.php',
+                        url: 'http://www.zaitoonrestaurant.com/services/admintokenregenerate.php',
                         data: mydata,
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded'
@@ -205,8 +205,23 @@ angular.module('common.controllers', [])
 
         }
 
-
         $scope.logoutNow = function() {
+            $ionicActionSheet.show({
+                buttons: [
+            { text: '<i class="icon ion-log-out assertive"></i> <i class="assertive">Logout</i>' },
+            { text: '<i class="icon"></i> <i class="dark">Cancel</i>' },
+          ],
+                titleText: 'Are you sure you want to logout?',
+                buttonClicked: function(index) {
+                    if(index == 0){
+                        $scope.logoutForced();
+                    }
+            return true;
+          },
+            });
+        };
+
+        $scope.logoutForced = function() {
             window.localStorage.admin = "";
             window.localStorage.lastRegenerate = "";
             $state.go('main.app.login');
@@ -600,7 +615,7 @@ angular.module('common.controllers', [])
                 
                     $http({
                         method: 'POST',
-                        url: 'https://www.zaitoon.online/services/deskreservationchannels.php',
+                        url: 'http://www.zaitoonrestaurant.com/services/deskreservationchannels.php',
                         data: data,
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded'
