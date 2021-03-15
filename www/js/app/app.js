@@ -288,6 +288,22 @@ angular.module('accelerateVegaTaps', [
                 }
             })
 
+            .state('main.app.smart', {
+                url: '/smart',
+                nativeTransitions: { type: "fade" },
+                views: {
+                    'app-smart@main.app': {
+                        templateUrl: 'views/pos/smart.html',
+                        controller: 'SmartCtrl'
+                    }
+                },
+                resolve: {
+                    kitchen_comments: function(ShoppingCartService) {
+                        return ShoppingCartService.getComments();
+                    }
+                }
+            })
+
 
             .state('main.app.settings', {
                 url: '/settings',

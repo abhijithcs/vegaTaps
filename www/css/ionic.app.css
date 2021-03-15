@@ -1,3 +1,162 @@
+.smartOrderItem{
+  font-size: 14px;
+  color: #3a4246;
+}
+
+.smartOrderOption{
+    display: block;
+    font-size: 70%;
+    text-transform: uppercase;
+    color: #ff9800;
+}
+
+.smartOrderItem.left{
+  text-align: right;
+}
+
+.smartOrderShortDisplay{
+    height: 40px;
+    background: #009688;
+    padding: 10px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+.smartOrderShortDisplay .time{
+    float: right;
+    font-weight: 400;
+    font-size: 90%;
+}
+
+.activeSmartOrder .newLabel {
+  background: #37afa4; 
+  font-size: 14px; 
+  padding: 2px 6px; 
+  color: #FFF; 
+  border-radius: 3px;
+}
+
+.runningSmartOrder .newLabel {
+  background: #dc9852; 
+  font-size: 14px; 
+  padding: 2px 6px; 
+  color: #FFF; 
+  border-radius: 3px;
+}
+
+.smartOrderShortDisplay.viewing{
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.smartOrderOtherSummary{
+  text-align: center;
+}
+
+.otherCaptainsDivision{
+    width: 100%;
+    margin-top: 50px;
+    border-top: 1px solid #e6e6e6;
+}
+
+.smartOrderOtherSummary .text{
+    color: #9e9e9e;
+    text-transform: uppercase;
+    margin: 10px 0 5px 0;
+    font-size: 10px;
+    font-weight: 400;
+}
+
+.smartOrderOtherSummaryTable{
+    border-radius: 50%;
+    height: 30px;
+    width: 30px;
+    display: inline-block;
+    padding: 5px 1px; 
+    color: #FFF;
+    font-weight: bold;
+    text-align: center;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+.attendedByOtherCaptainText{
+    color: #673ab7;
+    text-align: center;
+    margin: 8px 0 0 0;
+    font-size: 12px;
+}
+
+.activeSmartOrder{
+  background: #009688 !important;
+}
+
+.runningSmartOrder{
+  background: #ff9800 !important;
+}
+
+.actionRequestBell{
+    width: 20px;
+    height: 20px;
+    background: #ffc107;
+    display: inline-block;
+    position: absolute;
+    left: 25px;
+    text-align: center;
+    border-radius: 50%;
+}
+
+.actionRequestBell .text{
+    position: absolute;
+    left: 6px;
+    top: -6px;
+    color: #040404;
+}
+
+.seatNameSmall{
+      position: absolute;
+    top: 2px;
+    left: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #FFF;
+}
+
+.serviceTableSteward{
+  background: #ff9800 !important;
+}
+
+.serviceTableBill{
+  background: #4caf50 !important;
+}
+
+.serviceTableFast{
+  background: #f44336 !important;
+}
+
+.settingsActionTitle{
+      color: #9c3f34;
+    text-align: left;
+    font-size: 18px;
+    margin: 20px 0 0 0;
+    font-family: 'Raleway', sans-serif;
+    padding: 5px 5px 5px 30px;
+    font-weight: bold;
+}
+
+.settingsTable .col{
+  padding: 0 !important;
+}
+
+
+.seatName i{
+  color: #FFF !important;
+}
+
+
+
 @charset "UTF-8";
 .selectTableButton {
   float: right;
@@ -15081,6 +15240,8 @@ ion-spinner.spinner-on-load {
       background-image: url("../img/common/tabs-explore.png"); }
     .tabbed-navigation .tabs .tab-item .icon.account-icon {
       background-image: url("../img/common/tabs-account.png"); }
+    .tabbed-navigation .tabs .tab-item .icon.smart-icon {
+      background-image: url("../img/common/tabs-smart.png"); }
 
 .auth-view {
   background-color: #FFE6DC; }

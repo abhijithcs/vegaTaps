@@ -21,6 +21,7 @@
         "gulp-sass": "^3.1.0",
         "gulp-sourcemaps": "^1.5.2",
         "ion-datetime-picker": "^0.5.2",
+        "ionic": "^1.6.2-beta.0",
         "ionic-plugin-keyboard": "^2.0.1",
         "npm": "^3.10.9",
         "require-dir": "^0.3.0"
