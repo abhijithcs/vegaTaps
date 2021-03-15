@@ -1,0 +1,18 @@
+<ion-modal-view style="background: rgba(0,0,0,0.4); backdrop-filter: saturate(180%) blur(5px);" ng-click="closeSmartRequestAlert(currentLastRequest)" ng-show="!isOrderAlertShown">
+  <ion-content>
+    <div style="width: 100%; text-align: center; margin-top: 50%;">
+      <div style="background: #ff9800; display: inline-block; padding: 20px 40px; border-radius: 5px; border-bottom: 10px solid #63686b;">
+        <center>
+        	<div style="background: #FFF; width: 100px; height: 100px; border-radius: 50%; padding-top: 10px;">
+        		<img src="../../../img/common/smart-new-request.png" width="80px">
+        	</div>
+        </center>
+        <h1 style="display: block; font-size: 20px; color: #FFF; text-transform: uppercase; font-weight: bold;">Customer Request</h1>
+        <p style="background: #63686b; font-weight: bold; color: #FFF; display: inline-block; padding: 2px 10px; border-radius: 4px;">{{passiveRequestCount}} PENDING</p>
+        <div style="width: 215px; white-space: nowrap; overflow: scroll;">
+        	<tag class="alertOrderTableStreak" style="background: #c77a08" ng-repeat="request in passiveRequestList track by $index">{{request.table}}</tag>
+        </div>
+      </div>
+    </div>
+  </ion-content>
+</ion-modal-view>

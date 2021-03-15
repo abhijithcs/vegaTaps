@@ -24,11 +24,6 @@ angular.module('pos.controllers', ['ionic'])
             $scope.isRenderLoaded = true;
         }
 
-        $scope.doOrderRefresh = function(){
-            $scope.fetchSmartOrders('REFRESH');
-        }
-
-
         //User Profile
         $scope.isProfileSelected = false;
         $scope.selectedUserProfile = '';
@@ -49,24 +44,7 @@ angular.module('pos.controllers', ['ionic'])
             $scope.isProfileSelected = true;
 
         }
-
-
-
-        //Timers
-        var fetchSmartOrdersTimer = $interval(function() {
-            $scope.fetchSmartOrders();
-        }, 10000);
-
-        $scope.$on('$destroy', function() {
-            $interval.cancel(fetchSmartOrdersTimer);
-        });
         
-
-        $interval(function() {
-            $scope.getServiceRequestCounter();
-        }, 10000);
-
-
 
         //Choose User Profile
         $scope.chooseUserProfile = function(){
@@ -281,13 +259,27 @@ angular.module('pos.controllers', ['ionic'])
         }
 
 
+        //Timers
+        var fetchSmartOrdersTimer = $interval(function() {
+            $scope.fetchSmartOrders();
+        }, 15000);
+
+        $scope.$on('$destroy', function() {
+            $interval.cancel(fetchSmartOrdersTimer);
+        });
+
+        $scope.isFirstTimeLoading = true;
+        $scope.doOrderRefresh = function(){
+            $scope.isFirstTimeLoading = true; 
+            $scope.fetchSmartOrders('REFRESH');
+        }
+
 
         // Making request to server to fetch-menu
         $scope.fetchSmartOrders = function(optionalRequest) {
 
               $scope.myPendingOrders = [];
-              var lastFetchedOrderStreakForCaptain = window.localStorage.lastFetchedOrderStreakForCaptain && window.localStorage.lastFetchedOrderStreakForCaptain != '' ? window.localStorage.lastFetchedOrderStreakForCaptain : 0;
-
+              
               //FIRST LOAD
               $scope.renderFailed = false;
               $scope.isRenderLoaded = false;
@@ -302,26 +294,11 @@ angular.module('pos.controllers', ['ionic'])
                     timeout: 10000
                 })
                 .success(function(response) {
+                    $scope.isFirstTimeLoading = false;
                     var allOrders = response.myPendingOrders;
                     $scope.allOtherOrders = response.otherCaptainsPendingOrders;
 
                     $scope.myPendingOrders = allOrders;
-
-                    var i = 0;
-                    var subOrderList = [];
-                    while(i < allOrders.length){
-                        if(allOrders[i].orderData.subOrderId && allOrders[i].orderData.subOrderId != "")
-                            subOrderList.push(allOrders[i].orderData.subOrderId);
-                        i++;
-                    }
-                    subOrderList = subOrderList.sort();
-                    fetchedOrderStreak = subOrderList.join("-");
-
-                    if($scope.myPendingOrders.length > 0){ //&& fetchedOrderStreak != lastFetchedOrderStreakForCaptain
-                        $rootScope.$broadcast('ACTIVE_ORDERS_ALERT', $scope.myPendingOrders.length);
-                    }
-
-                    window.localStorage.lastFetchedOrderStreakForCaptain = fetchedOrderStreak;
 
                     if(optionalRequest && optionalRequest == 'REFRESH'){
                         $scope.$broadcast('scroll.refreshComplete');
@@ -331,7 +308,7 @@ angular.module('pos.controllers', ['ionic'])
                     $scope.isRenderLoaded = true;
                 })
                 .error(function(data) {
-
+                    $scope.isFirstTimeLoading = false;
                     $ionicLoading.show({
                         template: "Not responding. Check your connection.",
                         duration: 3000
@@ -346,6 +323,39 @@ angular.module('pos.controllers', ['ionic'])
         }
 
         $scope.fetchSmartOrders();
+
+
+        $scope.getNotificationMetrics();
+        $scope.getNotificationMetrics = function(){
+                let data = {
+                    "token": "sHtArttc2ht+tMf9baAeQ9ukHnXtlsHfexmCWx5sJOjMmduTS8FqbWXZu3C46tTVWfJK2QlHYHIQvEmu05QacaIoEtT4ABkAPy3dnnxeGYI="
+                }
+
+                $http({
+                    method: 'POST',
+                    url: 'https://accelerateengine.app/smart-menu/apis/adminfetchnotificationmetrics.php',
+                    data: data,
+                    timeout: 10000
+                })
+                .success(function(response) {
+                    $ionicLoading.hide();
+                    if(response.status){
+
+                        //Service Requests
+                        if(response.serviceRequests && response.serviceRequests.length > 0){
+                            $rootScope.$broadcast('ACTIVE_REQUESTS_ALERT', response.serviceRequests);
+                        }
+                        else{
+                            $rootScope.$broadcast('ACTIVE_REQUESTS_ALERT', []);
+                        }
+
+                        //Service Requests
+                        if(response.pendingOrders && response.pendingOrders.length > 0){
+                            $rootScope.$broadcast('ACTIVE_ORDERS_ALERT', response.pendingOrders);
+                        }
+                    }
+                })
+        }
 
 
 
@@ -807,43 +817,12 @@ angular.module('pos.controllers', ['ionic'])
         }
 
 
+
+        //Broadcast for Request Counter
         $scope.serviceRequestCounter = 0;
-        $scope.getServiceRequestCounter = function(){
-                let data = {
-                    "token": "sHtArttc2ht+tMf9baAeQ9ukHnXtlsHfexmCWx5sJOjMmduTS8FqbWXZu3C46tTVWfJK2QlHYHIQvEmu05QacaIoEtT4ABkAPy3dnnxeGYI="
-                }
-
-                $http({
-                    method: 'POST',
-                    url: 'https://accelerateengine.app/smart-menu/apis/adminfetchactionrequests.php',
-                    data: data,
-                    timeout: 10000
-                })
-                .success(function(response) {
-                    $ionicLoading.hide();
-                    if(response.status){
-                        let allRequests = response.data;
-                        let tableMapper = {};
-                        var i = 0;
-                        let notificationCounter = 0;
-                        while(i < allRequests.length){
-                            if(tableMapper[allRequests[i].table]){
-
-                            }
-                            else {
-                                notificationCounter++;
-                                tableMapper[allRequests[i].table] = 1;
-                            }
-                            i++;
-                        }
-                        $scope.serviceRequestCounter = notificationCounter;
-                    }
-                })
-        }
-
-
-
-
+        $rootScope.$on('ACTIVE_REQUESTS_ALERT', function(event, requestData) {
+            $scope.serviceRequestCounter = requestData.length;
+        });
 
 
       $ionicModal.fromTemplateUrl('views/common/templates/view-service-requests.html', {
@@ -852,6 +831,8 @@ angular.module('pos.controllers', ['ionic'])
       }).then(function(modal) {
         $scope.viewServiceRequestsModal = modal;
       });
+
+      $scope.isViewingSelfRequestsOnly = false;
 
         $scope.openActionRequests = function(){
 
@@ -1054,6 +1035,9 @@ angular.module('pos.controllers', ['ionic'])
         }
 
 
+        $scope.hasTableARequest = function(seat){
+            return seat.serviceRequest && seat.serviceRequest != "";
+        }
 
         $scope.getIconOrTable = function(seat) {
             if (seat.serviceRequest && seat.serviceRequest != "") {
@@ -2453,12 +2437,146 @@ angular.module('pos.controllers', ['ionic'])
             $scope.smartOrderAlert = modal;
           });
 
+        $ionicModal.fromTemplateUrl('views/common/templates/smart-request-alert.html', {
+            scope: $scope,
+            animation: 'fade-in'
+          }).then(function(modal) {
+            $scope.smartRequestAlert = modal;
+          });
+
+        $scope.isOrderAlertShown = false;
 
         //Warn about new order
-        $rootScope.$on('ACTIVE_ORDERS_ALERT', function(event, data) {
-            $scope.passiveOrderCount = data;
-            $scope.smartOrderAlert.show();
+        $rootScope.$on('ACTIVE_ORDERS_ALERT', function(event, orderData) {
+            let timerLeft = window.localStorage.extendShowTimerInvisibility ? window.localStorage.extendShowTimerInvisibility : 0;
+            if(timerLeft > 1){
+                return;
+            }
+
+            $scope.passiveOrderCount = orderData.length;
+            if(orderData.length > 0 && isOrderNotify(orderData)){
+                $scope.isOrderAlertShown = true;
+                orderData.sort(function(obj1, obj2) {
+                    return obj1.table - obj2.table;
+                  });
+
+                var subOrderData = orderData;
+                subOrderData.sort(function(obj1, obj2) {
+                    return obj2.subOrderId - obj1.subOrderId;
+                });
+                $scope.currentLastOrder = subOrderData[0].subOrderId;
+                $scope.triggerNotification("ORDER", subOrderData[0].table, orderData.length);
+                $scope.passiveOrderList = orderData;
+                $scope.smartOrderAlert.show();
+            }
+            else{
+                $scope.isOrderAlertShown = false;
+                $scope.smartOrderAlert.hide();
+            }
         });
+
+        function isOrderNotify(allOrders){
+            var lastSeenOrderByCaptain = window.localStorage.lastSeenOrderByCaptain ? window.localStorage.lastSeenOrderByCaptain : 0;
+            allOrders.sort(function(obj1, obj2) {
+                return obj2.subOrderId - obj1.subOrderId;
+            });
+            var currentLastOrder = allOrders[0].subOrderId; 
+            if(currentLastOrder > lastSeenOrderByCaptain){
+                return true;
+            }
+            else{
+                //order already seen by captain
+                return false;
+            }
+        }
+
+        $scope.closeSmartOrderAlert = function(currentLastOrder){
+            window.localStorage.extendShowTimerInvisibility = 60;
+            $scope.isOrderAlertShown = false;
+            window.localStorage.lastSeenOrderByCaptain = currentLastOrder;
+            $scope.smartOrderAlert.hide();
+        }
+
+
+
+        //Warn about service request
+        $rootScope.$on('ACTIVE_REQUESTS_ALERT', function(event, requestData) {
+            let timerLeft = window.localStorage.extendShowTimerInvisibility ? window.localStorage.extendShowTimerInvisibility : 0;
+            if(timerLeft > 1){
+                return;
+            }
+            $scope.passiveRequestCount = requestData.length;
+            if(requestData.length > 0 && !$scope.isOrderAlertShown && isRequestNotify(requestData)){
+                requestData.sort(function(obj1, obj2) {
+                    return obj1.table - obj2.table;
+                  });
+                var myRequests = requestData;
+                myRequests.sort(function(obj1, obj2) {
+                    return obj2.id - obj1.id;
+                });
+                $scope.currentLastRequest = myRequests[0].id;
+                $scope.triggerNotification("REQUEST", myRequests[0].table, requestData.length);
+                $scope.passiveRequestList = requestData;
+                $scope.smartRequestAlert.show();
+            }
+            else{
+                $scope.smartRequestAlert.hide();
+            }
+        });
+
+        function isRequestNotify(allRequests){
+            var lastSeenRequestByCaptain = window.localStorage.lastSeenRequestByCaptain ? window.localStorage.lastSeenRequestByCaptain : 0;
+            allRequests.sort(function(obj1, obj2) {
+                return obj2.id - obj1.id;
+            });
+            var currentLastRequest = allRequests[0].id; 
+            if(currentLastRequest > lastSeenRequestByCaptain){
+                return true;
+            }
+            else{
+                //order already seen by captain
+                return false;
+            }
+        }
+
+        $scope.closeSmartRequestAlert = function(currentLastRequest){
+            window.localStorage.extendShowTimerInvisibility = 60;
+            window.localStorage.lastSeenRequestByCaptain = currentLastRequest;
+            $scope.smartRequestAlert.hide();
+        }
+
+        $scope.triggerNotification = function(type, table, count) {
+            if (window.cordova && window.cordova.plugins.notification) {
+                let title = "";
+                let text = "";
+                if(type == "ORDER"){
+                    title = count + " New Order";
+                    title = "New Order received on Table " + table;
+                    if(count > 1){
+                        title = title + " and "+ (count - 1) + "others"
+                    }
+                }
+                else if(type == "REQUEST"){
+                    title = count + " Service Requests";
+                    title = "Service Request from Table " + table;
+                    if(count > 1){
+                        title = title + " and "+ (count - 1) + "others"
+                    }
+                }
+                else {
+                    return;
+                }
+
+                cordova.plugins.notification.local.schedule({
+                    title: 'New Order #'+id,
+                    text: 'Thats pretty easy...',
+                    foreground: true
+                });
+            }
+            else{
+                console.log('cordova.notification not enabled')
+            }
+        }  
 
 
         //Receiving Broadcast - If Filter Applied
@@ -5448,8 +5566,61 @@ angular.module('pos.controllers', ['ionic'])
 
 
 
-.controller('AppCtrl', function(changeSlotService, $ionicSideMenuDelegate, $scope, $ionicPopup, ionicTimePicker, ionicDatePicker, $state, $http, $ionicPopover, $ionicLoading, $timeout, mappingService, currentBooking) {
-    
+.controller('AppCtrl', function($state, $http, $ionicPopover, $ionicLoading, $timeout, $interval, $scope, $rootScope) {
+
+        //Snooze Notifications
+        $interval(function() {
+            let timerLeft = window.localStorage.extendShowTimerInvisibility;
+            if(timerLeft && timerLeft != null && timerLeft != ""){
+                if(timerLeft < 0){
+                    timerLeft = 0;
+                }
+                window.localStorage.extendShowTimerInvisibility = timerLeft - 1;
+            }
+            else{
+                window.localStorage.extendShowTimerInvisibility = 0;
+            }
+        }, 1000);
+        
+
+
+        //App level background api calls:
+        var fetchMetricsTimer = $interval(function() {
+            $scope.getNotificationMetrics();
+        }, 10000);
+
+        $scope.getNotificationMetrics = function(){
+                let data = {
+                    "token": "sHtArttc2ht+tMf9baAeQ9ukHnXtlsHfexmCWx5sJOjMmduTS8FqbWXZu3C46tTVWfJK2QlHYHIQvEmu05QacaIoEtT4ABkAPy3dnnxeGYI="
+                }
+
+                $http({
+                    method: 'POST',
+                    url: 'https://accelerateengine.app/smart-menu/apis/adminfetchnotificationmetrics.php',
+                    data: data,
+                    timeout: 10000
+                })
+                .success(function(response) {
+                    $ionicLoading.hide();
+                    if(response.status){
+
+                        //Service Requests
+                        if(response.serviceRequests && response.serviceRequests.length > 0){
+                            $rootScope.$broadcast('ACTIVE_REQUESTS_ALERT', response.serviceRequests);
+                        }
+                        else{
+                            $rootScope.$broadcast('ACTIVE_REQUESTS_ALERT', []);
+                        }
+
+                        //Service Requests
+                        if(response.pendingOrders && response.pendingOrders.length > 0){
+                            $rootScope.$broadcast('ACTIVE_ORDERS_ALERT', response.pendingOrders);
+                        }
+                    }
+                })
+        }
+
+
 })
 
 

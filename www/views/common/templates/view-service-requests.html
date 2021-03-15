@@ -2,9 +2,7 @@
   <ion-content>
     <div class="row copy-row">
       <div class="col">
-        
         <div class="legal-content" style="padding: 10px">
-
 <center style="padding-bottom: 60px">
                   <div ng-repeat="section in tableMasterData track by $index">
 
@@ -14,8 +12,8 @@
                     
                       
                       <tag class="seatName" ng-bind-html="getIconOrTable(seat)"></tag>
-                      <tag class="seatNameSmall" ng-if="seat.serviceRequest != ''">{{seat.table}}</tag>
-                      <tag ng-if="seat.serviceRequest != ''" class="seatTime" style="color: #FFF">{{getMyRequestTitle(seat)}}</tag>
+                      <tag class="seatNameSmall" ng-if="hasTableARequest(seat)">{{seat.table}}</tag>
+                      <tag ng-if="hasTableARequest(seat)" class="seatTime" style="color: #FFF">{{getMyRequestTitle(seat)}}</tag>
                       
                     </button>
                   </div>
