@@ -297,6 +297,9 @@ angular.module('pos.controllers', ['ionic'])
                     $scope.isFirstTimeLoading = false;
                     var allOrders = response.myPendingOrders;
                     $scope.allOtherOrders = response.otherCaptainsPendingOrders;
+                    $scope.allOtherOrders.sort((a, b) => {
+                        return a.table - b.table;
+                    })
 
                     $scope.myPendingOrders = allOrders;
 
