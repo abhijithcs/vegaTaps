@@ -818,7 +818,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                 myPopup = $ionicPopup.show({
                     cssClass: 'popup-actions tile-actions-view tile-actions-view-list',
                     template: '<button class="button icon-left ion-android-checkbox-outline button-block noBorderListButton shadeGreenDarkgreen" ng-click="initAssignTable(\''+encodeURI(JSON.stringify(reservation))+'\')">Allot Seat</button>' +
-                        '<button class="button icon-left ion-edit button-block noBorderListButton shadeBlueViolet" ng-click="initModifyReservation()">Edit Reservation</button>'+
+                        '<button class="button icon-left ion-edit button-block noBorderListButton shadeBlueViolet" ng-click="initModifyReservation()">Modify Reservation</button>'+
                         '<button class="button icon-left ion-android-cancel button-block noBorderListButton shadeRedPink" ng-click="initCancelReservation()">Cancel Reservation</button>' +
                         '<button class="button icon-left ion-trash-a button-block noBorderListButton shadeRedPink" ng-click="initDeleteReservation()">Mark Spam and Delete</button>',
                     scope: $scope,
@@ -1611,7 +1611,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                 myPopup = $ionicPopup.show({
                     cssClass: 'popup-actions tile-actions-view tile-actions-view-list',
                     template: '<button class="button icon-left ion-android-checkbox-outline noBorderListButton shadeGreenDarkgreen" ng-click="initAssignTable(\''+encodeURI(JSON.stringify(reservation))+'\')">Allot Seat</button>' +
-                        '<button class="button icon-left ion-edit button-block noBorderListButton shadeBlueViolet" ng-click="initModifyReservation()">Edit Reservation</button>'+
+                        '<button class="button icon-left ion-edit button-block noBorderListButton shadeBlueViolet" ng-click="initModifyReservation()">Modify Reservation</button>'+
                         '<button class="button icon-left ion-android-cancel button-block noBorderListButton shadeRedPink" ng-click="initCancelReservation()">Cancel Reservation</button>' +
                         '<button class="button icon-left ion-trash-a button-block noBorderListButton shadeRedPink" ng-click="initDeleteReservation()">Mark Spam and Delete</button>',
                     scope: $scope,
@@ -2379,7 +2379,7 @@ angular.module('reservations.controllers', ['ionic', 'ionic-timepicker', 'ionic-
                     cssClass: 'popup-actions tile-actions-view tile-actions-view-list',
                     template: '<button class="button icon-left ion-android-checkbox-outline button-block noBorderListButton shadeGreenDarkgreen" ng-click="initAssignTable(\''+encodeURI(JSON.stringify(reservation))+'\')">Allot Seat</button>' +
                         '<button class="button icon-left ion-android-done button-block noBorderListButton shadeYellowOrange" ng-click="initCompleteReservation()">Mark as Completed</button>' +
-                        '<button class="button icon-left ion-edit button-block noBorderListButton shadeBlueViolet" ng-click="initModifyReservation()">Edit Reservation</button>'+
+                        '<button class="button icon-left ion-edit button-block noBorderListButton shadeBlueViolet" ng-click="initModifyReservation()">Modify Reservation</button>'+
                         '<button class="button icon-left ion-android-cancel button-block noBorderListButton shadeRedPink" ng-click="initCancelReservation()">Cancel Reservation</button>' +
                         '<button class="button icon-left ion-trash-a button-block noBorderListButton shadeRedPink" ng-click="initDeleteReservation()">Mark Spam and Delete</button>',
                     scope: $scope,

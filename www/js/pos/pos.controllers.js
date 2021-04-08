@@ -436,48 +436,54 @@ angular.module('pos.controllers', ['ionic'])
            return;
         }
         else {
-                    $ionicLoading.show({
-                        template: '<ion-spinner></ion-spinner> Please Wait...'
-                    });
+            $ionicLoading.show({
+                template: '<ion-spinner></ion-spinner> Please Wait...'
+            });
 
-                    var data = {
-                        masterOrderId: orderData.masterOrderId,
-                        subOrderId: orderData.orderData.subOrderId,
-                        cartChanged: isCartChanged,
-                        cartFinal: filteredCart
-                    }
-
-                    $http({
-                        method: 'POST',
-                        url: 'https://accelerateengine.app/smart-menu/apis/adminacceptorder.php',
-                        data: data,
-                        timeout: 10000
-                    })
-                    .success(function(data) {
-                        $ionicLoading.hide();
-                        if(data.status){
-                            //Push to local server
-                            let formattedOrderData = orderData;
-                            formattedOrderData.orderData.cart = filteredCart;
-                            $scope.sendOrderToServer(formattedOrderData);
-                            $scope.viewSmartOrderModal.hide();
-                            $scope.fetchSmartOrders();
-                        }
-                        else {
-                            $ionicLoading.show({
-                                template: data.data,
-                                duration: 3000
-                            });
-                        }
-                    })
-                    .error(function(data) {
-                        $ionicLoading.hide();
-                        $ionicLoading.show({
-                            template: "Not responding. Check your connection.",
-                            duration: 3000
-                        });
-                    });
+            let formattedOrderData = orderData;
+            formattedOrderData.orderData.cart = filteredCart;
+            $scope.sendOrderToServer(formattedOrderData, isCartChanged);
         }
+      }
+
+      $scope.acceptSmartOrderOnline = function(orderData, isCartChanged, filteredCart){
+            $ionicLoading.show({
+                template: '<ion-spinner></ion-spinner> Please Wait...'
+            });
+
+            var data = {
+                masterOrderId: orderData.masterOrderId,
+                subOrderId: orderData.orderData.subOrderId,
+                cartChanged: isCartChanged,
+                cartFinal: filteredCart
+            }
+
+            $http({
+                method: 'POST',
+                url: 'https://accelerateengine.app/smart-menu/apis/adminacceptorder.php',
+                data: data,
+                timeout: 10000
+            })
+            .success(function(data) {
+                $ionicLoading.hide();
+                if(data.status){
+                    $scope.viewSmartOrderModal.hide();
+                    $scope.fetchSmartOrders();
+                }
+                else {
+                    $ionicLoading.show({
+                        template: data.data,
+                        duration: 3000
+                    });
+                }
+            })
+            .error(function(data) {
+                $ionicLoading.hide();
+                $ionicLoading.show({
+                    template: "Not responding. Check your connection.",
+                    duration: 3000
+                });
+            });
       }
 
 
@@ -506,14 +512,13 @@ angular.module('pos.controllers', ['ionic'])
 
 
     //Send KOT
-    $scope.sendOrderToServer = function(formattedOrderData){
+    $scope.sendOrderToServer = function(formattedOrderData, isCartChanged){
                 
-                console.log(formattedOrderData);
-
                 $scope.isOrderConfirmationProgressing = true;
 
                 isTableFreeCheck(formattedOrderData.table);
                 function isTableFreeCheck(table_req){
+                    table_req = 2;
                     $http({
                         method: 'GET',
                         url: COMMON_IP_ADDRESS+'/accelerate_tables/_design/filter-tables/_view/filterbyname?startkey=["'+table_req+'"]&endkey=["'+table_req+'"]',
@@ -547,7 +552,7 @@ angular.module('pos.controllers', ['ionic'])
                         }
                         else{
                             $ionicLoading.show({
-                                template: "Error: Unable to read Table info.",
+                                template: "Please check if <b>Table " + table_req + "</b> exists",
                                 duration: 3000
                             });
                         }
@@ -630,9 +635,11 @@ angular.module('pos.controllers', ['ionic'])
                                         $ionicLoading.hide();
                                         if(http.status == 201) {
                                             $scope.orderPostClearData('SUCCESS');
+                                            $scope.acceptSmartOrderOnline(formattedOrderData, isCartChanged, formattedOrderData.orderData.cart);
                                         }
                                         else if(http.status == 409){
                                             errorString = "Aborted! This Order was punched already";
+                                            $scope.acceptSmartOrderOnline(formattedOrderData, isCartChanged, formattedOrderData.orderData.cart);
                                         }
                                         else if(http.status == 404){
                                             errorString = "Local Server Error: Connection failed";
@@ -4657,6 +4664,7 @@ angular.module('pos.controllers', ['ionic'])
                 function isTableFreeCheck(selectedModeExtras){
 
                     var table_req = $scope.selectedTable;
+                    console.log(table_req)
 
                     $http({
                         method: 'GET',

@@ -1,3 +1,61 @@
+.reservationInputItem{
+  font-size: 24px !important; font-weight: bold !important;
+  height: 40px !important;
+  width: 100% !important; text-align: left !important; 
+  text-transform: unset !important;
+}
+
+.reservationInputLabel{
+    color: #607d8b;
+    font-weight: 500;
+    font-size: 12px;
+    text-align: center;
+}
+
+.reservationSourceButton{
+      border: none;
+    color: #121212;
+    display: block;
+    font-size: 18px !important;
+    font-weight: bold;
+    background: none !important;
+    width: 100%;
+    text-align: left !important;
+    padding: 0 !important;
+    border-bottom: 1px solid #ebebeb !important;
+    border-radius: 0 !important;
+}
+
+
+.newReservationWindow{
+
+}
+
+.newReservationWindow .cancelButton{
+    width: 30%;
+    border: none;
+    float: left;
+    margin: 0;
+    border-radius: 0;
+    display: block;
+    height: 50px;
+    text-transform: uppercase;
+}
+
+.newReservationWindow .saveButton{
+      text-transform: uppercase;
+    font-weight: bold;
+    width: 70%;
+    border: none;
+    border-radius: 0;
+    float: right;
+    margin: 0;
+    display: block;
+    height: 50px;
+}
+
+
+
 .smartOrderItem{
   font-size: 14px;
   color: #3a4246;
@@ -1358,7 +1416,7 @@
   background: rgba(0, 0, 0, 0.1); }
 
 .landingTile:active, .landingTile:focus, .landingTile:hover {
-  background-color: #73221c;
+  background-color: #a00923 !important;
   color: #FFF !important; }
 
 .landingTileIcon {
@@ -2526,7 +2584,7 @@ ion-side-menu ion-item.item {
   ion-side-menu ion-item.item .item-content {
     background-color: #73141e; }
     ion-side-menu ion-item.item .item-content .icon:before {
-      background-color: #a71d2b;
+      background-color: #e21439;
       color: #FFFFFF;
       border-radius: 50%;
       font-size: 22px;
@@ -13175,8 +13233,8 @@ a.button {
   position: relative; }
 
 .mainTypeButton.active {
-  border-color: #6dcea8 !important;
-  background: #6dcea8 !important; }
+  border-color: #e21439 !important;
+  background: #e21439 !important; }
 
 .mainTypeText {
   font-size: 18px;
@@ -14809,7 +14867,7 @@ ion-side-menu ion-item.item {
   ion-side-menu ion-item.item .item-content {
     background-color: #73141e; }
     ion-side-menu ion-item.item .item-content .icon:before {
-      background-color: #a71d2b;
+      background-color: #e21439;
       color: #FFFFFF;
       border-radius: 50%;
       font-size: 22px;
@@ -18291,8 +18349,8 @@ ion-spinner.spinner-on-load {
 .feed-view {
   background-color: #FFF; }
   .feed-view .feed-header {
-    background-color: #a71d2b !important;
-    background: #a71d2b !important;
+    background-color: #e21439 !important;
+    background: #e21439 !important;
     border: none !important;
     background-size: 0px !important; }
     .feed-view .feed-header .logo-container {
