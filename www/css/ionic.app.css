@@ -1,3 +1,233 @@
+.reservationInputItem{
+  font-size: 24px !important; font-weight: bold !important;
+  height: 40px !important;
+  width: 100% !important; text-align: left !important; 
+  text-transform: unset !important;
+}
+
+.reservationInputLabel{
+    color: #607d8b;
+    font-weight: 500;
+    font-size: 12px;
+    text-align: center;
+}
+
+.reservationSourceButton{
+      border: none;
+    color: #121212;
+    display: block;
+    font-size: 18px !important;
+    font-weight: bold;
+    background: none !important;
+    width: 100%;
+    text-align: left !important;
+    padding: 0 !important;
+    border-bottom: 1px solid #ebebeb !important;
+    border-radius: 0 !important;
+}
+
+
+.newReservationWindow{
+
+}
+
+.newReservationWindow .cancelButton{
+    width: 30%;
+    border: none;
+    float: left;
+    margin: 0;
+    border-radius: 0;
+    display: block;
+    height: 50px;
+    text-transform: uppercase;
+}
+
+.newReservationWindow .saveButton{
+      text-transform: uppercase;
+    font-weight: bold;
+    width: 70%;
+    border: none;
+    border-radius: 0;
+    float: right;
+    margin: 0;
+    display: block;
+    height: 50px;
+}
+
+
+
+.smartOrderItem{
+  font-size: 14px;
+  color: #3a4246;
+}
+
+.smartOrderOption{
+    display: block;
+    font-size: 70%;
+    text-transform: uppercase;
+    color: #ff9800;
+}
+
+.smartOrderItem.left{
+  text-align: right;
+}
+
+.smartOrderShortDisplay{
+    height: 60px;
+    background: #009688;
+    padding: 20px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.alertOrderTableStreak{
+    background: #c51652;
+    width: 20px;
+    display: inline-block;
+    height: 20px;
+    font-size: 10px;
+    font-weight: bold;
+    color: #FFF;
+    border-radius: 50%;
+    margin-right: 4px;
+}
+
+.smartOrderShortDisplay .time{
+    float: right;
+    font-weight: 400;
+    font-size: 90%;
+}
+
+.activeSmartOrder .newLabel {
+  background: #37afa4; 
+  font-size: 14px; 
+  padding: 2px 6px; 
+  color: #FFF; 
+  border-radius: 3px;
+}
+
+.runningSmartOrder .newLabel {
+  background: #dc9852; 
+  font-size: 14px; 
+  padding: 2px 6px; 
+  color: #FFF; 
+  border-radius: 3px;
+}
+
+.smartOrderShortDisplay.viewing{
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.smartOrderOtherSummary{
+  text-align: center;
+}
+
+.otherCaptainsDivision{
+    width: 100%;
+    margin-top: 50px;
+    border-top: 1px solid #e6e6e6;
+}
+
+.smartOrderOtherSummary .text{
+    color: #9e9e9e;
+    text-transform: uppercase;
+    margin: 10px 0 5px 0;
+    font-size: 10px;
+    font-weight: 400;
+}
+
+.smartOrderOtherSummaryTable{
+    border-radius: 50%;
+    height: 30px;
+    width: 30px;
+    display: inline-block;
+    padding: 5px 1px; 
+    color: #FFF;
+    font-weight: bold;
+    text-align: center;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+.attendedByOtherCaptainText{
+    color: #673ab7;
+    text-align: center;
+    margin: 8px 0 0 0;
+    font-size: 12px;
+}
+
+.activeSmartOrder{
+  background: #009688 !important;
+}
+
+.runningSmartOrder{
+  background: #ff9800 !important;
+}
+
+.actionRequestBell{
+    width: 20px;
+    height: 20px;
+    background: #ffc107;
+    display: inline-block;
+    position: absolute;
+    left: 25px;
+    text-align: center;
+    border-radius: 50%;
+}
+
+.actionRequestBell .text{
+    position: absolute;
+    left: 6px;
+    top: -6px;
+    color: #040404;
+}
+
+.seatNameSmall{
+      position: absolute;
+    top: 2px;
+    left: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #FFF;
+}
+
+.serviceTableSteward{
+  background: #ff9800 !important;
+}
+
+.serviceTableBill{
+  background: #4caf50 !important;
+}
+
+.serviceTableFast{
+  background: #f44336 !important;
+}
+
+.settingsActionTitle{
+      color: #9c3f34;
+    text-align: left;
+    font-size: 18px;
+    margin: 20px 0 0 0;
+    font-family: 'Raleway', sans-serif;
+    padding: 5px 5px 5px 30px;
+    font-weight: bold;
+}
+
+.settingsTable .col{
+  padding: 0 !important;
+}
+
+
+.seatName i{
+  color: #FFF !important;
+}
+
+
+
 @charset "UTF-8";
 .selectTableButton {
   float: right;
@@ -1186,7 +1416,7 @@
   background: rgba(0, 0, 0, 0.1); }
 
 .landingTile:active, .landingTile:focus, .landingTile:hover {
-  background-color: #73221c;
+  background-color: #a00923 !important;
   color: #FFF !important; }
 
 .landingTileIcon {
@@ -2354,7 +2584,7 @@ ion-side-menu ion-item.item {
   ion-side-menu ion-item.item .item-content {
     background-color: #73141e; }
     ion-side-menu ion-item.item .item-content .icon:before {
-      background-color: #a71d2b;
+      background-color: #e21439;
       color: #FFFFFF;
       border-radius: 50%;
       font-size: 22px;
@@ -13003,8 +13233,8 @@ a.button {
   position: relative; }
 
 .mainTypeButton.active {
-  border-color: #6dcea8 !important;
-  background: #6dcea8 !important; }
+  border-color: #e21439 !important;
+  background: #e21439 !important; }
 
 .mainTypeText {
   font-size: 18px;
@@ -14637,7 +14867,7 @@ ion-side-menu ion-item.item {
   ion-side-menu ion-item.item .item-content {
     background-color: #73141e; }
     ion-side-menu ion-item.item .item-content .icon:before {
-      background-color: #a71d2b;
+      background-color: #e21439;
       color: #FFFFFF;
       border-radius: 50%;
       font-size: 22px;
@@ -15081,6 +15311,8 @@ ion-spinner.spinner-on-load {
       background-image: url("../img/common/tabs-explore.png"); }
     .tabbed-navigation .tabs .tab-item .icon.account-icon {
       background-image: url("../img/common/tabs-account.png"); }
+    .tabbed-navigation .tabs .tab-item .icon.smart-icon {
+      background-image: url("../img/common/tabs-smart.png"); }
 
 .auth-view {
   background-color: #FFE6DC; }
@@ -18117,8 +18349,8 @@ ion-spinner.spinner-on-load {
 .feed-view {
   background-color: #FFF; }
   .feed-view .feed-header {
-    background-color: #a71d2b !important;
-    background: #a71d2b !important;
+    background-color: #e21439 !important;
+    background: #e21439 !important;
     border: none !important;
     background-size: 0px !important; }
     .feed-view .feed-header .logo-container {

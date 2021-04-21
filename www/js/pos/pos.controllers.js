@@ -1,5 +1,1104 @@
 angular.module('pos.controllers', ['ionic'])
 
+    .controller('SmartCtrl', function(ShoppingCartService, $interval, menuContentService, currentGuestData, kitchen_comments, deviceLicenseService, $timeout, $ionicLoading, $ionicPopup, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicPopover, $ionicSideMenuDelegate) {
+
+
+        var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@localhost:5984/';
+        $ionicLoading.hide();
+
+        if(window.localStorage.serverURL == '' || !window.localStorage.serverURL){
+            
+        }
+        else{
+            COMMON_IP_ADDRESS = window.localStorage.serverURL;
+        }   
+
+        $scope.kitchenComments = kitchen_comments;
+        $scope.kitchenComments.sort();
+
+        //Check if already cached
+        var isCached = false;
+
+        if(isCached){
+            $scope.renderFailed = false;
+            $scope.isRenderLoaded = true;
+        }
+
+        //User Profile
+        $scope.isProfileSelected = false;
+        $scope.selectedUserProfile = '';
+
+        $scope.setUserProfile = function(profile_name, profile_mobile, flag){
+
+            $scope.selectedUserProfile = profile_name;
+            window.localStorage.loggedInUser_name = profile_name;
+            window.localStorage.loggedInUser_mobile = profile_mobile;
+
+            if(flag && flag == 'ADMIN'){
+                window.localStorage.loggedInUser_admin = 1;
+            }
+            else{
+                window.localStorage.loggedInUser_admin = 0;
+            }
+
+            $scope.isProfileSelected = true;
+
+        }
+        
+
+        //Choose User Profile
+        $scope.chooseUserProfile = function(){
+
+                    $scope.allProfileData = [];
+
+                    $ionicLoading.show({ template: '<ion-spinner></ion-spinner>' });
+
+                    $http({
+                        method: 'GET',
+                        url: COMMON_IP_ADDRESS+'accelerate_settings/ACCELERATE_STAFF_PROFILES',
+                        timeout: 10000
+                    })
+                    .success(function(response) {
+
+                        $ionicLoading.hide();
+
+                        $scope.allProfileData = response.value;
+                        
+
+                        //Render Template
+                        var i = 0;
+                        var choiceTemplate = '<div style="margin-top: 5px">';
+                        while (i < $scope.allProfileData.length) {
+                            if($scope.allProfileData[i].role == "STEWARD" || $scope.allProfileData[i].role == "ADMIN"){
+                                choiceTemplate = choiceTemplate + '<button class="button button-full" style="text-align: left; color: #c52031; margin-bottom: 8px; font-size: 18px; height: 54px; font-weight: 500; " ng-click="selectProfileFromWindow(\'' + $scope.allProfileData[i].name + '\', ' + $scope.allProfileData[i].code + ', \''+$scope.allProfileData[i].role+'\')">' + $scope.allProfileData[i].name + ' </button>';
+                            }
+                            i++;
+                        }
+                        choiceTemplate = choiceTemplate + '</div>';
+
+                        var newCustomPopup = $ionicPopup.show({
+                            cssClass: 'popup-tiles new-shipping-address-view',
+                            template: choiceTemplate,
+                            title: 'Select User',
+                            scope: $scope,
+                            buttons: [{
+                                text: 'Cancel'
+                            }]
+                        });
+
+                                  var login_passcode_modal = $ionicModal.fromTemplateUrl('views/common/templates/enter-user-passcode.html', {
+                                    scope: $scope,
+                                    animation: 'slide-in-up'
+                                  }).then(function(modal) {
+                                    $scope.login_passcode_modal = modal;
+                                  });
+
+
+
+                        $scope.selectProfileFromWindow = function(user_name, user_mobile, user_role) {
+                            
+                            newCustomPopup.close();
+
+                            if(window.localStorage.loggedInUser_mobile &&  window.localStorage.loggedInUser_mobile == user_mobile){
+
+                                return '';
+                            }
+
+
+                            if(user_role != 'ADMIN'){
+                                $scope.setUserProfile(user_name, user_mobile);
+                            }
+                            else{ //Ask for passcode
+
+                                  $scope.login_passcode_modal.show();
+
+                                  $scope.passcodeEntered = [];
+
+                                  $scope.clearPasscode = function(){
+                                    $scope.passcodeEntered = [];
+                                  }
+
+                                  $scope.appendToPasscode = function(key){
+
+                                    if($scope.passcodeEntered.length >= 4){
+                                        return '';
+                                    }
+                                    else{
+                                        $scope.passcodeEntered.push(key);
+                                        if($scope.passcodeEntered.length == 4){
+                                            var code_string = $scope.passcodeEntered[0]+''+$scope.passcodeEntered[1]+''+$scope.passcodeEntered[2]+''+$scope.passcodeEntered[3];
+                                            validatePasscode(parseInt(code_string));
+
+                                            function validatePasscode(number){
+
+                                                $ionicLoading.show({
+                                                    template: '<ion-spinner></ion-spinner> Loading Tables...'
+                                                });
+
+                                                $http({
+                                                    method: 'GET',
+                                                    url: COMMON_IP_ADDRESS+'accelerate_settings/ACCELERATE_STAFF_PROFILES',
+                                                    timeout: 10000
+                                                })
+                                                .success(function(response) {
+
+                                                    $ionicLoading.hide();
+                                                    
+                                                    var profile_data = response.value;
+
+                                                    var i = 0;
+                                                    while (i < profile_data.length) {
+                                                        if(profile_data[i].code == user_mobile){
+                                                            
+                                                            if(number == profile_data[i].password){
+                                                                $scope.login_passcode_modal.hide();
+                                                                $scope.setUserProfile(user_name, user_mobile, 'ADMIN');
+                                                            }
+                                                            else{
+                                                                $ionicLoading.show({
+                                                                    template: "Incorrect Passcode",
+                                                                    duration: 1000
+                                                                });
+
+                                                                $scope.passcodeEntered = [];
+                                                                return '';
+                                                            }
+
+                                                            break;
+                                                        }
+
+                                                        i++
+                                                    }
+                                                })
+                                                .error(function(data) {
+
+                                                    $ionicLoading.hide();
+
+                                                    $ionicLoading.show({
+                                                        template: "Not responding. Check your connection.",
+                                                        duration: 3000
+                                                    });
+                                                });
+                                                
+                                            }
+                                        }
+                                    }
+
+                                  }
+                            }
+                            
+                        }
+
+
+
+                    })
+                    .error(function(data) {
+                        $ionicLoading.hide();
+                        $ionicLoading.show({
+                            template: "Not responding. Check your connection.",
+                            duration: 3000
+                        });
+                    });
+        }
+
+        $scope.initUserProfile = function(){
+            if(window.localStorage.loggedInUser_name && window.localStorage.loggedInUser_name != ''){
+                $scope.selectedUserProfile = window.localStorage.loggedInUser_name;
+                $scope.isProfileSelected = true;
+            }
+            else{
+                $scope.chooseUserProfile();
+            }
+        }
+
+        $scope.initUserProfile();
+
+
+
+        //Side Navbar
+        $scope.navToggled = false;
+        $scope.showOptionsMenu = function() {
+            //console.log('toggle sidemenu...', $scope.navToggled)
+            $ionicSideMenuDelegate.toggleLeft();
+            $scope.navToggled = !$scope.navToggled;
+        };
+
+
+        //Current time display
+        $scope.currentTimeDisplay = '00:00';
+
+        function updateClock() {
+            $scope.currentTimeDisplay = moment().format('hh:mm a');
+        }
+
+        function timedUpdate () {
+          updateClock();
+          setTimeout(timedUpdate, 1000);
+        }
+
+        timedUpdate();
+
+
+
+
+        $scope.$on('guest_updated', function(event, guest_object) {
+            $scope.guestData = guest_object;
+        });
+
+        $scope.getTimeAgo = function(date){
+            return moment(date).fromNow();
+        }
+
+        $scope.getActiveClass = function(type){
+            if(type == "NEW"){
+                return "activeSmartOrder";
+            }
+            else if(type == "RUNNING"){
+                return "runningSmartOrder";
+            }
+        }
+
+
+        //Timers
+        var fetchSmartOrdersTimer = $interval(function() {
+            $scope.fetchSmartOrders();
+        }, 15000);
+
+        $scope.$on('$destroy', function() {
+            $interval.cancel(fetchSmartOrdersTimer);
+        });
+
+        $scope.isFirstTimeLoading = true;
+        $scope.doOrderRefresh = function(){
+            $scope.isFirstTimeLoading = true; 
+            $scope.fetchSmartOrders('REFRESH');
+        }
+
+
+        // Making request to server to fetch-menu
+        $scope.fetchSmartOrders = function(optionalRequest) {
+
+              $scope.myPendingOrders = [];
+              
+              //FIRST LOAD
+              $scope.renderFailed = false;
+              $scope.isRenderLoaded = false;
+              let data = {
+                    "token": "sHtArttc2ht+tMf9baAeQ9ukHnXtlsHfexmCWx5sJOjMmduTS8FqbWXZu3C46tTVWfJK2QlHYHIQvEmu05QacaIoEtT4ABkAPy3dnnxeGYI="
+                }
+
+                $http({
+                    method: 'POST',
+                    url: 'https://accelerateengine.app/smart-menu/apis/adminfetchorders.php',
+                    data: data,
+                    timeout: 10000
+                })
+                .success(function(response) {
+                    $scope.isFirstTimeLoading = false;
+                    var allOrders = response.myPendingOrders;
+                    $scope.allOtherOrders = response.otherCaptainsPendingOrders;
+                    $scope.allOtherOrders.sort((a, b) => {
+                        return a.table - b.table;
+                    })
+
+                    $scope.myPendingOrders = allOrders;
+
+                    if(optionalRequest && optionalRequest == 'REFRESH'){
+                        $scope.$broadcast('scroll.refreshComplete');
+                    }
+
+                    $scope.renderFailed = false;
+                    $scope.isRenderLoaded = true;
+                })
+                .error(function(data) {
+                    $scope.isFirstTimeLoading = false;
+                    $ionicLoading.show({
+                        template: "Not responding. Check your connection.",
+                        duration: 3000
+                    });
+
+                    if(optionalRequest && optionalRequest == 'REFRESH'){
+                        $scope.$broadcast('scroll.refreshComplete');
+                    }
+
+                    $scope.renderFailed = true;
+                });
+        }
+
+        $scope.fetchSmartOrders();
+
+
+        $scope.getNotificationMetrics();
+        $scope.getNotificationMetrics = function(){
+                let data = {
+                    "token": "sHtArttc2ht+tMf9baAeQ9ukHnXtlsHfexmCWx5sJOjMmduTS8FqbWXZu3C46tTVWfJK2QlHYHIQvEmu05QacaIoEtT4ABkAPy3dnnxeGYI="
+                }
+
+                $http({
+                    method: 'POST',
+                    url: 'https://accelerateengine.app/smart-menu/apis/adminfetchnotificationmetrics.php',
+                    data: data,
+                    timeout: 10000
+                })
+                .success(function(response) {
+                    $ionicLoading.hide();
+                    if(response.status){
+
+                        //Service Requests
+                        if(response.serviceRequests && response.serviceRequests.length > 0){
+                            $rootScope.$broadcast('ACTIVE_REQUESTS_ALERT', response.serviceRequests);
+                        }
+                        else{
+                            $rootScope.$broadcast('ACTIVE_REQUESTS_ALERT', []);
+                        }
+
+                        //Service Requests
+                        if(response.pendingOrders && response.pendingOrders.length > 0){
+                            $rootScope.$broadcast('ACTIVE_ORDERS_ALERT', response.pendingOrders);
+                        }
+                    }
+                })
+        }
+
+
+
+      $ionicModal.fromTemplateUrl('views/common/templates/view-smart-order.html', {
+        scope: $scope,
+        animation: 'slide-in-up'
+      }).then(function(modal) {
+        $scope.viewSmartOrderModal = modal;
+      });
+
+
+
+    $scope.rejectSmartOrder = function(orderData){
+        $ionicLoading.show({
+            template: '<ion-spinner></ion-spinner> Please Wait...'
+        });
+
+        var data = {
+            masterOrderId: orderData.masterOrderId,
+            subOrderId: orderData.orderData.subOrderId
+        }
+
+        $http({
+            method: 'POST',
+            url: 'https://accelerateengine.app/smart-menu/apis/adminrejectorder.php',
+            data: data,
+            timeout: 10000
+        })
+        .success(function(data) {
+            $ionicLoading.hide();
+            if(data.status){
+                $scope.viewSmartOrderModal.hide();
+                $scope.fetchSmartOrders();
+            }
+            else {
+                $ionicLoading.show({
+                    template: data.data,
+                    duration: 3000
+                });
+            }
+        })
+        .error(function(data) {
+            $ionicLoading.hide();
+            $ionicLoading.show({
+                template: "Not responding. Check your connection.",
+                duration: 3000
+            });
+        });
+    }
+
+
+
+      $scope.acceptSmartOrder = function(orderData){
+        let cart = orderData.orderData.cart;
+        let filteredCart = [];
+        let i = 0;
+        let isCartChanged = 0;
+        while(i < cart.length){
+            if(cart[i].isAvailable){
+                filteredCart.push(cart[i]);
+            }
+            else {
+                isCartChanged = 1;
+            }
+            i++;
+        }
+
+        if(filteredCart.length == 0){
+           var alertPopup = $ionicPopup.alert({
+            cssClass: 'popup-outer confirm-alert-view',
+            title: "Warning",
+            template: '<p style="color: #444; margin: 20px 0; font-size: 14px;">You have marked all items unavailable, so please <b>REJECT</b> the order.</p>'
+           });
+
+           return;
+        }
+        else {
+            $ionicLoading.show({
+                template: '<ion-spinner></ion-spinner> Please Wait...'
+            });
+
+            let formattedOrderData = orderData;
+            formattedOrderData.orderData.cart = filteredCart;
+            $scope.sendOrderToServer(formattedOrderData, isCartChanged);
+        }
+      }
+
+      $scope.acceptSmartOrderOnline = function(orderData, isCartChanged, filteredCart){
+            $ionicLoading.show({
+                template: '<ion-spinner></ion-spinner> Please Wait...'
+            });
+
+            var data = {
+                masterOrderId: orderData.masterOrderId,
+                subOrderId: orderData.orderData.subOrderId,
+                cartChanged: isCartChanged,
+                cartFinal: filteredCart
+            }
+
+            $http({
+                method: 'POST',
+                url: 'https://accelerateengine.app/smart-menu/apis/adminacceptorder.php',
+                data: data,
+                timeout: 10000
+            })
+            .success(function(data) {
+                $ionicLoading.hide();
+                if(data.status){
+                    $scope.viewSmartOrderModal.hide();
+                    $scope.fetchSmartOrders();
+                }
+                else {
+                    $ionicLoading.show({
+                        template: data.data,
+                        duration: 3000
+                    });
+                }
+            })
+            .error(function(data) {
+                $ionicLoading.hide();
+                $ionicLoading.show({
+                    template: "Not responding. Check your connection.",
+                    duration: 3000
+                });
+            });
+      }
+
+
+
+
+
+
+    //Clear all info after placing order
+    $scope.orderPostClearData = function(optionalFlag){
+        $scope.isOrderConfirmationProgressing = true;
+        if(optionalFlag == 'SUCCESS'){
+            $ionicLoading.show({
+                template: '<p style=\'margin: 20px 0 0 0; font-size: 36px; color: #82dc82; font-family: "Great Vibes"\'>Success!</p><br>Order has been placed.',
+                duration: 2000
+            }); 
+
+            $timeout(function() {
+                $state.go('main.app.smart');
+            }, 2000);           
+        }
+        else{
+            $state.go('main.app.smart');   
+        }
+    }
+
+
+
+    //Send KOT
+    $scope.sendOrderToServer = function(formattedOrderData, isCartChanged){
+                
+                $scope.isOrderConfirmationProgressing = true;
+
+                isTableFreeCheck(formattedOrderData.table);
+                function isTableFreeCheck(table_req){
+                    table_req = 2;
+                    $http({
+                        method: 'GET',
+                        url: COMMON_IP_ADDRESS+'/accelerate_tables/_design/filter-tables/_view/filterbyname?startkey=["'+table_req+'"]&endkey=["'+table_req+'"]',
+                        timeout: 10000
+                    })
+                    .success(function(data) {
+                        $ionicLoading.hide();
+                        if(data.rows.length >= 1){
+                                var thisTable = data.rows[0].value;
+                                if(thisTable.status != 0){
+                                    var confirmPopup = $ionicPopup.confirm({
+                                        cssClass: 'popup-clear confirm-alert-alternate',
+                                        title: 'Order Already Exists',
+                                        template: '<p style="color: #4e5b6a; padding: 0 10px 10px 10px; margin: 0; font-size: 15px; font-weight: 400;">The table <b>'+table_req+'</b> is not free. Running KOT for the existing order?</p>'
+                                    });
+
+                                    confirmPopup.then(function(res) {
+                                        if(res){
+                                            $scope.orderPostClearData();
+                                        }
+                                        else{
+                                        
+                                        }
+                                    });                                    
+
+                                    return;
+                                }
+                                else{
+                                    sendKOTToServerAfterProcess();
+                                }
+                        }
+                        else{
+                            $ionicLoading.show({
+                                template: "Please check if <b>Table " + table_req + "</b> exists",
+                                duration: 3000
+                            });
+                        }
+                    })
+                    .error(function(data) {
+                        $ionicLoading.hide();
+                        $ionicLoading.show({
+                            template: "Error: Unable to get Table details from local server",
+                            duration: 3000
+                        });
+                    });    
+
+                }
+
+                function sendKOTToServerAfterProcess(){
+
+                        if(formattedOrderData.table == ''){
+                            $ionicLoading.show({
+                                template: "Not table selected, please punch manually.",
+                                duration: 3000
+                            });
+                            return '';
+                        }
+
+                        var deviceDetails = window.localStorage.deviceRegistrationData && window.localStorage.deviceRegistrationData != "" ? JSON.parse(window.localStorage.deviceRegistrationData) : {};
+                    
+                        var tapOrderMetaData = {
+                            "source": "SMART",
+                            "type": "DINE"
+                        }
+
+                        var orderData = {
+                              "_id": 'SMART_'+formattedOrderData.masterOrderId+'_'+formattedOrderData.orderData.subOrderId,
+                              "tapsSource": tapOrderMetaData,
+                              "KOTNumber": "",
+                              "orderDetails": {
+                                "mode": "",
+                                "modeType": "",
+                                "reference": formattedOrderData.orderData.subOrderId,
+                                "isOnline": true
+                              },
+                              "table": formattedOrderData.table,
+                              "customerName": formattedOrderData.guestName,
+                              "customerMobile": formattedOrderData.guestMobile,
+                              "guestCount": 0,
+                              "machineName": deviceDetails.deviceUID,
+                              "sessionName": "",
+                              "stewardName": formattedOrderData.stewardName,
+                              "stewardCode": formattedOrderData.stewardCode,
+                              "date": "",
+                              "timePunch": "",
+                              "timeKOT": "",
+                              "timeBill": "",
+                              "timeSettle": "",
+                              "cart": formattedOrderData.orderData.cart,
+                              "specialRemarks": formattedOrderData.orderData.comments,
+                              "allergyInfo": "",
+                              "extras": [],
+                              "discount": {},
+                              "customExtras": {}
+                        }
+
+
+                                  var COMMON_IP_ADDRESS = window.localStorage.defaultServerIPAddress && window.localStorage.defaultServerIPAddress != '' ? window.localStorage.defaultServerIPAddress : 'http://admin:admin@localhost:5984/';
+                                        
+                                  //LOADING
+                                  $ionicLoading.show({
+                                    template:  '<ion-spinner></ion-spinner>'
+                                  });
+
+                                    
+                                    //post to server
+                                    var http = new XMLHttpRequest();   
+                                    var url = COMMON_IP_ADDRESS+'accelerate_third_party_orders';
+                                    http.open("POST", url);
+                                    http.setRequestHeader("Content-Type", "application/json");
+
+                                    http.onreadystatechange = function() {
+                                        let errorString = "";
+                                        $ionicLoading.hide();
+                                        if(http.status == 201) {
+                                            $scope.orderPostClearData('SUCCESS');
+                                            $scope.acceptSmartOrderOnline(formattedOrderData, isCartChanged, formattedOrderData.orderData.cart);
+                                        }
+                                        else if(http.status == 409){
+                                            errorString = "Aborted! This Order was punched already";
+                                            $scope.acceptSmartOrderOnline(formattedOrderData, isCartChanged, formattedOrderData.orderData.cart);
+                                        }
+                                        else if(http.status == 404){
+                                            errorString = "Local Server Error: Connection failed";
+                                        }
+                                        else{
+                                            errorString = "Error: Punching order failed";
+                                        }
+
+                                        if(errorString != ""){
+                                            $ionicLoading.show({
+                                                template: errorString,
+                                                duration: 3000
+                                            });
+                                        }
+                                    }
+
+                                    http.send(JSON.stringify(orderData));  
+                }
+    }
+
+
+
+
+
+       $scope.toggleAvailability = function(item, status, isViewingOnly){
+            if(isViewingOnly){
+                return;
+            }
+
+            let i = 0;
+            while(i < $scope.orderData.orderData.cart.length){
+                if(item.code == $scope.orderData.orderData.cart[i].code && item.variant == $scope.orderData.orderData.cart[i].variant){
+                    $scope.orderData.orderData.cart[i].isAvailable = status;
+                    break;
+                }
+                i++;
+            }
+       }   
+
+      $scope.openSmartOrder = function(orderData, optionalRequest){
+            $scope.orderData = orderData;
+            var cart = orderData.orderData.cart;
+            
+            let i = 0;
+            while(i < cart.length){
+                cart[i].isAvailable = true;
+                i++;
+            }
+            $scope.orderData.orderData.cart = cart;
+            
+
+
+            $scope.viewSmartOrderModal.show();
+            if(optionalRequest == 'VIEW'){
+                $scope.isViewingOnly = true;
+            }
+            else{
+                $scope.isViewingOnly = false;
+            }
+            
+
+            return;
+
+                    $ionicLoading.show({
+                        template: '<ion-spinner></ion-spinner> Please Wait...'
+                    });
+
+                    //FIRST LOAD
+                    $scope.renderTableFailed = false;
+                    $scope.isRenderTableLoaded = false;
+
+
+                    //PRELOAD TABLE MAPPING
+                    $http({
+                        method: 'GET',
+                        url: COMMON_IP_ADDRESS+'/accelerate_tables/_design/filter-tables/_view/all/',
+                        timeout: 10000
+                    })
+                    .success(function(data) {
+
+                        if(data.total_rows > 0){
+
+                              var tableData = data.rows;
+                              tableData.sort(function(obj1, obj2) {
+                                return obj1.key - obj2.key; //Key is equivalent to sortIndex
+                              });
+
+
+                              //load table sections
+                                $http({
+                                    method: 'GET',
+                                    url: COMMON_IP_ADDRESS+'accelerate_settings/ACCELERATE_TABLE_SECTIONS',
+                                    timeout: 10000
+                                })
+                                .success(function(data) {
+
+                                    var sections_list = data.value;
+
+                                    $ionicLoading.hide();
+
+                                    //process tableData
+                                    var tables_list = [];
+                                    var g = 0;
+                                    while(tableData[g]){
+
+                                        tables_list.push(tableData[g].value);
+
+                                        if(g == tableData.length - 1){
+                                            nowRender();
+                                            break;
+                                        }
+
+                                        g++;
+                                    }
+
+                                    function nowRender(){
+
+                                        var n = 0;
+                                        while(sections_list[n]){
+                                            var filtered_tables = [];
+                                            for(var i = 0; i < tables_list.length; i++){
+                                                if(tables_list[i].type == sections_list[n]){
+                                                    filtered_tables.push(tables_list[i])
+                                                }
+
+                                                if(i == tables_list.length - 1){ //last iteration
+                                                    $scope.tablesMasterList.push({
+                                                        "section": sections_list[n],
+                                                        "tables": filtered_tables
+                                                    });
+                                                }
+                                            }
+                                            n++;
+                                        }
+
+                                        $scope.renderTableFailed = false;
+                                        $scope.isRenderTableLoaded = true;
+
+                                        
+                                    }
+
+
+                                })
+                                .error(function(data) {
+
+                                    $ionicLoading.hide();
+
+                                    $ionicLoading.show({
+                                        template: "Not responding. Check your connection.",
+                                        duration: 3000
+                                    });
+
+                                    $scope.renderTableFailed = true;
+
+                                });
+
+
+
+
+                        }
+                        else{
+                            
+                            $ionicLoading.hide();
+
+                            $ionicLoading.show({
+                                template: "Tables data not found. Please contact Accelerate Support.",
+                                duration: 3000
+                            });
+
+                            $scope.renderTableFailed = true;
+                        }
+                    })
+                    .error(function(data) {
+
+                        $ionicLoading.hide();
+
+                        $ionicLoading.show({
+                            template: "Not responding. Check your connection.",
+                            duration: 3000
+                        });
+
+                        $scope.renderTableFailed = true;
+                    });
+
+        }
+
+
+
+        //Broadcast for Request Counter
+        $scope.serviceRequestCounter = 0;
+        $rootScope.$on('ACTIVE_REQUESTS_ALERT', function(event, requestData) {
+            $scope.serviceRequestCounter = requestData.length;
+        });
+
+
+      $ionicModal.fromTemplateUrl('views/common/templates/view-service-requests.html', {
+        scope: $scope,
+        animation: 'slide-in-up'
+      }).then(function(modal) {
+        $scope.viewServiceRequestsModal = modal;
+      });
+
+      $scope.isViewingSelfRequestsOnly = false;
+
+        $scope.openActionRequests = function(){
+
+            //Load Table data
+            $scope.tableMasterData = [];
+
+            $ionicLoading.show({
+                template: '<ion-spinner></ion-spinner> Loading Tables...'
+            });
+
+            //FIRST LOAD
+            $scope.renderTableFailed = false;
+            $scope.isRenderTableLoaded = false;
+
+
+            //PRELOAD TABLE MAPPING
+            $http({
+                method: 'GET',
+                url: COMMON_IP_ADDRESS+'/accelerate_tables/_design/filter-tables/_view/all/',
+                timeout: 10000
+            })
+            .success(function(data) {
+
+                if(data.total_rows > 0){
+
+                      var tableData = data.rows;
+                      tableData.sort(function(obj1, obj2) {
+                        return obj1.key - obj2.key; //Key is equivalent to sortIndex
+                      });
+
+
+                      //load table sections
+                        $http({
+                            method: 'GET',
+                            url: COMMON_IP_ADDRESS+'accelerate_settings/ACCELERATE_TABLE_SECTIONS',
+                            timeout: 10000
+                        })
+                        .success(function(data) {
+
+                            var sections_list = data.value;
+
+                            $ionicLoading.hide();
+
+                            //process tableData
+                            var tables_list = [];
+                            var g = 0;
+                            while(tableData[g]){
+
+                                tables_list.push(tableData[g].value);
+
+                                if(g == tableData.length - 1){
+                                    nowRender();
+                                    break;
+                                }
+
+                                g++;
+                            }
+
+                            function nowRender(){
+
+                                var n = 0;
+                                while(sections_list[n]){
+                                    var filtered_tables = [];
+                                    for(var i = 0; i < tables_list.length; i++){
+                                        if(tables_list[i].type == sections_list[n]){
+                                            filtered_tables.push(tables_list[i])
+                                        }
+
+                                        if(i == tables_list.length - 1){ //last iteration
+                                            $scope.tableMasterData.push({
+                                                "section": sections_list[n],
+                                                "tables": filtered_tables
+                                            });
+                                        }
+                                    }
+                                    n++;
+                                }
+
+                                $scope.renderTableFailed = false;
+                                $scope.isRenderTableLoaded = true;
+
+                                loadServiceRequestsFromCloud();
+                            }
+
+
+                        })
+                        .error(function(data) {
+
+                            $ionicLoading.hide();
+
+                            $ionicLoading.show({
+                                template: "Not responding. Check your connection.",
+                                duration: 3000
+                            });
+
+                            $scope.renderTableFailed = true;
+
+                        });
+                }
+                else{
+                    $ionicLoading.hide();
+                    $ionicLoading.show({
+                        template: "Tables data not found. Please contact Accelerate Support.",
+                        duration: 3000
+                    });
+                    $scope.renderTableFailed = true;
+                }
+            })
+            .error(function(data) {
+                $ionicLoading.hide();
+                $ionicLoading.show({
+                    template: "Not responding. Check your connection.",
+                    duration: 3000
+                });
+                $scope.renderTableFailed = true;
+            });
+
+
+            function loadServiceRequestsFromCloud(){
+                let data = {
+                    "token": "sHtArttc2ht+tMf9baAeQ9ukHnXtlsHfexmCWx5sJOjMmduTS8FqbWXZu3C46tTVWfJK2QlHYHIQvEmu05QacaIoEtT4ABkAPy3dnnxeGYI="
+                }
+
+                $ionicLoading.show({
+                    template: '<ion-spinner></ion-spinner> Loading Requests...'
+                });
+
+                $http({
+                    method: 'POST',
+                    url: 'https://accelerateengine.app/smart-menu/apis/adminfetchactionrequests.php',
+                    data: data,
+                    timeout: 10000
+                })
+                .success(function(response) {
+                    $ionicLoading.hide();
+                    if(response.status){
+                        let allRequests = response.data;
+                        let tableMapper = {};
+                        for(let k = 0; k < allRequests.length; k++){
+                            tableMapper[allRequests[k].table] = allRequests[k];
+                        }
+
+                        for(let i = 0; i < $scope.tableMasterData.length; i++){
+                            for(let n = 0; n < $scope.tableMasterData[i].tables.length; n++){
+                                let tableKey = $scope.tableMasterData[i].tables[n].table;
+                                if(tableMapper[tableKey]){
+                                    $scope.tableMasterData[i].tables[n].serviceRequest = tableMapper[tableKey];
+                                }
+                            }
+                        }
+
+                        $scope.viewServiceRequestsModal.show();
+                    }
+                    else {
+                        $ionicLoading.show({
+                            template: "Failed to fetch from Cloud Server",
+                            duration: 3000
+                        });
+                    }
+
+                })
+                .error(function(data) {
+                    $ionicLoading.hide();
+                    $ionicLoading.show({
+                        template: "Not responding. Check your connection.",
+                        duration: 3000
+                    });
+                });
+            }
+        }
+
+        $scope.acknowledgeServiceRequest = function(seat){
+            if (seat.serviceRequest && seat.serviceRequest != "") {
+                let key = seat.serviceRequest.id;
+
+                let data = {
+                    "token": "sHtArttc2ht+tMf9baAeQ9ukHnXtlsHfexmCWx5sJOjMmduTS8FqbWXZu3C46tTVWfJK2QlHYHIQvEmu05QacaIoEtT4ABkAPy3dnnxeGYI=",
+                    "requestId": key
+                }
+
+                $ionicLoading.show({
+                    template: '<ion-spinner></ion-spinner>'
+                });
+
+                $http({
+                    method: 'POST',
+                    url: 'https://accelerateengine.app/smart-menu/apis/adminacknowledgerequest.php',
+                    data: data,
+                    timeout: 10000
+                })
+                .success(function(response) {
+                    $ionicLoading.hide();
+                    $scope.openActionRequests();
+                })
+                .error(function(data) {
+                    $ionicLoading.hide();
+                });
+
+            }
+        }
+
+
+        $scope.hasTableARequest = function(seat){
+            return seat.serviceRequest && seat.serviceRequest != "";
+        }
+
+        $scope.getIconOrTable = function(seat) {
+            if (seat.serviceRequest && seat.serviceRequest != "") {
+                if(seat.serviceRequest.activeServiceRequest == "CALL_CALL_STEWARD"){
+                    return '<i class="fa fa-user" aria-hidden="true"></i>';
+                }
+                if(seat.serviceRequest.activeServiceRequest == "CALL_REQUEST_BILL"){
+                    return '<i class="fa fa-file-text-o" aria-hidden="true"></i>';
+                }
+                if(seat.serviceRequest.activeServiceRequest == "CALL_SERVE_FAST"){
+                    return '<i class="fa fa-bolt" aria-hidden="true"></i>';
+                }
+            }
+            else{
+                return seat.table;
+            }
+        }
+
+
+        $scope.getMyClass = function(seat) {
+            if (seat.serviceRequest && seat.serviceRequest != "") {
+                if(seat.serviceRequest.activeServiceRequest == "CALL_CALL_STEWARD"){
+                    return "serviceTableSteward";
+                }
+                if(seat.serviceRequest.activeServiceRequest == "CALL_REQUEST_BILL"){
+                    return "serviceTableBill";
+                }
+                if(seat.serviceRequest.activeServiceRequest == "CALL_SERVE_FAST"){
+                    return "serviceTableFast";
+                }
+            }
+        }
+
+        $scope.getMyRequestTitle = function(seat) {
+            if (seat.serviceRequest && seat.serviceRequest != "") {
+                if(seat.serviceRequest.activeServiceRequest == "CALL_CALL_STEWARD"){
+                    return "Attend";
+                }
+                if(seat.serviceRequest.activeServiceRequest == "CALL_REQUEST_BILL"){
+                    return "Take Bill";
+                }
+                if(seat.serviceRequest.activeServiceRequest == "CALL_SERVE_FAST"){
+                    return "Serve Fast";
+                }
+            }
+        }
+})
+
+
+
+
 
     .controller('StatusRunningCtrl', function($ionicLoading, $ionicModal, $scope, $http, $ionicPopup, $rootScope, $state, $ionicScrollDelegate, $ionicSideMenuDelegate, ShoppingCartService, deviceLicenseService, currentGuestData) {
       
@@ -1339,6 +2438,155 @@ angular.module('pos.controllers', ['ionic'])
             $scope.isFilter = true;
         else
             $scope.isFilter = false;
+
+
+        $ionicModal.fromTemplateUrl('views/common/templates/smart-order-alert.html', {
+            scope: $scope,
+            animation: 'fade-in'
+          }).then(function(modal) {
+            $scope.smartOrderAlert = modal;
+          });
+
+        $ionicModal.fromTemplateUrl('views/common/templates/smart-request-alert.html', {
+            scope: $scope,
+            animation: 'fade-in'
+          }).then(function(modal) {
+            $scope.smartRequestAlert = modal;
+          });
+
+        $scope.isOrderAlertShown = false;
+
+        //Warn about new order
+        $rootScope.$on('ACTIVE_ORDERS_ALERT', function(event, orderData) {
+            let timerLeft = window.localStorage.extendShowTimerInvisibility ? window.localStorage.extendShowTimerInvisibility : 0;
+            if(timerLeft > 1){
+                return;
+            }
+
+            $scope.passiveOrderCount = orderData.length;
+            if(orderData.length > 0 && isOrderNotify(orderData)){
+                $scope.isOrderAlertShown = true;
+                orderData.sort(function(obj1, obj2) {
+                    return obj1.table - obj2.table;
+                  });
+
+                var subOrderData = orderData;
+                subOrderData.sort(function(obj1, obj2) {
+                    return obj2.subOrderId - obj1.subOrderId;
+                });
+                $scope.currentLastOrder = subOrderData[0].subOrderId;
+                $scope.triggerNotification("ORDER", subOrderData[0].table, orderData.length);
+                $scope.passiveOrderList = orderData;
+                $scope.smartOrderAlert.show();
+            }
+            else{
+                $scope.isOrderAlertShown = false;
+                $scope.smartOrderAlert.hide();
+            }
+        });
+
+        function isOrderNotify(allOrders){
+            var lastSeenOrderByCaptain = window.localStorage.lastSeenOrderByCaptain ? window.localStorage.lastSeenOrderByCaptain : 0;
+            allOrders.sort(function(obj1, obj2) {
+                return obj2.subOrderId - obj1.subOrderId;
+            });
+            var currentLastOrder = allOrders[0].subOrderId; 
+            if(currentLastOrder > lastSeenOrderByCaptain){
+                return true;
+            }
+            else{
+                //order already seen by captain
+                return false;
+            }
+        }
+
+        $scope.closeSmartOrderAlert = function(currentLastOrder){
+            window.localStorage.extendShowTimerInvisibility = 60;
+            $scope.isOrderAlertShown = false;
+            window.localStorage.lastSeenOrderByCaptain = currentLastOrder;
+            $scope.smartOrderAlert.hide();
+        }
+
+
+
+        //Warn about service request
+        $rootScope.$on('ACTIVE_REQUESTS_ALERT', function(event, requestData) {
+            let timerLeft = window.localStorage.extendShowTimerInvisibility ? window.localStorage.extendShowTimerInvisibility : 0;
+            if(timerLeft > 1){
+                return;
+            }
+            $scope.passiveRequestCount = requestData.length;
+            if(requestData.length > 0 && !$scope.isOrderAlertShown && isRequestNotify(requestData)){
+                requestData.sort(function(obj1, obj2) {
+                    return obj1.table - obj2.table;
+                  });
+                var myRequests = requestData;
+                myRequests.sort(function(obj1, obj2) {
+                    return obj2.id - obj1.id;
+                });
+                $scope.currentLastRequest = myRequests[0].id;
+                $scope.triggerNotification("REQUEST", myRequests[0].table, requestData.length);
+                $scope.passiveRequestList = requestData;
+                $scope.smartRequestAlert.show();
+            }
+            else{
+                $scope.smartRequestAlert.hide();
+            }
+        });
+
+        function isRequestNotify(allRequests){
+            var lastSeenRequestByCaptain = window.localStorage.lastSeenRequestByCaptain ? window.localStorage.lastSeenRequestByCaptain : 0;
+            allRequests.sort(function(obj1, obj2) {
+                return obj2.id - obj1.id;
+            });
+            var currentLastRequest = allRequests[0].id; 
+            if(currentLastRequest > lastSeenRequestByCaptain){
+                return true;
+            }
+            else{
+                //order already seen by captain
+                return false;
+            }
+        }
+
+        $scope.closeSmartRequestAlert = function(currentLastRequest){
+            window.localStorage.extendShowTimerInvisibility = 60;
+            window.localStorage.lastSeenRequestByCaptain = currentLastRequest;
+            $scope.smartRequestAlert.hide();
+        }
+
+        $scope.triggerNotification = function(type, table, count) {
+            if (window.cordova && window.cordova.plugins.notification) {
+                let title = "";
+                let text = "";
+                if(type == "ORDER"){
+                    title = count + " New Order";
+                    title = "New Order received on Table " + table;
+                    if(count > 1){
+                        title = title + " and "+ (count - 1) + "others"
+                    }
+                }
+                else if(type == "REQUEST"){
+                    title = count + " Service Requests";
+                    title = "Service Request from Table " + table;
+                    if(count > 1){
+                        title = title + " and "+ (count - 1) + "others"
+                    }
+                }
+                else {
+                    return;
+                }
+
+                cordova.plugins.notification.local.schedule({
+                    title: 'New Order #'+id,
+                    text: 'Thats pretty easy...',
+                    foreground: true
+                });
+            }
+            else{
+                console.log('cordova.notification not enabled')
+            }
+        }  
 
 
         //Receiving Broadcast - If Filter Applied
@@ -3416,6 +4664,7 @@ angular.module('pos.controllers', ['ionic'])
                 function isTableFreeCheck(selectedModeExtras){
 
                     var table_req = $scope.selectedTable;
+                    console.log(table_req)
 
                     $http({
                         method: 'GET',
@@ -3612,6 +4861,12 @@ angular.module('pos.controllers', ['ionic'])
                           $ionicLoading.show({
                             template:  '<ion-spinner></ion-spinner>'
                           });
+
+                          //Cart empty bug fix
+                          if(obj.cart == null || obj.cart.length == 0){
+                            $ionicLoading.hide();
+                            return;
+                          }
 
                                   //Post to local Server
                                   $http({
@@ -4322,8 +5577,61 @@ angular.module('pos.controllers', ['ionic'])
 
 
 
-.controller('AppCtrl', function(changeSlotService, $ionicSideMenuDelegate, $scope, $ionicPopup, ionicTimePicker, ionicDatePicker, $state, $http, $ionicPopover, $ionicLoading, $timeout, mappingService, currentBooking) {
-    
+.controller('AppCtrl', function($state, $http, $ionicPopover, $ionicLoading, $timeout, $interval, $scope, $rootScope) {
+
+        //Snooze Notifications
+        $interval(function() {
+            let timerLeft = window.localStorage.extendShowTimerInvisibility;
+            if(timerLeft && timerLeft != null && timerLeft != ""){
+                if(timerLeft < 0){
+                    timerLeft = 0;
+                }
+                window.localStorage.extendShowTimerInvisibility = timerLeft - 1;
+            }
+            else{
+                window.localStorage.extendShowTimerInvisibility = 0;
+            }
+        }, 1000);
+        
+
+
+        //App level background api calls:
+        var fetchMetricsTimer = $interval(function() {
+            $scope.getNotificationMetrics();
+        }, 10000);
+
+        $scope.getNotificationMetrics = function(){
+                let data = {
+                    "token": "sHtArttc2ht+tMf9baAeQ9ukHnXtlsHfexmCWx5sJOjMmduTS8FqbWXZu3C46tTVWfJK2QlHYHIQvEmu05QacaIoEtT4ABkAPy3dnnxeGYI="
+                }
+
+                $http({
+                    method: 'POST',
+                    url: 'https://accelerateengine.app/smart-menu/apis/adminfetchnotificationmetrics.php',
+                    data: data,
+                    timeout: 10000
+                })
+                .success(function(response) {
+                    $ionicLoading.hide();
+                    if(response.status){
+
+                        //Service Requests
+                        if(response.serviceRequests && response.serviceRequests.length > 0){
+                            $rootScope.$broadcast('ACTIVE_REQUESTS_ALERT', response.serviceRequests);
+                        }
+                        else{
+                            $rootScope.$broadcast('ACTIVE_REQUESTS_ALERT', []);
+                        }
+
+                        //Service Requests
+                        if(response.pendingOrders && response.pendingOrders.length > 0){
+                            $rootScope.$broadcast('ACTIVE_ORDERS_ALERT', response.pendingOrders);
+                        }
+                    }
+                })
+        }
+
+
 })
 
 

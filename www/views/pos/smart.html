@@ -1,0 +1,164 @@
+<ion-side-menus class="feed-view" cache-view="false">
+
+  <ion-pane ion-side-menu-content>
+      <ion-header-bar class="feed-header">
+         <div class="buttons" style="position: absolute; top: 5px; left: 5px; bottom: 5px;">
+
+            <button class="button button-clear cart-button" style="margin: 0; color: #FFF; width: 35px; height: 35px; line-height: 22px;" ui-sref="main.app.landing">
+            <i class="fa fa-home" style="font-size: 22px"></i> 
+            </button>
+
+
+            <!-- Captains details -->
+            <div style="position: relative; left: 6px; display: block; width: 130px;">
+              <tag style="color: #FFF; position: absolute; top: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; width: 100%; display: block; font-size: 21px; font-weight: 300; line-height: 1.65;">{{currentTimeDisplay}}</tag>
+            </div>
+
+            <button class="button button-clear clearSearchFilterButton" style="position: absolute; top: -4px; right: 0px; height: 44px;" ng-click="openActionRequests()">
+              <i class="bell icon ion-ios7-bell-outline"></i> 
+              <tag ng-if="serviceRequestCounter > 0" class="actionRequestBell">
+                <tag class="text">{{serviceRequestCounter}}</tag>
+              </tag>
+            </button>  
+
+            <button class="button button-clear clearSearchFilterButton" style="position: absolute; top: -4px; right: 55px; height: 44px; width: 180px; text-transform: capitalize; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; display: block;" ng-click="chooseUserProfile()">              
+              <tag ng-if="isProfileSelected" style="font-size: 18px; font-weight: bold;">{{selectedUserProfile}}</tag>
+              <tag ng-if="!isProfileSelected" style="border: 0.5px dashed #e86d67; padding: 5px 10px;"><i class="ion-android-social-user" style="color: #e86d67; margin-right: 4px;"></i> Select User</tag>
+            </button>  
+
+         </div>
+      </ion-header-bar>
+
+
+    <ion-nav-view animation="slide-left-right">
+         <ion-content class="categories-feeds-content" overflow-scroll="true" has-bouncing="false" delegate-handle="feeds-content" style="background: #FFF;" ng-class='{hasBanner : isFilterEnabled}'>
+
+         <!-- Refresher -->
+        <ion-refresher
+          on-refresh="doOrderRefresh()">
+        </ion-refresher>
+
+
+<!-- NORMAL PUNCHING : Showing Items -->
+<div class="feed-view" ng-if="isRenderingItems && !isQuickPunching">
+
+      <div class="posMyItem" ng-class="{'unavail': !item.isAvailable}" ng-repeat="item in allItemsList track by $index" ng-click="openItemDetails(item)">
+        <div class="row">
+          <div class="col vegFlagPOS">
+            <div style="width: 12px; height: 12px; border: 1px solid #e74c3c; position: relative; top: 4px; left: -4px; text-align: center;" ng-if="item.vegFlag == 2">
+              <span class="ion-record nveg" style="position: relative; top: -7px; font-size: 9px;"></span> 
+            </div>
+            <div style="width: 12px; height: 12px; border: 1px solid #51af61; position: relative; top: 4px; left: -4px; text-align: center;" ng-if="item.vegFlag == 1">
+              <span class="ion-record veg" style="position: relative; top: -7px; font-size: 9px;"></span>
+            </div>
+          </div>
+          <div class="col col-75">
+            <span class="menuPOSItemText">{{item.name}}</span>
+          </div>
+          <div class="col">
+            <span class="menuPOSItemPrice"><i class="fa fa-inr" style="font-size: 80%"></i><b>{{item.price}}</b></span>
+          </div>
+        </div>
+      </div>
+
+</div>  
+
+
+
+<!-- Loader Dummy Tiles -->
+<div ng-if="!isRenderLoaded && !renderFailed && isFirstTimeLoading">
+    <div class="row" style="padding: 10px 10px 0 10px"> <div class="infoTile" style="width: 50%; box-shadow: none; border: none; border-radius: 5px; padding: 5px !important; height: 50px;"> <div class="infoTileHead" style="width: 100%; height: 15px; display: inline-block;"> <div class="loaderDummyTile" style="height: 25px"></div> </div> </div>
+    <div class="infoTile" style="width: 50%; box-shadow: none; border: none; border-radius: 5px; padding: 5px !important; height: 50px;"> <div class="infoTileHead" style="width: 100%; height: 25px; display: inline-block;"> <div class="loaderDummyTile" style="height: 25px"></div> </div> </div> </div>
+    <div class="row" style="padding: 10px 10px 0 10px; margin-bottom: 20px;"> <div class="infoTile" style="width: 50%; box-shadow: none; border: none; border-radius: 5px; padding: 5px !important; height: 50px;"> <div class="infoTileHead" style="width: 100%; height: 25px; display: inline-block;"> <div class="loaderDummyTile" style="height: 25px"></div> </div> </div>
+    <div class="infoTile" style="width: 50%; box-shadow: none; border: none; border-radius: 5px; padding: 5px !important; height: 50px;"> <div class="infoTileHead" style="width: 100%; height: 25px; display: inline-block;"> <div class="loaderDummyTile" style="height: 25px"></div> </div> </div> </div>
+
+    <div class="row" style="padding: 0 10px 0 10px"> <div class="infoTile" style="width: 100% !important; box-shadow: none; border: none; border-radius: 5px; padding: 5px !important; height: 30px;"> <div class="infoTileHead" style="width: 100%; height: 15px; display: inline-block;"> <div class="loaderDummyTile" style="height: 15px"></div> </div> </div> </div>
+    <div class="row" style="padding: 0 10px 0 10px"> <div class="infoTile" style="width: 100% !important; box-shadow: none; border: none; border-radius: 5px; padding: 5px !important; height: 30px;"> <div class="infoTileHead" style="width: 100%; height: 15px; display: inline-block;"> <div class="loaderDummyTile" style="height: 15px"></div> </div> </div> </div>
+    <div class="row" style="padding: 0 10px 0 10px"> <div class="infoTile" style="width: 100% !important; box-shadow: none; border: none; border-radius: 5px; padding: 5px !important; height: 30px;"> <div class="infoTileHead" style="width: 100%; height: 15px; display: inline-block;"> <div class="loaderDummyTile" style="height: 15px"></div> </div> </div> </div>
+    <div class="row" style="padding: 0 10px 0 10px"> <div class="infoTile" style="width: 100% !important; box-shadow: none; border: none; border-radius: 5px; padding: 5px !important; height: 30px;"> <div class="infoTileHead" style="width: 100%; height: 15px; display: inline-block;"> <div class="loaderDummyTile" style="height: 15px"></div> </div> </div> </div>
+    <div class="row" style="padding: 0 10px 0 10px"> <div class="infoTile" style="width: 100% !important; box-shadow: none; border: none; border-radius: 5px; padding: 5px !important; height: 30px;"> <div class="infoTileHead" style="width: 100%; height: 15px; display: inline-block;"> <div class="loaderDummyTile" style="height: 15px"></div> </div> </div> </div>
+    <div class="row" style="padding: 0 10px 0 10px"> <div class="infoTile" style="width: 100% !important; box-shadow: none; border: none; border-radius: 5px; padding: 5px !important; height: 30px;"> <div class="infoTileHead" style="width: 100%; height: 15px; display: inline-block;"> <div class="loaderDummyTile" style="height: 15px"></div> </div> </div> </div>
+
+</div>
+
+<div ng-if="renderFailed" style="padding: 60px 20px 20px 20px;">
+  <center>
+    <img src="img/common/error_icon.png">
+    <p style="color: #e88f8f; margin: 10px; font-size: 15px;">Unable to fetch data. Try again.</p>
+  </center>
+</div>
+
+
+<div style="padding: 10px" ng-if="isRenderLoaded && !renderFailed">
+
+
+  <div style="width: 100%">
+    <div class="smartOrderShortDisplay" ng-class="getActiveClass(activeOrder.type)" ng-repeat="activeOrder in myPendingOrders track by $index" ng-click="openSmartOrder(activeOrder, 'EDIT')">
+      <h1 style="font-size: 18px; color: #FFF">Table {{activeOrder.table}} / <tag class="newLabel">{{activeOrder.type}}</tag><tag class="time">{{getTimeAgo(activeOrder.orderData.orderDate)}}<i class="icon ion-arrow-right-b" style="margin-left: 5px"></i></tag></h1>
+    </div>
+    <p ng-if="myPendingOrders.length == 0" style="margin: 20px 0 0 0; text-align: center; color: gray; font-size: 16px;">There are no pending orders for you</p>
+  </div>
+
+  <div class="otherCaptainsDivision" ng-if="allOtherOrders.length > 0">
+    <div class="smartOrderOtherSummary">
+      <h1 class="text">Orders of other Captains</h1>
+      <div>
+        <tag class="smartOrderOtherSummaryTable activeTable"  ng-class="getActiveClass(otherOrder.type)" ng-repeat="otherOrder in allOtherOrders track by $index" ng-click="openSmartOrder(otherOrder, 'VIEW')">{{otherOrder.table}}</tag>
+      </div>
+    </div>
+  </div>
+
+
+
+
+</div>
+
+
+<div style="padding-bottom: 70px"></div>
+
+
+         </ion-content>
+    </ion-nav-view>
+  </ion-pane>
+
+  <ion-side-menu side="left" class="main-menu">
+    <header class="bar bar-header bar-stable" style="height: 80px; padding: 0; background: #661a18; display: flex; flex-direction: column; justify-content: center; align-items :center ;">
+      
+        <img style="width: 70%" ng-src="./img/common/white_logo.png"/>
+  
+    </header>
+    <ion-content class="has-header" style="top: 80px">
+    
+      <ion-list>
+        <ion-item class="item-icon-left" style="background: none" nav-clear menu-close ui-sref="main.app.landing">
+               <i class="icon" style="width: 60px; color: #FFF; text-align: center"><i class="fa fa-home" style="font-size: 70%; padding-left: 6px"></i></i>
+               <h2 class="menu-text">Home</h2>
+        </ion-item>
+        <ion-item class="item-icon-left" style="background: none" nav-clear menu-close ui-sref="main.reservationsapp.upcoming">
+               <i class="icon" style="width: 60px; color: #FFF; text-align: center"><i class="fa fa-th" style="font-size: 80%; padding-left: 6px"></i></i>
+               <h2 class="menu-text">Table Manager</h2>
+        </ion-item>        
+        <ion-item class="item-icon-left" style="background: none" nav-clear menu-close ui-sref="main.app.walkin">
+               <i class="icon" style="width: 60px; color: #FFF"><i class="fa fa-calendar-plus-o" style="font-size: 70%; padding-left: 6px"></i></i>
+               <h2 class="menu-text">New Reservation</h2>
+        </ion-item>
+        <ion-item class="item-icon-left" style="background: none" nav-clear menu-close ui-sref="main.app.feedbacklanding">
+               <i class="icon" style="width: 60px; color: #FFF"><i class="fa fa-star-half-o" style="font-size: 70%; padding-left: 6px"></i></i>
+               <h2 class="menu-text">Feedbacks</h2>
+        </ion-item>
+        <ion-item class="item-icon-left" style="background: none" nav-clear menu-close ui-sref="main.app.settings">
+               <i class="icon" style="width: 60px; color: #FFF"><i class="fa fa-gear" style="font-size: 70%; padding-left: 6px"></i></i>
+               <h2 class="menu-text">Settings</h2>
+        </ion-item>
+        <ion-item style="padding-top: 0; background: none; bottom: 0; width: 100%; border: none;" nav-clear>
+               <p style="color: #521110; font-size: 11px; margin: 10px 0; text-align: center;">Version 1.1.0</p>
+        </ion-item>
+      </ion-list>
+
+    </ion-content>
+  </ion-side-menu>
+</ion-side-menus>
+
+
+
+

@@ -1,0 +1,47 @@
+<ion-modal-view class="modal-view legal-view" style="background: #FFF">
+  <ion-content>
+    <div class="row copy-row" style="padding: 0">
+      <div class="col" style="padding: 0">
+        
+        <div class="legal-content" style="padding: 0; margin: 0">
+
+  <div style="width: 100%">
+    <div class="smartOrderShortDisplay viewing" ng-class="getActiveClass(orderData.type)" style="border-radius: 0px; height: 60px; padding-top: 20px; margin-bottom: 10px; position: sticky; width: 100%; top: 0;">
+      <h1 style="font-size: 18px; color: #FFF">Table {{orderData.table}} / <tag class="newLabel">{{orderData.type}}</tag><tag class="time">{{getTimeAgo(activeOrder.orderData.orderDate)}}</tag></h1>
+    </div>
+    <table style="width:100%; margin-bottom: 60px;">
+      <col width="20%">
+      <col width="60%">
+      <col width="20%">
+      <tr ng-repeat="item in orderData.orderData.cart track by $index">
+        <td class="smartOrderItem left">{{item.qty}} x</td>
+        <td class="smartOrderItem">{{item.name}}<tag class="smartOrderOption" ng-if="item.variant != ''">{{item.variant}}</tag></td>
+        <td>
+          <button ng-if="!item.isAvailable" style="width: 100%; font-size: 20px; padding: 0; border: none; background: none; outline: none; color: #f44336;" ng-click="toggleAvailability(item, true, isViewingOnly)"><i class="icon ion-ios7-close-outline"></i></button>
+          <button ng-if="item.isAvailable" style="width: 100%; font-size: 20px; padding: 0; border: none; background: none; outline: none; color: #4caf50;" ng-click="toggleAvailability(item, false, isViewingOnly)"><i class="icon ion-ios7-checkmark"></i></button>
+        </td>
+      </tr>
+    </table>
+
+    <div ng-if="isViewingOnly" style="border-top: 1px solid #e6e6e6; margin: 8px 0">
+      <p class="attendedByOtherCaptainText">This table is attended by <b>{{orderData.stewardName}}</b></p>
+    </div>
+  </div>  
+
+        </div>
+      </div>
+    </div>
+  </ion-content>
+
+  <div style="border-radius: 0; position: absolute; bottom: 0; z-index: 1000; margin: 0; left: 0; width: 100%;">
+    <div ng-if="!isViewingOnly">
+      <button ng-click="viewSmartOrderModal.hide()" style="height: 40px; border: none; width: 20%; float: left; background: #9e9e9e; font-weight: bold; color: #FFF;">CLOSE</button>
+      <button style="height: 40px; border: none; width: 20%; float: left; background: #f44336; font-weight: bold; color: #FFF;" ng-click="rejectSmartOrder(orderData)">REJECT</button>
+      <button style="height: 40px; border: none; width: 60%; float: right; background: #4caf50; font-weight: bold; color: #FFF;" ng-click="acceptSmartOrder(orderData)">ACCEPT</button>
+    </div>
+    <div ng-if="isViewingOnly">
+      <button ng-click="viewSmartOrderModal.hide()" style="height: 40px; border: none; width: 100%; float: left; background: #9e9e9e; font-weight: bold; color: #FFF;">CLOSE</button>
+    </div>
+  </div>
+
+</ion-modal-view>
